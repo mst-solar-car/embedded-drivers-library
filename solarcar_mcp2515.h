@@ -34,33 +34,6 @@
 #error "The CAN_MESSAGE_SIZE directive is not defined, this is pretty important"
 #endif
 
-// Enforce filter and mask directives
-#ifndef CAN_FILTER1
-#error "You must define the CAN_FILTER1 directive in solarcar_can.h"
-#endif
-#ifndef CAN_FILTER2
-#error "You must define the CAN_FILTER2 directive in solarcar_can.h"
-#endif
-#ifndef CAN_FILTER3
-#error "You must define the CAN_FILTER3 directive in solarcar_can.h"
-#endif
-#ifndef CAN_FILTER4
-#error "You must define the CAN_FILTER4 directive in solarcar_can.h"
-#endif
-#ifndef CAN_FILTER5
-#error "You must define the CAN_FILTER5 directive in solarcar_can.h"
-#endif
-#ifndef CAN_FILTER6
-#error "You must define the CAN_FILTER6 directive in solarcar_can.h"
-#endif
-
-#ifndef CAN_MASK1
-#error "You must define the CAN_MASK1 directive in solarcar_can.h"
-#endif
-#ifndef CAN_MASK2
-#error "You must define the CAN_MASK2 directive in solarcar_can.h"
-#endif
-
 
 
 /**
