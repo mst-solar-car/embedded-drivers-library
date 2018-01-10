@@ -3,7 +3,7 @@
  *
  * Authors: Michael Rouse
  */
-#include "solarcar_can.h"
+#include "can.h"
 
 // Transmit Queue
 can_message _tx_queue[CAN_BUFFER_LENGTH];
