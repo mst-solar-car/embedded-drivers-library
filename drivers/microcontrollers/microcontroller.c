@@ -20,10 +20,7 @@ void setPinMode(uint8_t pin, uint8_t mode)
   if (port == NO_PORT) return; // Can't set the mode of this pin
 
   vuint8_t *dirReg; 
-  vuint8_t *outReg; 
-
   dirReg = getDirReg(port); 
-  outReg = getOutReg(port); 
 
   // Set the pin mode
   if (mode == INPUT) { 

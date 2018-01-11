@@ -248,6 +248,11 @@ const uint8_t bit_map[] = {
  */
 void microcontroller_setup(void) 
 { 
+  // Disable watchdog 
+  #ifndef NO_WATCHDOG
+  watchdog_disable();
+  #endif
+
   // Configure each pin as OUTPUT and set all bits LOW initially
   setRegister(getDirReg(PORT1), OUTPUT);  setRegister(getOutReg(PORT1), LOW);
   setRegister(getDirReg(PORT2), OUTPUT);  setRegister(getOutReg(PORT2), LOW);
@@ -258,6 +263,10 @@ void microcontroller_setup(void)
   setRegister(getDirReg(PORT7), OUTPUT);  setRegister(getOutReg(PORT7), LOW);
   setRegister(getDirReg(PORT8), OUTPUT);  setRegister(getOutReg(PORT8), LOW);
 
+  // Enable interrupts (by default)
+  #ifndef NO_INTERRUPTS 
+  interrupts_enable()
+  #endif 
 
 
   // Initialize the clock (by Jesse Cureton)

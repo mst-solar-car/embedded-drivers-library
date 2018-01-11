@@ -59,35 +59,48 @@
     #define NO_OP   // Nothing, these lines will be removed by compiler
   #endif 
 
+
   // Interrupts
   #ifndef NO_INTERRUPTS
     #ifndef interrupts_enable
-      #warning "Microcontroller drivers do not define the 'interrupts_enable()' directive, no way to enable interrupts"
+      #warning "Microcontroller drivers do not define the 'interrupts_enable()' directive, no way to enable interrupts; define 'NO_INTERRUPTS' if they are not supported"
       #define interrupts_enable()   NO_OP 
     #endif 
 
     #ifndef interrupts_disable
-      #warning "Microcontroller drivers do not define the 'interrupts_disable()' directive, no way to disable interrupts"
+      #warning "Microcontroller drivers do not define the 'interrupts_disable()' directive, no way to disable interrupts; define 'NO_INTERRUPTS' if they are not supported"
       #define interrupts_disable()  NO_OP
     #endif
+
+  #else 
+    // Interrupts not supported, assign no-ops
+    #define interrupts_enable()     NO_OP 
+    #define interrupts_disable()    NO_OP 
   #endif 
+
 
   // Watchdog
   #ifndef NO_WATCHDOG 
     #ifndef watchdog_enable
-      #warning "Microcontroller drivers do not define the 'watchdog_enable()' directive, no way to enable the watchdog timer"
+      #warning "Microcontroller drivers do not define the 'watchdog_enable()' directive, no way to enable the watchdog timer; define 'NO_WATCHDOG' if not supported"
       #define watchdog_enable()     NO_OP 
     #endif 
     
     #ifndef watchdog_disable
-      #warning "Microcontroller drivers do not define the 'watchdog_disable()' directive, no way to disable the watchdog timer"
+      #warning "Microcontroller drivers do not define the 'watchdog_disable()' directive, no way to disable the watchdog timer; define 'NO_WATCHDOG' if not supported"
       #define watchdog_disable()    NO_OP 
     #endif 
 
     #ifndef watchdog_pet
-      #warning "Microcontroller drivers do not define the 'watchdog_pet()' directive, how are you going to pet your fluffy doggo?"
+      #warning "Microcontroller drivers do not define the 'watchdog_pet()' directive, how are you going to pet your fluffy doggo? Define 'NO_WATCHDOG' if not supported"
       #define watchdog_pet()        NO_OP 
     #endif 
+    
+  #else 
+    // Watchdog not supported, assign no-ops
+    #define watchdog_enable()       NO_OP 
+    #define watchdog_disable()      NO_OP 
+    #define watchdog_pet()          NO_OP 
   #endif
 
   // Clock Frequency
@@ -95,8 +108,10 @@
     #error "Microcontroller drivers do not define the 'MICROCONTROLLER_CLOCK_HZ' directive, please use it to specify clock frequency in Hz"
   #endif 
   
+
 #else 
-#error "Unknown microcontroller in drivers/microcontrollers/microcontroller.h"
+  // No microcontroller specified
+  #error "Unknown microcontroller in drivers/microcontrollers/microcontroller.h; confirm drivers define the 'MICROCONTROLLER' directive"
 #endif
 
 

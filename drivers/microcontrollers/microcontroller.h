@@ -109,6 +109,11 @@ uint8_t readPin(uint8_t pin);
 #define digitalRead(pin)          readPin(pin)
 
 
+/**
+ * Misc things
+ */
+#define INTERRUPT(vector)     void __attribute__((interrupt(vector)))  vector ## _ISR(void) // Assists in creation of interrupts
+
 
 
 // BIT definitions for masks and stuff
@@ -147,5 +152,10 @@ uint8_t readPin(uint8_t pin);
 #ifndef BIT8
 #define BIT8      0x09
 #endif 
+
+
+
+
+
 
 #endif

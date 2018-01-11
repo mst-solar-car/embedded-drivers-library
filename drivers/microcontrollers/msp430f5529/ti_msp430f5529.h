@@ -16,14 +16,27 @@
 
 
 // Watchdog 
-#define watchdog_disable()  WDTCTL = WDTPW + WDTHOLD
+#if __MSP430_HAS_WDT_A__
+  #define watchdog_disable()      WDTCTL = WDTPW + WDTHOLD
+  #define watchdog_enable()       WDTCTL = WDT_ARST_1000    // Reset every 1 second (1000ms)
+  #define watchdog_pet()          WDTCTL = WDTP + WDTCNTCL  // Clear Watchdog timer (prevents reset)
+
+#else 
+  #define NO_WATCHDOG 
+#endif 
 
 
 // Interrupts 
-#define enable_interrupts()  __enable_interrupt();
+#define interrupts_enable()     _enable_interrupts();
+#define interrupts_disable()    _disable_interrupts(); 
 
 
-#define NO_OP   __delay_cycles(0); // No-Operation 
+
+#define NO_OP   _no_operation() // Does nothing in code, can be used as a breakpoint (won't be removed by optimization)
+
+
+
+
 
 // Port names mapped to an integer for use in an array
 #define PORT1     1
