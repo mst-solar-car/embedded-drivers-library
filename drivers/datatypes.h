@@ -16,10 +16,14 @@
 #define false
 
 #ifdef NULL
-#undef NULL 
+#undef NULL
 #endif 
 
-#define NULL      0x00
+#ifdef NULL 
+#warning "uggh"
+#endif 
+
+#define NULL     0
 
 
 // Pin Modes

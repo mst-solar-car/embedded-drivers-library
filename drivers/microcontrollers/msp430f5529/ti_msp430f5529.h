@@ -8,7 +8,7 @@
 #define __MICROCONTROLLER__
 
 #include <msp430f5529.h>
-#include "../datatypes.h"
+#include "../microcontroller.h"
 
 
 // Desired clock frequency (in Hz)

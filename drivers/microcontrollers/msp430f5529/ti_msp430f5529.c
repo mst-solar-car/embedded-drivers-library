@@ -248,6 +248,7 @@ const uint8_t bit_map[] = {
  */
 void microcontroller_setup(void) 
 { 
+  printf("HOWDY\n");
   // Configure each pin as OUTPUT and set all bits LOW initially
   *P1DIR_REG = OUTPUT;    *P1OUT_REG = LOW; 
   *P2DIR_REG = OUTPUT;    *P2OUT_REG = LOW;
@@ -257,4 +258,9 @@ void microcontroller_setup(void)
   *P6DIR_REG = OUTPUT;    *P6OUT_REG = LOW;
   *P7DIR_REG = OUTPUT;    *P7OUT_REG = LOW;
   *P8DIR_REG = OUTPUT;    *P8OUT_REG = LOW;
+
+
+  // Initialize the clock 
+
 }
+

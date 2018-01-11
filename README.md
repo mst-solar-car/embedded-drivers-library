@@ -2,11 +2,11 @@
 Put these drivers in your software project and do:
 
 ```c
-#include "solarcar.h"
+#include "drivers/solarcar.h"
 ```
 
-Or if you have it in a subdirectory:
+Or if you have all of your code in a subdirectory:
 
 ```c
-#include "directory/solarcar.h"
+#include "../drivers/solarcar.h"
 ```

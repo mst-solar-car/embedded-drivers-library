@@ -16,7 +16,7 @@ void setPinMode(uint8_t pin, uint8_t mode)
 {
   uint8_t port = getPinPort(pin);
   uint8_t bit = getPinBit(pin); 
-
+  
   if (port == NO_PORT) return; // Can't set the mode of this pin
 
   vuint8_t *dirReg; 
