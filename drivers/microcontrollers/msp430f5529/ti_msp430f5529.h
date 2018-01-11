@@ -39,99 +39,99 @@
 
 
 // Port names mapped to an integer for use in an array
-#define PORT1     1
-#define PORT2     2
-#define PORT3     3
-#define PORT4     4
-#define PORT5     5
-#define PORT6     6
-#define PORT7     7
-#define PORT8     8
-#define PORTJ     9
+#define PORT1     (1)
+#define PORT2     (2)
+#define PORT3     (3)
+#define PORT4     (4)
+#define PORT5     (5)
+#define PORT6     (6)
+#define PORT7     (7)
+#define PORT8     (8)
+#define PORTJ     (9)
 
 
 // Directives for things like PINx and PX_B
-#define PIN0      0
-#define PIN1      1
-#define PIN2      2
-#define PIN3      3
-#define PIN4      4
-#define PIN5      5
-#define PIN6      6
-#define PIN7      7
-#define PIN8      8
-#define PIN9      9
-#define PIN10    10
-#define PIN11    11
-#define PIN12    12
-#define PIN13    13
-#define PIN14    14
-#define PIN15    15
-#define PIN16    16
-#define PIN17    17
-#define PIN18    18
-#define PIN19    19
-#define PIN20    20
-#define PIN21    21
-#define PIN22    22
-#define PIN23    23
-#define PIN24    24
-#define PIN25    25
-#define PIN26    26
-#define PIN27    27
-#define PIN28    28
-#define PIN29    29
-#define PIN30    30
-#define PIN31    31
-#define PIN32    32
-#define PIN33    33
-#define PIN34    34
-#define PIN35    35
-#define PIN36    36
-#define PIN37    37
-#define PIN38    38
-#define PIN39    39
-#define PIN40    40
-#define PIN41    41
-#define PIN42    42
-#define PIN43    43
-#define PIN44    44
-#define PIN45    45
-#define PIN46    46
-#define PIN47    47
-#define PIN48    48
-#define PIN49    49
-#define PIN50    50
-#define PIN51    51
-#define PIN52    52
-#define PIN53    53
-#define PIN54    54
-#define PIN55    55
-#define PIN56    56
-#define PIN57    57
-#define PIN58    58
-#define PIN59    59
-#define PIN60    60
-#define PIN61    61
-#define PIN62    62
-#define PIN63    63
-#define PIN64    64
-#define PIN65    65
-#define PIN66    66
-#define PIN67    67
-#define PIN68    68
-#define PIN69    69
-#define PIN70    70
-#define PIN71    71
-#define PIN72    72
-#define PIN73    73
-#define PIN74    74
-#define PIN75    75
-#define PIN76    76
-#define PIN77    77
-#define PIN78    78
-#define PIN79    79
-#define PIN80    80
+#define PIN0     ( 0)
+#define PIN1     ( 1)
+#define PIN2     ( 2)
+#define PIN3     ( 3)
+#define PIN4     ( 4)
+#define PIN5     ( 5)
+#define PIN6     ( 6)
+#define PIN7     ( 7)
+#define PIN8     ( 8)
+#define PIN9     ( 9)
+#define PIN10    (10)
+#define PIN11    (11)
+#define PIN12    (12)
+#define PIN13    (13)
+#define PIN14    (14)
+#define PIN15    (15)
+#define PIN16    (16)
+#define PIN17    (17)
+#define PIN18    (18)
+#define PIN19    (19)
+#define PIN20    (20)
+#define PIN21    (21)
+#define PIN22    (22)
+#define PIN23    (23)
+#define PIN24    (24)
+#define PIN25    (25)
+#define PIN26    (26)
+#define PIN27    (27)
+#define PIN28    (28)
+#define PIN29    (29)
+#define PIN30    (30)
+#define PIN31    (31)
+#define PIN32    (32)
+#define PIN33    (33)
+#define PIN34    (34)
+#define PIN35    (35)
+#define PIN36    (36)
+#define PIN37    (37)
+#define PIN38    (38)
+#define PIN39    (39)
+#define PIN40    (40)
+#define PIN41    (41)
+#define PIN42    (42)
+#define PIN43    (43)
+#define PIN44    (44)
+#define PIN45    (45)
+#define PIN46    (46)
+#define PIN47    (47)
+#define PIN48    (48)
+#define PIN49    (49)
+#define PIN50    (50)
+#define PIN51    (51)
+#define PIN52    (52)
+#define PIN53    (53)
+#define PIN54    (54)
+#define PIN55    (55)
+#define PIN56    (56)
+#define PIN57    (57)
+#define PIN58    (58)
+#define PIN59    (59)
+#define PIN60    (60)
+#define PIN61    (61)
+#define PIN62    (62)
+#define PIN63    (63)
+#define PIN64    (64)
+#define PIN65    (65)
+#define PIN66    (66)
+#define PIN67    (67)
+#define PIN68    (68)
+#define PIN69    (69)
+#define PIN70    (70)
+#define PIN71    (71)
+#define PIN72    (72)
+#define PIN73    (73)
+#define PIN74    (74)
+#define PIN75    (75)
+#define PIN76    (76)
+#define PIN77    (77)
+#define PIN78    (78)
+#define PIN79    (79)
+#define PIN80    (80)
 
 // Port 1
 #define P1_0      PIN21
@@ -213,6 +213,40 @@
 #define PJ_1      PIN73
 #define PJ_2      PIN74
 #define PJ_3      PIN75
+
+
+
+// Other names for pins 
+#define XIN       PIN12
+#define XOUT      PIN13
+#define TA0CLK    PIN21 
+#define TA1CLK    PIN27
+#define TA2CLLK   PIN31 
+#define RTCCLK    PIN35
+#define UCB0STE   PIN36
+#define UCA0CLK   PIN36
+#define UCB0SIMO  PIN37 
+#define UCB0SDA   PIN37
+#define UCB0SOMI  PIN38 
+#define UCB0SCL   PIN38 
+#define UCB0CLK   PIN39 
+#define UCA0STE   PIN39 
+#define UCA0TXD   PIN40 
+#define UCA0SIMO  PIN40 
+#define UCA0RXD   PIN41 
+#define UCA0SOMI  PIN41 
+#define TB0OUTH   PIN44
+#define SVMOUT    PIN44 
+#define TB0CLK    PIN60 
+#define TCK       PIN75 
+#define TMS       PIN74
+#define TCLK      PIN73 
+#define TDI       PIN73 
+#define TDO       PIN72 
+#define TEST      PIN71 
+#define SBWTCK    PIN71 
+#define XT2OUT    PIN70 
+#define XT2IN     PIN69
 
 
 

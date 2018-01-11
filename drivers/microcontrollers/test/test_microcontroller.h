@@ -34,7 +34,7 @@
 #define NO_WATCHDOG 
 
 // This "microcontroller" has a 5 Hz clock! (TOO FAST 4 ME)
-#define MICROCONTROLLER_CLOCK   5
+#define MICROCONTROLLER_CLOCK_HZ   5
 
 
 // As stated in the giant comment block at the beginning of this file, 
