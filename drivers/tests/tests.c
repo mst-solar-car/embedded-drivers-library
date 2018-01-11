@@ -8,6 +8,7 @@
  */
 // gcc drivers/tests/tests.c drivers/microcontrollers/microcontroller.c drivers/microcontrollers/test/test_microcontroller.c drivers/tests/unity/unity.c -o tests.out -D UNIT_TEST
 
+#ifdef UNIT_TEST
 #include <stdlib.h>
 #include "unity/unity.h"
 #include "../solarcar.h" // See, this is all you need to do to use the drivers :)
@@ -82,3 +83,6 @@ int main(void)
 
   return UNITY_END();
 }
+
+
+#endif

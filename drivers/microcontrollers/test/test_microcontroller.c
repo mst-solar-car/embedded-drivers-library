@@ -5,6 +5,7 @@
  * Author: Michael Rouse
  */
 
+#ifdef UNIT_TEST
 // FIRST thing first: include the header file for your driver implementation
 #include "test_microcontroller.h"
 
@@ -103,17 +104,18 @@ void microcontroller_setup(void)
   // We have to allocate memory for the pointers we are using as registers
   // we also initialize all that memory to be all 0s
   port1_dir_reg = malloc(sizeof(uint16_t)); 
-  *port1_dir_reg = 0x00;
+  setRegister(port1_dir_reg, LOW); 
 
   port1_out_reg = malloc(sizeof(uint16_t)); 
-  *port1_out_reg = 0x00; 
+  setRegister(port1_out_reg, LOW);
 
   port1_in_reg = malloc(sizeof(uint16_t)); 
-  *port1_in_reg = 0x00; 
+  setRegister(port1_in_reg, LOW);
 
   port1_sel_reg = malloc(sizeof(uint16_t)); 
-  *port1_sel_reg = 0x00; 
+  setRegister(port1_sel_reg, LOW);
 
+  
   // Now, we update the arrays created outside of this function and point them 
   // to the pointers 
   dir_registers[1] = (vuint16_t*) port1_dir_reg;
@@ -125,3 +127,6 @@ void microcontroller_setup(void)
   // Here, after initializing ports is where you would do stuff 
   // like configure clock and other basic stuff. 
 }
+
+
+#endif

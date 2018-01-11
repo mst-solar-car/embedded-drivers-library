@@ -19,6 +19,7 @@
  */
 
 // Your microcontroller header MUST define __MICROCONTROLLER__, nothing else
+#ifdef UNIT_TEST
 #ifndef __MICROCONTROLLER__
 #define __MICROCONTROLLER__
 
@@ -78,4 +79,5 @@ extern uint16_t*  port1_in_reg;
 extern uint16_t*  port1_sel_reg; 
 
 
+#endif
 #endif
