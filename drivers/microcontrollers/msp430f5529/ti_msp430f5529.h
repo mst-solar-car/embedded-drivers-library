@@ -4,8 +4,8 @@
  *
  * Author: Michael Rouse
  */
-#ifndef __MICROCONTROLLER__
-#define __MICROCONTROLLER__
+#ifndef MICROCONTROLLER
+#define MICROCONTROLLER
 
 #include <msp430f5529.h>
 #include "../microcontroller.h"

@@ -18,10 +18,10 @@
  * Author: Michael Rouse
  */
 
-// Your microcontroller header MUST define __MICROCONTROLLER__, nothing else
+// Your microcontroller header MUST define MICROCONTROLLER, nothing else
 #ifdef UNIT_TEST
-#ifndef __MICROCONTROLLER__
-#define __MICROCONTROLLER__
+#ifndef MICROCONTROLLER
+#define MICROCONTROLLER
 
 // Import the microcontroller.h file, this will give you access to datatypes.h, 
 // it will also declare functions and variables needed

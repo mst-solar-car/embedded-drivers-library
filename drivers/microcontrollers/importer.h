@@ -7,7 +7,7 @@
  * This is so the compiler can detect the target microcontroller and import the appropriate file.
  * 
  * Your microcontroller driver MUST do the following: 
- *    - Define the __MICROCONTROLLER__ directive 
+ *    - Define the MICROCONTROLLER directive 
  *    - Implement the void microcontroller_setup() function that should: 
  *        + Set default pin states
  *        + Set system clock
@@ -54,7 +54,7 @@
 /**
  * Directive Enforcement (and apply default no-ops)
  */
-#ifdef __MICROCONTROLLER__
+#ifdef MICROCONTROLLER
   // Interrupts
   #ifndef NO_INTERRUPTS
     #ifndef interrupts_enable

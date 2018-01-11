@@ -3,8 +3,8 @@
  * 
  * Author: Michael Rouse 
  */
-#ifndef __SOLARCAR_DATATYPES_H__
-#define __SOLARCAR_DATATYPES_H__
+#ifndef __DATATYPES_H__
+#define __DATATYPES_H__
 
 // Data Values
 #define TRUE      1
@@ -19,11 +19,12 @@
 #undef NULL
 #endif 
 
-#ifdef NULL 
-#warning "uggh"
-#endif 
-
 #define NULL     0
+
+
+// Generic things/aliases
+#define SUCCESS   TRUE 
+#define FAILURE   FALSE 
 
 
 // Pin Modes
