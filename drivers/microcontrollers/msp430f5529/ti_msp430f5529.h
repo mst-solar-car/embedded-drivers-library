@@ -122,7 +122,7 @@
 
 // Port 1
 #define P1_0      PIN21
-#define P1_1      PI22
+#define P1_1      PIN22
 #define P1_2      PIN23
 #define P1_3      PIN24
 #define P1_4      PIN25

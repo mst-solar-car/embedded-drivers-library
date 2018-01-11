@@ -83,6 +83,7 @@ uint8_t readPin(uint8_t pin);
  * Directive for direct pin manipulation
  * Probably for unit testing and stuff
  */
+#define setRegister(reg, bits)           *reg = bits
 #define setRegisterBitHigh(reg, bit)     *reg |= bit 
 #define setRegisterBitLow(reg, bit)      *reg &= ~bit
 #define toggleRegisterBit(reg, bit)      *reg ^= bit

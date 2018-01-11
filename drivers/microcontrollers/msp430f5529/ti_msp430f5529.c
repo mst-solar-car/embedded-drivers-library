@@ -249,14 +249,14 @@ const uint8_t bit_map[] = {
 void microcontroller_setup(void) 
 { 
   // Configure each pin as OUTPUT and set all bits LOW initially
-  *P1DIR_REG = OUTPUT;    *P1OUT_REG = LOW; 
-  *P2DIR_REG = OUTPUT;    *P2OUT_REG = LOW;
-  *P3DIR_REG = OUTPUT;    *P3OUT_REG = LOW;
-  *P4DIR_REG = OUTPUT;    *P4OUT_REG = LOW;
-  *P5DIR_REG = OUTPUT;    *P5OUT_REG = LOW;
-  *P6DIR_REG = OUTPUT;    *P6OUT_REG = LOW;
-  *P7DIR_REG = OUTPUT;    *P7OUT_REG = LOW;
-  *P8DIR_REG = OUTPUT;    *P8OUT_REG = LOW;
+  setRegister(getDirReg(PORT1), OUTPUT);  setRegister(getOutReg(PORT1), LOW);
+  setRegister(getDirReg(PORT2), OUTPUT);  setRegister(getOutReg(PORT2), LOW);
+  setRegister(getDirReg(PORT3), OUTPUT);  setRegister(getOutReg(PORT3), LOW);
+  setRegister(getDirReg(PORT4), OUTPUT);  setRegister(getOutReg(PORT4), LOW);
+  setRegister(getDirReg(PORT5), OUTPUT);  setRegister(getOutReg(PORT5), LOW);
+  setRegister(getDirReg(PORT6), OUTPUT);  setRegister(getOutReg(PORT6), LOW);
+  setRegister(getDirReg(PORT7), OUTPUT);  setRegister(getOutReg(PORT7), LOW);
+  setRegister(getDirReg(PORT8), OUTPUT);  setRegister(getOutReg(PORT8), LOW);
 
 
   // Initialize the clock 
