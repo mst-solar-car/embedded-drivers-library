@@ -16,7 +16,7 @@
 
 
 // Watchdog 
-#if __MSP430_HAS_WDT_A__
+#ifdef __MSP430_HAS_WDT_A__
   #define watchdog_disable()      WDTCTL = WDTPW + WDTHOLD
   #define watchdog_enable()       WDTCTL = WDT_ARST_1000    // Reset every 1 second (1000ms)
   #define watchdog_pet()          WDTCTL = WDTP + WDTCNTCL  // Clear Watchdog timer (prevents reset)
