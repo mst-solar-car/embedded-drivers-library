@@ -259,7 +259,77 @@ void microcontroller_setup(void)
   setRegister(getDirReg(PORT8), OUTPUT);  setRegister(getOutReg(PORT8), LOW);
 
 
-  // Initialize the clock 
 
+  // Initialize the clock (by Jesse Cureton)
+  UCSCTL3 &= ~(0x0070);   // Select XT1CLK (our 32.768 kHz crystal) as FLL reference
+  UCSCTL4 &= ~(0x0070);   // Select XT1CLK as ACLK 
+
+  uint16_t ratio, dco_div_bits;
+  uint8_t mode = 0; 
+
+  uint16_t sysfreq = MICROCONTROLLER_CLOCK_HZ / 1000; // Get clock in kHz
+  ratio = MICROCONTROLLER_CLOCK_HZ / 32768; // Ratio of clock and crystal frequency
+  dco_div_bits = FLLD__2;
+
+  if (sysfreq > 1600) { 
+    ratio >>= 1; 
+    mode = 1;       // If sysfreq > 16 MHz then use DC0CLK not DC0CLKDIV
+  }
+  else sysfreq <<= 1;
+
+  while (ratio > 512) { 
+    // Step up to a next div level 
+    dco_div_bits += FLLD0; 
+    ratio >>= 1;
+  }
+
+  __bis_SR_register(SCG0);  // Disable FLL while changing clocks 
+
+  UCSCTL0 = 0x0000;                       //Set the DCO to the lowest tap setting
+
+  UCSCTL2 &= ~(0x3FF);                    //Clear the 8 LSBs in the register to clear the FLLN bits
+  UCSCTL2 = dco_div_bits | (ratio - 1);   //Datasheet voodoo
+
+  //sysfreq is in kHz
+  if (sysfreq <= 630)                     //Set the proper DCORSEL value
+    UCSCTL1= DCORSEL_0;
+  else if (sysfreq <  1250)
+    UCSCTL1= DCORSEL_1;
+  else if (sysfreq <  2500)
+    UCSCTL1= DCORSEL_2;
+  else if (sysfreq <  5000)
+    UCSCTL1= DCORSEL_3;
+  else if (sysfreq <  10000)
+    UCSCTL1= DCORSEL_4;
+  else if (sysfreq <  20000)
+    UCSCTL1= DCORSEL_5;
+  else if (sysfreq <  40000)
+    UCSCTL1= DCORSEL_6;
+  else
+    UCSCTL1= DCORSEL_7;
+
+  __bic_SR_register(SCG0);                //Re-enable the FLL
+
+  /* In theory this should be required, but it was hanging because these were apparently never being cleared?
+    * I dunno. It works without them. If something breaks with the clocks and hanging at init, it's probably here
+    *
+    * while(SFRIFG1 & OFIFG) {
+      UCSCTL7 &= ~(DCOFFG+XT1LFOFFG+XT2OFFG);
+      SFRIFG1 &= ~OFIFG;
+  }*/
+
+  if(mode == 1) {                         //select DCOCLK
+    UCSCTL4 &= ~(0x0077);
+    UCSCTL4 |= 0x0033;
+  } else {                                //Select DCOCLKDIV
+    UCSCTL4 &= ~(0x0077);
+    UCSCTL4 |= 0x0044;
+  }
+
+  // Worst-case settling time for the DCO when the DCO range bits have been
+  // changed is n x 32 x 32 x f_MCLK / f_FLL_reference. See UCS chapter in 5xx
+  // UG for optimization.
+  // 32 x 32 x 20 MHz / 32,768 Hz = 625000 MCLK cycles for DCO to settle
+  __delay_cycles(625000);
 }
 

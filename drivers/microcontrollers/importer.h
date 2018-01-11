@@ -41,8 +41,7 @@
   // Unit Test Microcontroller
   #include "test/test_microcontroller.h"
 
-#else 
-#error "Unknown microcontroller in drivers/microcontrollers/microcontroller.h"
+
 #endif
 
 
@@ -55,16 +54,21 @@
  * Directive Enforcement (and apply default no-ops)
  */
 #ifdef MICROCONTROLLER
+  #ifndef NO_OP
+    #warning "Microcontroller drivers do not define the 'NO_OP' directive, lines performing no-op operations will be removed by optimizer"
+    #define NO_OP   // Nothing, these lines will be removed by compiler
+  #endif 
+
   // Interrupts
   #ifndef NO_INTERRUPTS
     #ifndef interrupts_enable
       #warning "Microcontroller drivers do not define the 'interrupts_enable()' directive, no way to enable interrupts"
-      #define interrupts_enable()
+      #define interrupts_enable()   NO_OP 
     #endif 
 
     #ifndef interrupts_disable
       #warning "Microcontroller drivers do not define the 'interrupts_disable()' directive, no way to disable interrupts"
-      #define interrupts_disable()
+      #define interrupts_disable()  NO_OP
     #endif
   #endif 
 
@@ -72,26 +76,27 @@
   #ifndef NO_WATCHDOG 
     #ifndef watchdog_enable
       #warning "Microcontroller drivers do not define the 'watchdog_enable()' directive, no way to enable the watchdog timer"
-      #define watchdog_enable()
+      #define watchdog_enable()     NO_OP 
     #endif 
     
     #ifndef watchdog_disable
       #warning "Microcontroller drivers do not define the 'watchdog_disable()' directive, no way to disable the watchdog timer"
-      #define watchdog_disable() 
+      #define watchdog_disable()    NO_OP 
     #endif 
 
     #ifndef watchdog_pet
       #warning "Microcontroller drivers do not define the 'watchdog_pet()' directive, how are you going to pet your fluffy doggo?"
-      #define watchdog_pet()  
+      #define watchdog_pet()        NO_OP 
     #endif 
   #endif
 
   // Clock Frequency
-  #ifndef MICROCONTROLLER_CLOCK
-    #error "Microcontroller drivers do not define the 'MICROCONTROLLER_CLOCK' directive, please use it to specify clock frequency in Hz"
+  #ifndef MICROCONTROLLER_CLOCK_HZ
+    #error "Microcontroller drivers do not define the 'MICROCONTROLLER_CLOCK_HZ' directive, please use it to specify clock frequency in Hz"
   #endif 
   
-
+#else 
+#error "Unknown microcontroller in drivers/microcontrollers/microcontroller.h"
 #endif
 
 

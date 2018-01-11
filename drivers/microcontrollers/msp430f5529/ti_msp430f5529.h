@@ -12,8 +12,7 @@
 
 
 // Desired clock frequency (in Hz)
-#define MICROCONTROLLER_CLOCK   20000000 
-
+#define MICROCONTROLLER_CLOCK_HZ   20000000 
 
 
 // Watchdog 
@@ -24,6 +23,7 @@
 #define enable_interrupts()  __enable_interrupt();
 
 
+#define NO_OP   __delay_cycles(0); // No-Operation 
 
 // Port names mapped to an integer for use in an array
 #define PORT1     1
