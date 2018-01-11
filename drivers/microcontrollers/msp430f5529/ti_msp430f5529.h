@@ -16,6 +16,13 @@
 
 
 
+// Watchdog 
+#define watchdog_disable()  WDTCTL = WDTPW + WDTHOLD
+
+
+// Interrupts 
+#define enable_interrupts()  __enable_interrupt();
+
 
 
 // Port names mapped to an integer for use in an array

@@ -15,26 +15,6 @@
 
 
 
-
-
-
-
-/**
- * Watchdog
- * TODO: watchdog_pet() directive to keep the watchdog timer going
- */
-#define watchdog_disable()  WDTCTL = WDTPW + WDTHOLD
-
-
-
-/**
- * Interrupts
- */
-#define enable_interrupts()  __enable_interrupt();
-
-
-
-
 /**
  * System Clock Initialization
  * Below is FLL magic, just take this for what it is and don't question it

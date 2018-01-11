@@ -248,7 +248,6 @@ const uint8_t bit_map[] = {
  */
 void microcontroller_setup(void) 
 { 
-  printf("HOWDY\n");
   // Configure each pin as OUTPUT and set all bits LOW initially
   *P1DIR_REG = OUTPUT;    *P1OUT_REG = LOW; 
   *P2DIR_REG = OUTPUT;    *P2OUT_REG = LOW;
