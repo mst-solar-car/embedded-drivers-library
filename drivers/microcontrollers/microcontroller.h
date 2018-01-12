@@ -1,8 +1,8 @@
 /**
  * This file is a header file that contains stuff needed by microcontroller implementations.
- * 
+ *
  * Your microcontroller implementation should include this header file
- * 
+ *
  * Author: Michael Rouse
  */
 #include "../datatypes.h"
@@ -12,7 +12,7 @@
 
 
 /**
- * Functions that the drivers should define 
+ * Functions that the drivers should define
  */
 extern void microcontroller_setup(void) __attribute__((constructor));
 
@@ -23,10 +23,13 @@ extern void microcontroller_setup(void) __attribute__((constructor));
 extern const vuint16_t* dir_registers[];  // PxDIR
 extern const vuint16_t* out_registers[];  // PxOUT
 extern const vuint16_t* in_registers[];   // PxIN
-extern const vuint16_t* sel_registers[];  // PxSEL 
+extern const vuint16_t* sel_registers[];  // PxSEL
+extern const vuint16_t* ies_regiseters[]; // PxIES  (Interrupt Edge Select)
+extern const vuint16_t* ie_registers[];   // PxIE   (Intterupt Enable)
+extern const vuint16_t* ifg_registers[];  // PxIFG  (Interrupt Flag)
 
-extern const uint8_t port_map[];  // Pin4 => P6.7 => PORT6
-extern const uint8_t bit_map[];   // Pin4 => P6.7 => BIT7
+extern const uint8_t port_map[];          // Pin4 => P6.7 => PORT6
+extern const uint8_t bit_map[];           // Pin4 => P6.7 => BIT7
 
 
 
@@ -44,13 +47,14 @@ extern const uint8_t bit_map[];   // Pin4 => P6.7 => BIT7
 #define getSelReg(port)     ((vuint8_t*) sel_registers[port])
 
 
+
 /**
  * Functions for controlling pins (microcontroller.c--NOT driver implementation)
  */
-void setPinMode(uint8_t pin, uint8_t mode); 
-void setPinLevel(uint8_t pin, uint8_t level);
-void togglePinLevel(uint8_t pin);
-uint8_t readPin(uint8_t pin);
+void setPinMode(io_pin pin, pin_mode mode);
+void setPinLevel(io_pin pin, pin_level level);
+void togglePinLevel(io_pin pin);
+uint8_t readPin(io_pin pin);
 
 
 
@@ -84,7 +88,7 @@ uint8_t readPin(uint8_t pin);
  * Probably for unit testing and stuff
  */
 #define setRegister(reg, bits)           *reg = bits
-#define setRegisterBitHigh(reg, bit)     *reg |= bit 
+#define setRegisterBitHigh(reg, bit)     *reg |= bit
 #define setRegisterBitLow(reg, bit)      *reg &= ~bit
 #define toggleRegisterBit(reg, bit)      *reg ^= bit
 
@@ -115,43 +119,70 @@ uint8_t readPin(uint8_t pin);
 #define INTERRUPT(vector)     void __attribute__((interrupt(vector)))  vector ## _ISR(void) // Assists in creation of interrupts
 
 
+// Make sure bit definitions are defined (unit testing)
+#ifndef BIT0
+#define BIT0      (0x0001)
+#endif
 
-// BIT definitions for masks and stuff
-#ifndef BIT0 
-#define BIT0      0x01
-#endif 
+#ifndef BIT1
+#define BIT1      (0x0002)
+#endif
 
-#ifndef BIT1 
-#define BIT1      0x02
-#endif 
+#ifndef BIT2
+#define BIT2      (0x0004)
+#endif
 
-#ifndef BIT2 
-#define BIT2      0x03
-#endif 
+#ifndef BIT3
+#define BIT3      (0x0008)
+#endif
 
-#ifndef BIT3 
-#define BIT3      0x04
-#endif 
-
-#ifndef BIT4 
-#define BIT4      0x05
-#endif 
+#ifndef BIT4
+#define BIT4      (0x0010)
+#endif
 
 #ifndef BIT5
-#define BIT5      0x06
-#endif 
+#define BIT5      (0x0020)
+#endif
 
-#ifndef BIT6      
-#define BIT6      0x07
-#endif 
+#ifndef BIT6
+#define BIT6      (0x0040)
+#endif
 
 #ifndef BIT7
-#define BIT7      0x08
-#endif 
+#define BIT7      (0x0080)
+#endif
 
 #ifndef BIT8
-#define BIT8      0x09
-#endif 
+#define BIT8      (0x0100)
+#endif
+
+#ifndef BIT9
+#define BIT9      (0x0200)
+#endif
+
+#ifndef BITA
+#define BITA      (0x0400)
+#endif
+
+#ifndef BITB
+#define BITB      (0x0800)
+#endif
+
+#ifndef BITC
+#define BITC      (0x1000)
+#endif
+
+#ifndef BITD
+#define BITD      (0x2000)
+#endif
+
+#ifndef BITE
+#define BITE      (0x4000)
+#endif
+
+#ifndef BITF
+#define BITF      (0x8000)
+#endif
 
 
 

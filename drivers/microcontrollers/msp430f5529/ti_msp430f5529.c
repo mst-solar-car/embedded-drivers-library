@@ -244,11 +244,11 @@ const uint8_t bit_map[] = {
 
 
 /**
- * Setup function for the microcontroller 
+ * Setup function for the microcontroller
  */
-void microcontroller_setup(void) 
-{ 
-  // Disable watchdog 
+void microcontroller_setup(void)
+{
+  // Disable watchdog
   #ifndef NO_WATCHDOG
   watchdog_disable();
   #endif
@@ -264,35 +264,35 @@ void microcontroller_setup(void)
   setRegister(getDirReg(PORT8), OUTPUT);  setRegister(getOutReg(PORT8), LOW);
 
   // Enable interrupts (by default)
-  #ifndef NO_INTERRUPTS 
-  interrupts_enable()
-  #endif 
+  #ifndef NO_INTERRUPTS
+  interrupts_enable();
+  #endif
 
 
   // Initialize the clock (by Jesse Cureton)
   UCSCTL3 &= ~(0x0070);   // Select XT1CLK (our 32.768 kHz crystal) as FLL reference
-  UCSCTL4 &= ~(0x0070);   // Select XT1CLK as ACLK 
+  UCSCTL4 &= ~(0x0070);   // Select XT1CLK as ACLK
 
   uint16_t ratio, dco_div_bits;
-  uint8_t mode = 0; 
+  uint8_t mode = 0;
 
   uint16_t sysfreq = MICROCONTROLLER_CLOCK_HZ / 1000; // Get clock in kHz
   ratio = MICROCONTROLLER_CLOCK_HZ / 32768; // Ratio of clock and crystal frequency
   dco_div_bits = FLLD__2;
 
-  if (sysfreq > 1600) { 
-    ratio >>= 1; 
+  if (sysfreq > 1600) {
+    ratio >>= 1;
     mode = 1;       // If sysfreq > 16 MHz then use DC0CLK not DC0CLKDIV
   }
   else sysfreq <<= 1;
 
-  while (ratio > 512) { 
-    // Step up to a next div level 
-    dco_div_bits += FLLD0; 
+  while (ratio > 512) {
+    // Step up to a next div level
+    dco_div_bits += FLLD0;
     ratio >>= 1;
   }
 
-  __bis_SR_register(SCG0);  // Disable FLL while changing clocks 
+  __bis_SR_register(SCG0);  // Disable FLL while changing clocks
 
   UCSCTL0 = 0x0000;                       //Set the DCO to the lowest tap setting
 
