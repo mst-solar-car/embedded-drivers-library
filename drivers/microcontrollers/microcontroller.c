@@ -14,13 +14,16 @@
  */
 void setPinMode(io_pin pin, pin_mode mode)
 {
-  uint8_t port = getPinPort(pin);
-  uint8_t bit = getPinBit(pin);
-
-  if (port == NO_PORT) return; // Can't set the mode of this pin
-
+  uint8_t port;
+  uint8_t bit;
   vuint8_t *dirReg;
-  dirReg = getDirReg(port);
+
+  // Get the port and bit
+  getPinPort(port, pin);
+  getPinBit(bit, pin);
+
+  // Get the dir register
+  getDirReg(dirReg, port);
 
   // Set the pin mode
   if (mode == INPUT) {
@@ -42,12 +45,16 @@ void setPinMode(io_pin pin, pin_mode mode)
  */
 void setPinLevel(io_pin pin, pin_level level)
 {
-  uint8_t port = getPinPort(pin);
-  uint8_t bit = getPinBit(pin);
+  uint8_t port;
+  uint8_t bit;
+  vuint8_t *outReg;
 
-  if (port == NO_PORT) return; // Can't change level
+  // Get port and bit
+  getPinPort(port, pin);
+  getPinBit(bit, pin);
 
-  vuint8_t *outReg = getOutReg(port);
+  // Get out register
+  getOutReg(outReg, port);
 
   if (level == HIGH) {
     // HIGH
@@ -83,9 +90,9 @@ void togglePinLevel(io_pin pin)
  * Used to read the level of a pin
  *
  * @param io_pin pin    The pin to read
- * @return uint8_t      The level of the pin (HIGH or LOW)
+ * @return pin_level      The level of the pin (HIGH or LOW)
  */
-uint8_t readPin(io_pin pin)
+pin_level readPin(io_pin pin)
 {
   uint8_t port = getPinPort(pin);
   uint8_t bit = getPinBit(pin);

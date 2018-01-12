@@ -39,13 +39,19 @@ extern const uint8_t bit_map[];           // Pin4 => P6.7 => BIT7
 
 
 // Array helper functions
-#define getPinPort(pin)     (port_map[pin])
-#define getPinBit(pin)      (bit_map[pin])
-#define getDirReg(port)     ((vuint8_t*) dir_registers[port])
-#define getOutReg(port)     ((vuint8_t*) out_registers[port])
-#define getInReg(port)      ((vuint8_t*) in_registers[port])
-#define getSelReg(port)     ((vuint8_t*) sel_registers[port])
+//#define getPinPort(pin)     (port_map[pin])
+//#define getPinBit(pin)      (bit_map[pin])
+//#define getDirReg(port)     ((vuint8_t*) dir_registers[port])
+//#define getOutReg(port)     ((vuint8_t*) out_registers[port])
+//#define getInReg(port)      ((vuint8_t*) in_registers[port])
+//#define getSelReg(port)     ((vuint8_t*) sel_registers[port])
 
+#define getPinPort(var, pin, ...)  var = port_map[pin]; if (var == NO_PORT) return __VA_ARGS__
+#define getPinBit(var, pin, ...)   var = bit_map[pin];  if (var == NO_BIT)  return __VA_ARGS__
+#define getDirReg(var, port, ...)  var = ((vuint8_t*) dir_registers[port]); if (var == NO_REGISTER) return __VA_ARGS__
+#define getOutReg(var, port, ...)  var = ((vuint8_t*) out_registers[port]); if (var == NO_REGISTER) return __VA_ARGS__
+#define getInReg(var, port, ...)   var = ((vuint8_t*) in_registers[port]);  if (var == NO_REGISTER) return __VA_ARGS__
+#define getSelReg(var, port, ...)  var = ((vuint8_t*) sel_registers[port]); if (Var == NO_REGISTER) return __VA_ARGS__
 
 
 /**
@@ -54,7 +60,7 @@ extern const uint8_t bit_map[];           // Pin4 => P6.7 => BIT7
 void setPinMode(io_pin pin, pin_mode mode);
 void setPinLevel(io_pin pin, pin_level level);
 void togglePinLevel(io_pin pin);
-uint8_t readPin(io_pin pin);
+pin_level readPin(io_pin pin);
 
 
 
