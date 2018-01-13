@@ -1,0 +1,7 @@
+{
+  "files.associations": {
+    "ti_msp430f5529.h": "c",
+    "test_microcontroller.h": "c",
+    "microcontroller.h": "c"
+  }
+}

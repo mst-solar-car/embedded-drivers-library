@@ -3,7 +3,7 @@
  *
  * Authors: Michael Rouse
  */
-#include "solarcar_mcp2515.h"
+#include "mcp2515.h"
 
 // Buffer to hold data to be sent to the CAN Controller
 uint8_t _buffer[CAN_MESSAGE_SIZE];
@@ -14,7 +14,6 @@ uint8_t _buffer[CAN_MESSAGE_SIZE];
  *
  * This function should do all the configuration needed for the CAN Controller
  * to function properly.
-
  */
 void can_controller_setup()
 {
