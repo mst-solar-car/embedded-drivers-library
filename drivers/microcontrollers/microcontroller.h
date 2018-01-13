@@ -24,7 +24,7 @@ extern const vuint16_t* dir_registers[];  // PxDIR
 extern const vuint16_t* out_registers[];  // PxOUT
 extern const vuint16_t* in_registers[];   // PxIN
 extern const vuint16_t* sel_registers[];  // PxSEL
-extern const vuint16_t* ies_regiseters[]; // PxIES  (Interrupt Edge Select)
+extern const vuint16_t* ies_registers[]; // PxIES  (Interrupt Edge Select)
 extern const vuint16_t* ie_registers[];   // PxIE   (Intterupt Enable)
 extern const vuint16_t* ifg_registers[];  // PxIFG  (Interrupt Flag)
 
@@ -39,19 +39,25 @@ extern const uint8_t bit_map[];           // Pin4 => P6.7 => BIT7
 
 
 // Array helper functions
-//#define getPinPort(pin)     (port_map[pin])
-//#define getPinBit(pin)      (bit_map[pin])
-//#define getDirReg(port)     ((vuint8_t*) dir_registers[port])
-//#define getOutReg(port)     ((vuint8_t*) out_registers[port])
-//#define getInReg(port)      ((vuint8_t*) in_registers[port])
-//#define getSelReg(port)     ((vuint8_t*) sel_registers[port])
+#define pinPort(pin)  (port_map[pin])
+#define pinBit(pin)   (bit_map[pin])
+#define dirReg(port)  ((vuint8_t*) dir_registers[port])
+#define outReg(port)  ((vuint8_t*) out_registers[port])
+#define inReg(port)   ((vuint8_t*) in_registers[port])
+#define selReg(port)  ((vuint8_t*) sel_registers[port])
+#define iesReg(port)  ((vuint8_t*) ies_registers[port])
+#define ieReg(port)   ((vuint8_t*) ie_registers[port])
+#define ifgReg(port)  ((vuint8_t*) ifg_registers[port])
 
-#define getPinPort(var, pin, ...)  var = port_map[pin]; if (var == NO_PORT) return __VA_ARGS__
-#define getPinBit(var, pin, ...)   var = bit_map[pin];  if (var == NO_BIT)  return __VA_ARGS__
-#define getDirReg(var, port, ...)  var = ((vuint8_t*) dir_registers[port]); if (var == NO_REGISTER) return __VA_ARGS__
-#define getOutReg(var, port, ...)  var = ((vuint8_t*) out_registers[port]); if (var == NO_REGISTER) return __VA_ARGS__
-#define getInReg(var, port, ...)   var = ((vuint8_t*) in_registers[port]);  if (var == NO_REGISTER) return __VA_ARGS__
-#define getSelReg(var, port, ...)  var = ((vuint8_t*) sel_registers[port]); if (Var == NO_REGISTER) return __VA_ARGS__
+#define getPinPort(var, pin, ...)   var = pinPort(pin); if (var == NO_PORT) return __VA_ARGS__
+#define getPinBit(var, pin, ...)    var = pinBit(pin);  if (var == NO_BIT)  return __VA_ARGS__
+#define getDirReg(var, port, ...)   var = dirReg(port); if (var == NO_REGISTER) return __VA_ARGS__
+#define getOutReg(var, port, ...)   var = outReg(port); if (var == NO_REGISTER) return __VA_ARGS__
+#define getInReg(var, port, ...)    var = inReg(port);  if (var == NO_REGISTER) return __VA_ARGS__
+#define getSelReg(var, port, ...)   var = selReg(port); if (var == NO_REGISTER) return __VA_ARGS__
+#define getIESReg(var, port, ...)   var = iesReg(port); if (var == NO_REGISTER) return __VA_ARGS__
+#define getIEReg(var, port, ...)    var = ieReg(port); if (var == NO_REGISTER) return __VA_ARGS__
+#define getIFGReg(var, port, ...)   var = ifgReg(port); if (var == NO_REGISTER) return __VA_ARGS__
 
 
 /**
@@ -72,6 +78,9 @@ pin_level readPin(io_pin pin);
 
 #define outputPin(pin)    setPinMode(pin, OUTPUT) // Configures a pin for OUTPUT
 #define setOutput(pin)    outputPin(pin)          // outputPin alias
+
+#define interruptPin(pin) setPinMode(pin, Interrupt) // Configures pin for an interrupt
+#define setInterrupt(pin) interruptPin(pin)           // interruptPin alias
 
 
 /**

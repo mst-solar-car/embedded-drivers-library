@@ -14,12 +14,13 @@
 // Desired clock frequency (in Hz)
 #define MICROCONTROLLER_CLOCK_HZ   20000000
 
+#define NO_OP  _no_operation() // Does nothing in code, can be used as a breakpoint (won't be removed by optimization)
 
 // Watchdog
 #ifdef __MSP430_HAS_WDT_A__
   #define watchdog_disable()      WDTCTL = WDTPW + WDTHOLD
   #define watchdog_enable()       WDTCTL = WDT_ARST_1000    // Reset every 1 second (1000ms)
-  #define watchdog_pet()          WDTCTL = WDTP + WDTCNTCL  // Clear Watchdog timer (prevents reset)
+  #define watchdog_pet()          WDTCTL = WDTPW + WDTCNTCL  // Clear Watchdog timer (prevents reset)
 
 #else
   #define NO_WATCHDOG
@@ -31,9 +32,10 @@
 #define interrupts_disable()    _disable_interrupts();
 
 
-
-#define NO_OP   _no_operation() // Does nothing in code, can be used as a breakpoint (won't be removed by optimization)
-
+// SPI
+#define spi_busy_check()      while(getBit(UCB1STAT, UCBUSY) != 0)
+#define spi_send_data(data)   UCB1TXBUF = data
+#define spi_get_data()        UCB1RXBUF
 
 
 

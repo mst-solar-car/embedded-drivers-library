@@ -16,23 +16,37 @@ void setPinMode(io_pin pin, pin_mode mode)
 {
   uint8_t port;
   uint8_t bit;
-  vuint8_t *dirReg;
+  vuint8_t *reg;
 
   // Get the port and bit
   getPinPort(port, pin);
   getPinBit(bit, pin);
 
   // Get the dir register
-  getDirReg(dirReg, port);
+  getDirReg(reg, port);
 
   // Set the pin mode
   if (mode == INPUT) {
     // INPUT
-    setRegisterBitLow(dirReg, bit);
+    setRegisterBitLow(reg, bit);
   }
-  else {
+  else if (mode == OUTPUT) {
     // OUTPUT
-    setRegisterBitHigh(dirReg, bit);
+    setRegisterBitHigh(reg, bit);
+  }
+  else if (mode == Interrupt) {
+    // INTERRUPT
+    setInput(pin); // Mark Pin as INPUT
+
+    // Configure interrupt registers
+    getIESReg(reg, port);
+    setRegisterBitHigh(reg, bit);
+
+    getIFGReg(reg, port);
+    setRegisterBitLow(reg, bit);
+
+    getIEReg(reg, port);
+    setRegisterBitHigh(reg, bit);
   }
 }
 
@@ -74,12 +88,13 @@ void setPinLevel(io_pin pin, pin_level level)
  */
 void togglePinLevel(io_pin pin)
 {
-  uint8_t port = getPinPort(pin);
-  uint8_t bit = getPinBit(pin);
+  uint8_t port;
+  uint8_t bit;
+  vuint8_t *outReg;
 
-  if (port == NO_PORT) return; // Can't toggle
-
-  vuint8_t *outReg = getOutReg(port);
+  getPinPort(port, pin);
+  getPinBit(bit, pin);
+  getOutReg(outReg, port);
 
   // Toggle the bit
   toggleRegisterBit(outReg, bit);
@@ -94,12 +109,14 @@ void togglePinLevel(io_pin pin)
  */
 pin_level readPin(io_pin pin)
 {
-  uint8_t port = getPinPort(pin);
-  uint8_t bit = getPinBit(pin);
+  uint8_t port;
+  uint8_t bit;
+  vuint8_t *inReg;
 
-  if (port == NO_PORT) return LOW; // Can't read
+  getPinPort(port, pin, LOW);
+  getPinBit(bit, pin, LOW);
+  getInReg(inReg, port, LOW);
 
-  vuint8_t *inReg = getInReg(port);
 
   // Return HIGH if the bit is high
   if ((*inReg & bit))
@@ -107,3 +124,4 @@ pin_level readPin(io_pin pin)
   else
     return LOW;
 }
+

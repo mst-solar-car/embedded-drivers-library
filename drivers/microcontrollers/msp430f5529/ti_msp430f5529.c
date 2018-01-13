@@ -67,6 +67,51 @@ const vuint16_t* sel_registers[] = {
 };
 
 
+// Converts a Port to IES registers
+const vuint16_t* ies_registers[] = {
+  (vuint16_t*) NO_REGISTER, // Place holder
+  (vuint16_t*) P1IES_REG,
+  (vuint16_t*) P2IES_REG,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER
+};
+
+
+// Converts a Port to IE register
+const vuint16_t* ie_registers[] = {
+  (vuint16_t*) NO_REGISTER, // Place Holder
+  (vuint16_t*) P1IE_REG,
+  (vuint16_t*) P2IE_REG,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER
+};
+
+
+// Converts a Port to IFG register
+const vuint16_t* ifg_registers[] = {
+  (vuint16_t*) NO_REGISTER, // Place holder
+  (vuint16_t*) P1IFG_REG,
+  (vuint16_t*) P2IFG_REG,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER
+};
+
+
 
 // Map a pin to a port (e.g., Pin4 => P6.7 => PORT6)
 const uint8_t port_map[] = {
@@ -254,14 +299,14 @@ void microcontroller_setup(void)
   #endif
 
   // Configure each pin as OUTPUT and set all bits LOW initially
-  setRegister(getDirReg(PORT1), OUTPUT);  setRegister(getOutReg(PORT1), LOW);
-  setRegister(getDirReg(PORT2), OUTPUT);  setRegister(getOutReg(PORT2), LOW);
-  setRegister(getDirReg(PORT3), OUTPUT);  setRegister(getOutReg(PORT3), LOW);
-  setRegister(getDirReg(PORT4), OUTPUT);  setRegister(getOutReg(PORT4), LOW);
-  setRegister(getDirReg(PORT5), OUTPUT);  setRegister(getOutReg(PORT5), LOW);
-  setRegister(getDirReg(PORT6), OUTPUT);  setRegister(getOutReg(PORT6), LOW);
-  setRegister(getDirReg(PORT7), OUTPUT);  setRegister(getOutReg(PORT7), LOW);
-  setRegister(getDirReg(PORT8), OUTPUT);  setRegister(getOutReg(PORT8), LOW);
+  setRegister(dirReg(PORT1), OUTPUT);  setRegister(outReg(PORT1), LOW);
+  setRegister(dirReg(PORT2), OUTPUT);  setRegister(outReg(PORT2), LOW);
+  setRegister(dirReg(PORT3), OUTPUT);  setRegister(outReg(PORT3), LOW);
+  setRegister(dirReg(PORT4), OUTPUT);  setRegister(outReg(PORT4), LOW);
+  setRegister(dirReg(PORT5), OUTPUT);  setRegister(outReg(PORT5), LOW);
+  setRegister(dirReg(PORT6), OUTPUT);  setRegister(outReg(PORT6), LOW);
+  setRegister(dirReg(PORT7), OUTPUT);  setRegister(outReg(PORT7), LOW);
+  setRegister(dirReg(PORT8), OUTPUT);  setRegister(outReg(PORT8), LOW);
 
   // Enable interrupts (by default)
   #ifndef NO_INTERRUPTS
@@ -340,5 +385,15 @@ void microcontroller_setup(void)
   // UG for optimization.
   // 32 x 32 x 20 MHz / 32,768 Hz = 625000 MCLK cycles for DCO to settle
   __delay_cycles(625000);
+
+
+  // Initialize SPI
+  UCB1CTL1  = UCSWRST;    //Hold the device in a reset state while we configure
+  UCB1CTL0  = 0x69;       //SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+  UCB1CTL1 |= UCSSEL_3;       //SPI clock (BRCLK) source = SMCLK
+  UCB1BR1   = 0x00;       //Set the high bit of the baud rate generator
+  UCB1BR0   = 0x14;       //Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+  //UCB0IE   |= 0x04;     //Enable interrupts
+  UCB1CTL1 &= ~UCSWRST;   //Release the bus from reset state
 }
 

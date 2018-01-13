@@ -8,10 +8,10 @@
 #define __SOLARCAR_H__
 
 
-// :) 
+// :)
 
 
-// Make sure GCC is being used before continuing 
+// Make sure GCC is being used before continuing
 #ifdef __GNUC__
 
 /**
@@ -19,11 +19,13 @@
  * This will reduce the number of imports the user needs to add themselves
  */
 #include "datatypes.h"
+#include "user_config.h"
 
 #include "microcontrollers/importer.h"
+#include "can/can.h"
 #include "spi/spi.h"
 
-#else 
+#else
 // Allert the user that they should be using GCC
 #error "You should be using GCC as your compiler!"
 #endif

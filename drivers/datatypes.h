@@ -3,6 +3,8 @@
  *
  * Author: Michael Rouse
  */
+#include "user_config.h"
+
 #ifndef __DATATYPES_H__
 #define __DATATYPES_H__
 
@@ -77,6 +79,7 @@ typedef enum bool_t {
   FALSE   = __FALSE__,
   False   = __FALSE__,
   Failure = __FALSE__,
+  Busy    = __FALSE__,
 
   TRUE    = __TRUE__,
   True    = __TRUE__,
@@ -87,6 +90,8 @@ typedef enum bool_t {
 typedef enum pin_mode_t {
   INPUT = 0x00,
   Input = 0x00,
+
+  Interrupt = 0x0F,
 
   OUTPUT = 0xFF,
   Output = 0xFF
@@ -116,13 +121,13 @@ enum {
 
 // Union
 typedef union group_64_t {
-   float data_fp[2];           // Holds floating point
-   unsigned char data_u8[8];   // Holds 8 unsigned bits
-   char data_8[8];              // Holds 8 signed bits
-   unsigned int data_u16[4];   // Holds 16 unsigned bits
-   int data_16[4];             // Holds 16 bits
-   unsigned long data_u32[2];  // Holds 32 unsigned bits
-   long data_32[2];            // Holds 32 bits
+  float data_fp[2];           // Holds floating point
+  unsigned char data_u8[8];   // Holds 8 unsigned bits
+  char data_8[8];              // Holds 8 signed bits
+  unsigned int data_u16[4];   // Holds 16 unsigned bits
+  int data_16[4];             // Holds 16 bits
+  unsigned long data_u32[2];  // Holds 32 unsigned bits
+  long data_32[2];            // Holds 32 bits
 } group_64;
 
 

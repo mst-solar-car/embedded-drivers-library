@@ -1,9 +1,13 @@
 /**
  * MCP2515 CAN Controller Implementation
  *
- * Authors: Michael Rouse
+ * Author: Michael Rouse
  */
 #include "mcp2515.h"
+
+
+// Remember the chip select pin
+io_pin _can_controller_cs_pin;
 
 // Buffer to hold data to be sent to the CAN Controller
 uint8_t _buffer[CAN_MESSAGE_SIZE];
@@ -15,8 +19,13 @@ uint8_t _buffer[CAN_MESSAGE_SIZE];
  * This function should do all the configuration needed for the CAN Controller
  * to function properly.
  */
-void can_controller_setup()
+void can_controller_setup(io_pin cs_pin)
 {
+  // Setup the CS pin
+  setOutput(cs_pin);
+  _can_controller_cs_pin = cs_pin;
+
+  // Configure the CAN Controller
   _mcp2515_reset();
 
   // Delay for reset
@@ -89,6 +98,7 @@ void can_controller_setup()
 }
 
 
+
 /**
  * CAN Controller Transmit
  *
@@ -122,12 +132,12 @@ bool can_controller_transmit(can_message* msg)
   uint8_t i;
 
   // Transmit the message to the CAN controller
-  setLow(CAN_CS_PIN); // Toggle the CS pin
+  setLow(_can_controller_cs_pin); // Toggle the CS pin
   spi_transmit(MCP2515_WRITE_TX_CMD);
   for (i = 0; i < CAN_MESSAGE_SIZE; i++) {
     spi_transmit(_buffer[i]);
   }
-  setHigh(CAN_CS_PIN); // Untoggle the CS pin
+  setHigh(_can_controller_cs_pin); // Untoggle the CS pin
 
   // Request the CAN Controller sends the message
   _mcp2515_request_send();
@@ -181,7 +191,7 @@ void can_controller_get_message(can_message* out)
     _mcp2515_modify(MCP2515_FLAG_REGISTER, MCP2515_RX1_CHECK, NULL);
   }
 
-  return NULL;
+  return;
 }
 
 
@@ -205,7 +215,7 @@ void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t bytes)
 {
   uint8_t i;
 
-  setLow(CAN_CS_PIN); // Toggle the CS pin
+  setLow(_can_controller_cs_pin); // Toggle the CS pin
 
   spi_transmit(MCP2515_WRITE_CMD);
   spi_transmit(addr);
@@ -214,7 +224,7 @@ void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t bytes)
   }
   spi_transmit(*buff);
 
-  setHigh(CAN_CS_PIN); // Untoggle the CS pin
+  setHigh(_can_controller_cs_pin); // Untoggle the CS pin
 }
 
 
@@ -227,14 +237,14 @@ void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t bytes)
  */
 void _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data)
 {
-  setLow(CAN_CS_PIN);
+  setLow(_can_controller_cs_pin);
 
   spi_transmit(MCP2515_MODIFY_CMD);
   spi_transmit(addr);
   spi_transmit(mask);
   spi_transmit(data);
 
-  setHigh(CAN_CS_PIN);
+  setHigh(_can_controller_cs_pin);
 }
 
 
@@ -249,7 +259,7 @@ void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
 {
   uint8_t i;
 
-  setLow(CAN_CS_PIN);
+  setLow(_can_controller_cs_pin);
 
   spi_transmit(MCP2515_READ_CMD);
   spi_transmit(addr);
@@ -258,7 +268,7 @@ void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
     //*out++ = spi_transmit(NULL); // Transmit nothing to read a value
   }
 
-  setHigh(CAN_CS_PIN);
+  setHigh(_can_controller_cs_pin);
 }
 
 
@@ -267,11 +277,11 @@ void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
  */
 void _mcp2515_reset()
 {
-  setLow(CAN_CS_PIN);
+  setLow(_can_controller_cs_pin);
 
   spi_transmit(0xC0); // TODO: fix constant
 
-  setHigh(CAN_CS_PIN);
+  setHigh(_can_controller_cs_pin);
 }
 
 
@@ -293,9 +303,9 @@ void _mcp2515_request_send()
     i |= 0x04;
 
   // Send Request to Send Command
-  setLow(CAN_CS_PIN);
+  setLow(_can_controller_cs_pin);
   spi_transmit(i);
-  setHigh(CAN_CS_PIN);
+  setHigh(_can_controller_cs_pin);
 }
 
 
@@ -322,12 +332,12 @@ uint8_t _mcp2515_read_status()
 {
   uint8_t status = NULL;
 
-  setLow(CAN_CS_PIN);
+  setLow(_can_controller_cs_pin);
 
   spi_transmit(MCP2515_STATUS_CMD);
   //status = spi_transmit(NULL);
 
-  setHigh(CAN_CS_PIN);
+  setHigh(_can_controller_cs_pin);
 
   return status;
 }
@@ -367,3 +377,6 @@ void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out)
   // Fill in sender address
   out->address = leftShift(_buffer[1], 3) | rightShift(_buffer[2], 5);
 }
+
+
+
