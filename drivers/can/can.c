@@ -70,20 +70,9 @@ can_message* can_receive(void)
  */
 bool can_transmit(can_message* msg)
 {
-  // Copy message to queue if given
-  if (msg != NOTHING) {
-    _tx_push->address = msg->address;
-    _tx_push->status = msg->status;
-
-    // Copy over all of the data
-    uint8_t i;
-    for (i = 0; i < 8; i++)
-      _tx_push->data.data_u8[i] = msg->data.data_u8[i];
-
-    // Push to queue
-    _tx_push++;
-    if (_tx_push == (_tx_queue + CAN_BUFFER_LENGTH))
-      _tx_push = _tx_queue; // Reset
+  // Make sure the user is requesting new CAN Messages when creating them
+  if (msg == _tx_push) {
+    return Failure;
   }
 
   if (_mcp2515_is_busy() == True) {
@@ -149,6 +138,30 @@ bool can_message_check(void)
   return False; // Not a CAN interrupt (or no missed interrupt)
 }
 
+
+/**
+ * Creates a "new" CAN Message
+ */
+can_message* can_new_message(void)
+{
+  // Use memory space in the queue for this
+  can_message* msg = _tx_push;
+
+  msg->address = NULL;
+  msg->status = CAN_OK;
+
+  // Clear data
+  uint8_t i;
+  for (i = 0; i < 8; i++)
+    msg->data.data_u8[i] = NULL;
+
+  // Advance the push pointer
+  _tx_push++;
+  if (_tx_push == (_tx_queue + CAN_BUFFER_LENGTH))
+    _tx_push = _tx_queue;
+
+  return msg;
+}
 
 
 

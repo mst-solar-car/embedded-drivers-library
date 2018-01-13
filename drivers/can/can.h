@@ -22,6 +22,7 @@ void can_setup(io_pin cs_pin, io_pin int_pin);
 can_message* can_receive(void);
 bool can_transmit(can_message* msg);
 bool can_message_check(void);
+can_message* can_new_message(void);
 
 
 
