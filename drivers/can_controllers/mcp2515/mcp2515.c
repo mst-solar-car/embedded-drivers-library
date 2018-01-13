@@ -23,6 +23,7 @@ void can_controller_setup(io_pin cs_pin)
 {
   // Setup the CS pin
   setOutput(cs_pin);
+  setHigh(cs_pin);
   _can_controller_cs_pin = cs_pin;
 
   // Configure the CAN Controller

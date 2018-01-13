@@ -29,9 +29,6 @@ void can_setup(io_pin cs_pin, io_pin int_pin)
   _can_int_pin = int_pin;
   setInterrupt(_can_int_pin);
 
-  // Configure chip select pin
-  setOutput(cs_pin);
-
   // Configure queues
   _tx_push = _tx_queue;
   _tx_pop = _tx_push;

@@ -9,7 +9,7 @@
 #include "../datatypes.h"
 #include "../microcontrollers/importer.h" // Import the microcontroller
 
-extern void spi_setup(io_pin mosi, io_pin miso, io_pin sck);
-extern uint8_t spi_transmit(uint8_t data);
+void spi_setup(io_pin mosi, io_pin miso, io_pin sck);
+uint8_t spi_transmit(uint8_t data);
 
 #endif

@@ -33,7 +33,8 @@
 
 
 // SPI
-#define spi_busy_check()      while(getBit(UCB1STAT, UCBUSY) != 0)
+#define spi_busy_check()      while((UCB1STAT & BIT1) != 0)
+#define spi_busy_check2()     while((UCB1STAT & BIT0) != 0)
 #define spi_send_data(data)   UCB1TXBUF = data
 #define spi_get_data()        UCB1RXBUF
 
