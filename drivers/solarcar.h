@@ -4,15 +4,14 @@
  *
  * Authors: Michael Rouse
  */
+#include "library.details.h"
 #ifndef __SOLARCAR_H__
 #define __SOLARCAR_H__
+#ifdef __GNUC__
 
 
 // :)
 
-
-// Make sure GCC is being used before continuing
-#ifdef __GNUC__
 
 /**
  * Include the rest of the drivers
@@ -25,18 +24,13 @@
 #include "can/can.h"
 #include "spi/spi.h"
 
+
+
+
+
+
 #else
-// Allert the user that they should be using GCC
-#error "You should be using GCC as your compiler!"
+  // Allert the user that they should be using GCC
+  #error "You should be using GCC as your compiler!"
 #endif
-
-
 #endif
-
-
-
-
-
-
-
-

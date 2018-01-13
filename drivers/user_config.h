@@ -5,6 +5,7 @@
  */
 #ifndef USER_CONFIG
 #define USER_CONFIG
+#include "library.details.h"
 
 
 /*******************************
