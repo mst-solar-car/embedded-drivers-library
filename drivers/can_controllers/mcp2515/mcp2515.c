@@ -10,7 +10,7 @@
 io_pin _can_controller_cs_pin;
 
 // Buffer to hold data to be sent to the CAN Controller
-uint8_t _buffer[CAN_MESSAGE_SIZE];
+uint8_t _buffer[CAN_MESSAGE_SIZE+1];
 
 
 /**

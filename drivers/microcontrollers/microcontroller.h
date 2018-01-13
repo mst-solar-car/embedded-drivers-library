@@ -5,6 +5,7 @@
  *
  * Author: Michael Rouse
  */
+#include "../user_config.h"
 #include "../datatypes.h"
 
 #ifndef __MICROCONTROLLER_H__
@@ -24,7 +25,7 @@ extern const vuint16_t* dir_registers[];  // PxDIR
 extern const vuint16_t* out_registers[];  // PxOUT
 extern const vuint16_t* in_registers[];   // PxIN
 extern const vuint16_t* sel_registers[];  // PxSEL
-extern const vuint16_t* ies_registers[]; // PxIES  (Interrupt Edge Select)
+extern const vuint16_t* ies_registers[];  // PxIES  (Interrupt Edge Select)
 extern const vuint16_t* ie_registers[];   // PxIE   (Intterupt Enable)
 extern const vuint16_t* ifg_registers[];  // PxIFG  (Interrupt Flag)
 

@@ -5,9 +5,10 @@
  *
  * Author: Michael Rouse
  */
+#include "../user_config.h"
 #include "../datatypes.h"
 #include "../spi/spi.h"
-#include "../can/can.h"
+#include "../can/constants.h"
 
 #ifndef __CAN_CONTROLLER_H__
 #define __CAN_CONTROLLER_H__
@@ -29,8 +30,6 @@ extern io_pin _can_controller_cs_pin;
  *
  * This function should do all the configuration needed for the CAN Controller
  * to function properly.
- *
- *
  */
 extern void can_controller_setup(io_pin cs_pin);
 
