@@ -23,9 +23,5 @@
 #define CAN_MASK1           0x000
 #define CAN_MASK2           0x000
 
-// Probably won't need to change these
-#define CAN_BUFFER_LENGTH   32
-#define CAN_MESSAGE_SIZE    13
-
 
 #endif

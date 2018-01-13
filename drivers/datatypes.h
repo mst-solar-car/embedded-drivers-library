@@ -3,8 +3,6 @@
  *
  * Author: Michael Rouse
  */
-#include "user_config.h"
-
 #ifndef __DATATYPES_H__
 #define __DATATYPES_H__
 
