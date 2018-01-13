@@ -18,8 +18,6 @@ can_message* _rx_pop;
 io_pin _can_int_pin;
 
 
-
-
 /**
  * Initializes the CAN Driver
  */
@@ -48,7 +46,10 @@ void can_setup(io_pin cs_pin, io_pin int_pin)
  */
 can_message* can_receive(void)
 {
-  if (_rx_push == _rx_pop) return NOTHING;
+  can_message_check();
+
+  if (_rx_push == _rx_pop)
+    return NOTHING;
 
   // Get the message from the front of the queue
   can_message* msg = _rx_pop;
@@ -85,6 +86,10 @@ bool can_transmit(can_message* msg)
       _tx_push = _tx_queue; // Reset
   }
 
+  if (_mcp2515_is_busy() == True) {
+      return Failure;
+  }
+
   // Send all messages in the queue
   while (_tx_pop != _tx_push) {
     // Stop sending if the bus is busy
@@ -96,6 +101,9 @@ bool can_transmit(can_message* msg)
     if (_tx_pop == (_tx_queue + CAN_BUFFER_LENGTH))
       _tx_pop = _tx_queue; // Reset
   }
+
+  // Check for any missed messages
+  can_message_check();
 
   return Success;
 }
@@ -171,4 +179,9 @@ void _can_handle_interrupt(void)
   _rx_push++;
   if (_rx_push == (_rx_queue + CAN_BUFFER_LENGTH))
     _rx_push = _rx_queue;
+}
+
+
+void __attribute__ ((interrupt(PORT2_VECTOR))) PORT2_ISR (void) {
+can_message_check();
 }

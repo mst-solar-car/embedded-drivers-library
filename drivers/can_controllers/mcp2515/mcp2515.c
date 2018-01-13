@@ -162,7 +162,7 @@ void can_controller_get_message(can_message* out)
   _mcp2515_read(MCP2515_FLAG_REGISTER, &flags, 1);
 
   // Check for errors
-  if (isHigh(flags, MCP2515_ERROR_CHECk)) {
+  if ((flags & MCP2515_ERROR_CHECk) != NULL) {
     // Error exists...
     out->status = CAN_ERROR;
 
@@ -175,7 +175,7 @@ void can_controller_get_message(can_message* out)
   }
 
   // No errors, receive message if it's in RX Buffer 0
-  else if (isHigh(flags, MCP2515_RX0_CHECK)) {
+  else if ((flags & MCP2515_RX0_CHECK) != NULL) {
     // Read CAN Message
     _mcp2515_get_message_from_buffer(MCP2515_RX0_REGISTER, out);
 
@@ -184,7 +184,7 @@ void can_controller_get_message(can_message* out)
   }
 
   // Receive message if it's in RX Buffer 1
-  else if (isHigh(flags, MCP2515_RX1_CHECK)) {
+  else if ((flags & MCP2515_RX1_CHECK) != NULL) {
     // Read CAN Message
     _mcp2515_get_message_from_buffer(MCP2515_RX1_REGISTER, out);
 
@@ -260,16 +260,18 @@ void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
 {
   uint8_t i;
 
-  setLow(_can_controller_cs_pin);
+  P2OUT &= ~BIT5;
+
+  //setLow(_can_controller_cs_pin);
 
   spi_transmit(MCP2515_READ_CMD);
   spi_transmit(addr);
 
   for (i = 0; i < bytes; i++) {
-    //*out++ = spi_transmit(NULL); // Transmit nothing to read a value
+    *out++ = spi_transmit(NULL); // Transmit nothing to read a value
   }
-
-  setHigh(_can_controller_cs_pin);
+P2OUT |= BIT5;
+  //setHigh(_can_controller_cs_pin);
 }
 
 
@@ -333,13 +335,14 @@ uint8_t _mcp2515_read_status()
 {
   uint8_t status = NULL;
 
-  setLow(_can_controller_cs_pin);
+  P2OUT &= ~BIT5;
+  //setLow(_can_controller_cs_pin);
 
   spi_transmit(MCP2515_STATUS_CMD);
-  //status = spi_transmit(NULL);
+  status = spi_transmit(NULL);
 
-  setHigh(_can_controller_cs_pin);
-
+  //setHigh(_can_controller_cs_pin);
+  P2OUT |= BIT5;
   return status;
 }
 
@@ -356,7 +359,7 @@ void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out)
   _mcp2515_read(rxbuf, &_buffer[0], CAN_MESSAGE_SIZE + 1);
 
   // Check what type of packet
-  if (isLow(_buffer[0], MCP2515_REMOTE_CHECK)) {
+  if ((_buffer[0] & MCP2515_REMOTE_CHECK) == NULL) {
     // Standard data packet
     out->status = CAN_OK;
 
@@ -376,7 +379,7 @@ void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out)
   }
 
   // Fill in sender address
-  out->address = leftShift(_buffer[1], 3) | rightShift(_buffer[2], 5);
+  out->address = (_buffer[1] << 3) | (_buffer[2] >> 5); //leftShift(_buffer[1], 3) | rightShift(_buffer[2], 5);
 }
 
 
