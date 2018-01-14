@@ -7,11 +7,12 @@ to the user, and so on.
 
 | Driver | Description |
 |:------:|-------------|
+|[Microcontrollers](microcontrollers/README.md)|Device-specific drivers for controlling pins and registers on a microcontroller|
 |[CAN](can/README.md)| Driver for communication over CAN. Just a wrapper around a CAN Controller driver |
 |[CAN Controllers](can_controllers/README.md)|Device-specific drivers that are used by the CAN drivers to communicate over a CAN Bus |
-|[Microcontrollers](microcontrollers/README.md)|Device-specific drivers for controlling pins and registers on a microcontroller|
 |[SPI](spi/README.md)|Drivers that interface with the Microcontroller drivers for communication on a SPI Bus|
 |[Bit Manipulation](#bit-manipulation-api)|Used for generic bit manipulation anywhere in program|
+|[Exampes](EXAMPLES.md)|Minimal-code examples for getting a hang of this library|
 
 
 # User Configuration
