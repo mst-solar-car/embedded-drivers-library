@@ -19,6 +19,7 @@
  */
 #include "datatypes.h"
 #include "user_config.h"
+#include "utils.h"
 
 #include "microcontrollers/importer.h"
 #include "can/can.h"

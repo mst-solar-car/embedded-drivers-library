@@ -7,6 +7,7 @@
  */
 #include "../user_config.h"
 #include "../datatypes.h"
+#include "../utils.h"
 #include "../spi/spi.h"
 #include "../can/constants.h"
 

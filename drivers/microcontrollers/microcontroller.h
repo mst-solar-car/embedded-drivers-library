@@ -7,6 +7,7 @@
  */
 #include "../user_config.h"
 #include "../datatypes.h"
+#include "../utils.h"
 
 #ifndef __MICROCONTROLLER_H__
 #define __MICROCONTROLLER_H__
@@ -94,26 +95,6 @@ pin_level readPin(io_pin pin);
 #define toggleRegisterBit(reg, bit)      toggleBit(*reg, bit)
 
 
-/**
- * Checking Bits
- */
-#define setBitHigh(data, bit) (data |= bit)
-#define setBitLow(data, bit)  (data &= ~bit)
-#define toggleBit(data, bit)  (data ^= bit)
-#define getBit(data, bit)     (data & bit)
-
-#define isBitHigh(data, bit)  (getBit(data, bit) != NULL)
-#define isBitLow(data, bit)   (getBit(data, bit) == NULL)
-
-#define leftShift(bits, n)    ((uint8_t)(bits << n))
-#define rightShift(bits, n)   ((uint8_t)(bits >> n))
-
-
-
-/**
- * Misc things
- */
-#define INTERRUPT(vector)     void __attribute__((interrupt(vector)))  vector ## _ISR(void) // Assists in creation of interrupts
 
 
 // Make sure bit definitions are defined (unit testing)

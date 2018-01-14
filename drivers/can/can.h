@@ -9,6 +9,7 @@
 #include "../user_config.h"
 #include "constants.h"
 #include "../datatypes.h"
+#include "../utils.h"
 #include "../microcontrollers/importer.h"
 #include "../can_controllers/importer.h"
 

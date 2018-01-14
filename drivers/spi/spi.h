@@ -7,6 +7,7 @@
 #define __SPI_H__
 
 #include "../datatypes.h"
+#include "../utils.h"
 #include "../microcontrollers/importer.h" // Import the microcontroller
 
 void spi_setup(io_pin mosi, io_pin miso, io_pin sck);
