@@ -71,14 +71,16 @@ can_message* can_receive(void)
 bool can_transmit(can_message* msg)
 {
   // Make sure the user is requesting new CAN Messages when creating them
-  if (msg == _tx_push) {
-    return Failure;
-  }
 
   if (_mcp2515_is_busy() == True) {
       return Failure;
   }
 
+  // Send the CAN Message, return Failure if bus is busy
+  if (!can_controller_transmit(msg))
+    return Failure;
+
+  /*
   // Send all messages in the queue
   while (_tx_pop != _tx_push) {
     // Stop sending if the bus is busy
@@ -89,7 +91,7 @@ bool can_transmit(can_message* msg)
     _tx_pop++;
     if (_tx_pop == (_tx_queue + CAN_BUFFER_LENGTH))
       _tx_pop = _tx_queue; // Reset
-  }
+  }*/
 
   // Check for any missed messages
   can_message_check();

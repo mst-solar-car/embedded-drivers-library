@@ -12,7 +12,7 @@ to the user, and so on.
 |[CAN Controllers](can_controllers/README.md)|Device-specific drivers that are used by the CAN drivers to communicate over a CAN Bus |
 |[SPI](spi/README.md)|Drivers that interface with the Microcontroller drivers for communication on a SPI Bus|
 |[Bit Manipulation](#bit-manipulation-api)|Used for generic bit manipulation anywhere in program|
-|[Exampes](EXAMPLES.md)|Minimal-code examples for getting a hang of this library|
+|[Examples](EXAMPLES.md)|Minimal-code examples for getting a hang of this library|
 
 
 # User Configuration
