@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.h.test": "c",
+    "*.c.test": "c"
+  }
+}

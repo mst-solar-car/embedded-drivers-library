@@ -6,11 +6,11 @@
  *
  * Author: Michael Rouse
  */
-// gcc drivers/tests/tests.c drivers/microcontrollers/microcontroller.c drivers/microcontrollers/test/test_microcontroller.c drivers/tests/unity/unity.c -o tests.out -D UNIT_TEST
+// gcc -x c drivers/tests/tests.c.test drivers/microcontrollers/microcontroller.c drivers/microcontrollers/test/test_microcontroller.c.test drivers/tests/unity/unity.c.test -o tests.out -D UNIT_TEST
 
 #ifdef UNIT_TEST
 #include <stdlib.h>
-#include "unity/unity.h"
+#include "unity/unity.h.test"
 #include "../solarcar.h" // See, this is all you need to do to use the drivers :)
 
 // Unity will call the setUp function BEFORE every test, so we use this function to

@@ -39,7 +39,7 @@
 
 #elif defined(UNIT_TEST)
   // Unit Test Microcontroller
-  #include "test/test_microcontroller.h"
+  #include "test/test_microcontroller.h.test"
 
 
 #endif

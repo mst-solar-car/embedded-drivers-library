@@ -7,7 +7,7 @@
 
 #ifdef UNIT_TEST
 // FIRST thing first: include the header file for your driver implementation
-#include "test_microcontroller.h"
+#include "test_microcontroller.h.test"
 
 
 // The dir_registers array is declared in microcontroller.h
