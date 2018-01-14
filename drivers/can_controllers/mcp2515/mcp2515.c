@@ -260,9 +260,7 @@ void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
 {
   uint8_t i;
 
-  P2OUT &= ~BIT5;
-
-  //setPinLow(_can_controller_cs_pin);
+  setPinLow(_can_controller_cs_pin);
 
   spi_transmit(MCP2515_READ_CMD);
   spi_transmit(addr);
@@ -270,8 +268,7 @@ void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
   for (i = 0; i < bytes; i++) {
     *out++ = spi_transmit(NULL); // Transmit nothing to read a value
   }
-P2OUT |= BIT5;
-  //setPinHigh(_can_controller_cs_pin);
+  setPinHigh(_can_controller_cs_pin);
 }
 
 
