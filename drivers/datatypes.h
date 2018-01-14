@@ -65,7 +65,6 @@ typedef __VUINT16_TYPE__  vuint16_t;
 
 
 typedef uint8_t io_pin;   // Custom type to represent a pin
-typedef uint8_t spi_bus;  // SPI bus ID
 
 
 
@@ -135,15 +134,6 @@ typedef struct can_message_t {
   unsigned int  status;
   group_64      data;
 } can_message;
-
-
-// Struct for a SPI Bus configuration
-typedef struct spi_bus_config_t {
-  uint8_t mosi; // Pin used for MOSI
-  uint8_t miso; // Pin used for MISO
-  uint8_t sck;  // Pin used for SCK
-} spi_bus_config;
-
 
 
 

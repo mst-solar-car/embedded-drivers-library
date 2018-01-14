@@ -13,21 +13,24 @@
 void spi_setup(io_pin mosi, io_pin miso, io_pin sck)
 {
     uint8_t port;
+    uint8_t bit;
     vuint8_t* reg;
 
     // Configure pins for SPI
-    port = pinPort(mosi);
-    reg = selReg(port);
-    setRegisterBitHigh(reg, pinBit(mosi));
+    getPinPort(port, mosi);
+    getPinBit(bit, mosi);
+    getSelReg(reg, port);
+    setRegisterBitHigh(reg, bit);
 
-    port = pinPort(miso);
-    reg = selReg(port);
+    getPinPort(port, mosi);
+    getPinBit(bit, mosi);
+    getSelReg(reg, port);
+    setRegisterBitHigh(reg, bit);
 
-    setRegisterBitHigh(reg, pinBit(miso));
-
-    port = pinPort(sck);
-    reg = selReg(port);
-    setRegisterBitHigh(reg, pinBit(sck));
+    getPinPort(port, sck);
+    getPinBit(bit, mosi);
+    getSelReg(reg, port);
+    setRegisterBitHigh(reg, sck);
 }
 
 

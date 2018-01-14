@@ -25,7 +25,7 @@ void can_setup(io_pin cs_pin, io_pin int_pin)
 {
   // Configure the interrupt on the chip
   _can_int_pin = int_pin;
-  setInterrupt(_can_int_pin);
+  interruptPin(_can_int_pin);
 
   // Configure queues
   _tx_push = _tx_queue;
@@ -118,7 +118,7 @@ bool can_message_check(void)
   getIFGReg(ifgReg, port, False);
 
   // Check if interrupt flag is set for CAN
-  if (isHigh(*ifgReg, bit)) {
+  if (isBitHigh(*ifgReg, bit)) {
     // Interrupt was from CAN
     _can_handle_interrupt();
 

@@ -57,7 +57,7 @@ extern const uint8_t bit_map[];           // Pin4 => P6.7 => BIT7
 #define getInReg(var, port, ...)    var = inReg(port);  if (var == NO_REGISTER) return __VA_ARGS__
 #define getSelReg(var, port, ...)   var = selReg(port); if (var == NO_REGISTER) return __VA_ARGS__
 #define getIESReg(var, port, ...)   var = iesReg(port); if (var == NO_REGISTER) return __VA_ARGS__
-#define getIEReg(var, port, ...)    var = ieReg(port); if (var == NO_REGISTER) return __VA_ARGS__
+#define getIEReg(var, port, ...)    var = ieReg(port);  if (var == NO_REGISTER) return __VA_ARGS__
 #define getIFGReg(var, port, ...)   var = ifgReg(port); if (var == NO_REGISTER) return __VA_ARGS__
 
 
@@ -70,63 +70,44 @@ void togglePinLevel(io_pin pin);
 pin_level readPin(io_pin pin);
 
 
-
 /**
- * Directives to mark ports as INPUT or OUTPUT
+ * Aliases for pin control functions
  */
-#define inputPin(pin)     setPinMode(pin, INPUT)  // Configures a pin for INPUT
-#define setInput(pin)     inputPin(pin)           // inputPin alias
+#define inputPin(pin)     setPinMode(pin, Input)      // Configures a pin for INPUT
+#define outputPin(pin)    setPinMode(pin, Output)     // Configures a pin for OUTPUT
+#define interruptPin(pin) setPinMode(pin, Interrupt)  // Configures pin for an interrupt
 
-#define outputPin(pin)    setPinMode(pin, OUTPUT) // Configures a pin for OUTPUT
-#define setOutput(pin)    outputPin(pin)          // outputPin alias
+#define setPinHigh(pin)   setPinLevel(pin, High)    // Sets a pin HIGH
+#define setPinLow(pin)    setPinLevel(pin, Low)     // Sets a pin LOW
+#define togglePin(pin)    togglePinLevel(pin)       // Sets HIGH if LOW, and LOW if HIGH
 
-#define interruptPin(pin) setPinMode(pin, Interrupt) // Configures pin for an interrupt
-#define setInterrupt(pin) interruptPin(pin)           // interruptPin alias
-
-
-/**
- * Directives for controlling pins
- */
-#define setHigh(pin)      setPinLevel(pin, HIGH) // Sets a pin HIGH
-#define setPinHigh(pin)   setHigh(pin)           // Alias
-
-#define setLow(pin)       setPinLevel(pin, LOW)  // Sets a pin LOW
-#define setPinLow(pin)    setLow(pin)            // Alias
-
-#define toggle(pin)       togglePinLevel(pin)    // Toggles a pin HIGH or LOW
-#define togglePin(pin)    toggle(pin)            // Alias
-
-#define read(pin)         readPin(pin)           // Reads value of bit in register
-
+#define isPinHigh(pin)    (readPin(pin) == High)    // Tells if a pin is High
+#define isPinLow(pin)     (readPin(pin) == Low)     // Tells if a pin is Low
 
 /**
  * Directive for direct pin manipulation
  * Probably for unit testing and stuff
  */
 #define setRegister(reg, bits)           *reg = bits
-#define setRegisterBitHigh(reg, bit)     *reg |= bit
-#define setRegisterBitLow(reg, bit)      *reg &= ~bit
-#define toggleRegisterBit(reg, bit)      *reg ^= bit
+#define setRegisterBitHigh(reg, bit)     setBitHigh(*reg, bit)
+#define setRegisterBitLow(reg, bit)      setBitLow(*reg, bit)
+#define toggleRegisterBit(reg, bit)      toggleBit(*reg, bit)
 
 
 /**
  * Checking Bits
  */
-#define getBit(data, bit)   (data & bit)
+#define setBitHigh(data, bit) (data |= bit)
+#define setBitLow(data, bit)  (data &= ~bit)
+#define toggleBit(data, bit)  (data ^= bit)
+#define getBit(data, bit)     (data & bit)
 
-#define isLow(data, bit)    (getBit(data, bit) != bit)
-#define isHigh(data, bit)   (getBit(data, bit) == bit)
+#define isBitHigh(data, bit)  (getBit(data, bit) != NULL)
+#define isBitLow(data, bit)   (getBit(data, bit) == NULL)
 
-#define leftShift(bits, n)  ((uint8_t)(bits << n))
-#define rightShift(bits, n) ((uint8_t)(bits >> n))
+#define leftShift(bits, n)    ((uint8_t)(bits << n))
+#define rightShift(bits, n)   ((uint8_t)(bits >> n))
 
-
-/**
- * Arduino-Like Aliases
- */
-#define pinMode(pin, mode)        setPinMode(pin, mode)
-#define digitalWrite(pin, state)  setPinLevel(pin, state)
-#define digitalRead(pin)          readPin(pin)
 
 
 /**

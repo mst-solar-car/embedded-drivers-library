@@ -22,8 +22,8 @@ uint8_t _buffer[CAN_MESSAGE_SIZE+1];
 void can_controller_setup(io_pin cs_pin)
 {
   // Setup the CS pin
-  setOutput(cs_pin);
-  setHigh(cs_pin);
+  outputPin(cs_pin);
+  setPinHigh(cs_pin);
   _can_controller_cs_pin = cs_pin;
 
   // Configure the CAN Controller
@@ -133,12 +133,12 @@ bool can_controller_transmit(can_message* msg)
   uint8_t i;
 
   // Transmit the message to the CAN controller
-  setLow(_can_controller_cs_pin); // Toggle the CS pin
+  setPinLow(_can_controller_cs_pin); // Toggle the CS pin
   spi_transmit(MCP2515_WRITE_TX_CMD);
   for (i = 0; i < CAN_MESSAGE_SIZE; i++) {
     spi_transmit(_buffer[i]);
   }
-  setHigh(_can_controller_cs_pin); // Untoggle the CS pin
+  setPinHigh(_can_controller_cs_pin); // Untoggle the CS pin
 
   // Request the CAN Controller sends the message
   _mcp2515_request_send();
@@ -216,7 +216,7 @@ void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t bytes)
 {
   uint8_t i;
 
-  setLow(_can_controller_cs_pin); // Toggle the CS pin
+  setPinLow(_can_controller_cs_pin); // Toggle the CS pin
 
   spi_transmit(MCP2515_WRITE_CMD);
   spi_transmit(addr);
@@ -225,7 +225,7 @@ void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t bytes)
   }
   spi_transmit(*buff);
 
-  setHigh(_can_controller_cs_pin); // Untoggle the CS pin
+  setPinHigh(_can_controller_cs_pin); // Untoggle the CS pin
 }
 
 
@@ -238,14 +238,14 @@ void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t bytes)
  */
 void _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data)
 {
-  setLow(_can_controller_cs_pin);
+  setPinLow(_can_controller_cs_pin);
 
   spi_transmit(MCP2515_MODIFY_CMD);
   spi_transmit(addr);
   spi_transmit(mask);
   spi_transmit(data);
 
-  setHigh(_can_controller_cs_pin);
+  setPinHigh(_can_controller_cs_pin);
 }
 
 
@@ -262,7 +262,7 @@ void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
 
   P2OUT &= ~BIT5;
 
-  //setLow(_can_controller_cs_pin);
+  //setPinLow(_can_controller_cs_pin);
 
   spi_transmit(MCP2515_READ_CMD);
   spi_transmit(addr);
@@ -271,7 +271,7 @@ void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
     *out++ = spi_transmit(NULL); // Transmit nothing to read a value
   }
 P2OUT |= BIT5;
-  //setHigh(_can_controller_cs_pin);
+  //setPinHigh(_can_controller_cs_pin);
 }
 
 
@@ -280,11 +280,11 @@ P2OUT |= BIT5;
  */
 void _mcp2515_reset()
 {
-  setLow(_can_controller_cs_pin);
+  setPinLow(_can_controller_cs_pin);
 
   spi_transmit(0xC0); // TODO: fix constant
 
-  setHigh(_can_controller_cs_pin);
+  setPinHigh(_can_controller_cs_pin);
 }
 
 
@@ -306,9 +306,9 @@ void _mcp2515_request_send()
     i |= 0x04;
 
   // Send Request to Send Command
-  setLow(_can_controller_cs_pin);
+  setPinLow(_can_controller_cs_pin);
   spi_transmit(i);
-  setHigh(_can_controller_cs_pin);
+  setPinHigh(_can_controller_cs_pin);
 }
 
 
@@ -320,7 +320,7 @@ bool _mcp2515_is_busy(void)
   uint8_t status = _mcp2515_read_status();
 
   // If bit 4 of the status is high then CAN is busy
-  if (isHigh(status, 0x04)) {
+  if (isBitHigh(status, 0x04)) {
     return TRUE;
   }
 
@@ -335,14 +335,14 @@ uint8_t _mcp2515_read_status()
 {
   uint8_t status = NULL;
 
-  P2OUT &= ~BIT5;
-  //setLow(_can_controller_cs_pin);
+  //P2OUT &= BIT5;
+  setPinLow(_can_controller_cs_pin);
 
   spi_transmit(MCP2515_STATUS_CMD);
   status = spi_transmit(NULL);
 
-  //setHigh(_can_controller_cs_pin);
-  P2OUT |= BIT5;
+  setPinHigh(_can_controller_cs_pin);
+  //P2OUT |= BIT5;
   return status;
 }
 

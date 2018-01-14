@@ -36,7 +36,7 @@ void setPinMode(io_pin pin, pin_mode mode)
   }
   else if (mode == Interrupt) {
     // INTERRUPT
-    setInput(pin); // Mark Pin as INPUT
+    inputPin(pin); // Mark Pin as INPUT
 
     // Configure interrupt registers
     getIESReg(reg, port);
