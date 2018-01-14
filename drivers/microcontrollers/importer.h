@@ -54,9 +54,9 @@
  * Directive Enforcement (and apply default no-ops)
  */
 #ifdef MICROCONTROLLER
-  #ifndef NO_OP
-    #warning "Microcontroller drivers do not define the 'NO_OP' directive, lines performing no-op operations will be removed by optimizer"
-    #define NO_OP   // Nothing, these lines will be removed by compiler
+  #ifndef no_operation
+    #warning "Microcontroller drivers do not define the 'no_operation()' directive, lines performing no-op operations will be removed by optimizer"
+    #define no_operation()   // Nothing, these lines will be removed by compiler
   #endif
 
 
@@ -64,18 +64,18 @@
   #ifndef NO_INTERRUPTS
     #ifndef interrupts_enable
       #warning "Microcontroller drivers do not define the 'interrupts_enable()' directive, no way to enable interrupts; define 'NO_INTERRUPTS' if they are not supported"
-      #define interrupts_enable()   NO_OP
+      #define interrupts_enable()   no_operation()
     #endif
 
     #ifndef interrupts_disable
       #warning "Microcontroller drivers do not define the 'interrupts_disable()' directive, no way to disable interrupts; define 'NO_INTERRUPTS' if they are not supported"
-      #define interrupts_disable()  NO_OP
+      #define interrupts_disable()  no_operation()
     #endif
 
   #else
     // Interrupts not supported, assign no-ops
-    #define interrupts_enable()     NO_OP
-    #define interrupts_disable()    NO_OP
+    #define interrupts_enable()     no_operation()
+    #define interrupts_disable()    no_operation()
   #endif
 
 
@@ -83,24 +83,24 @@
   #ifndef NO_WATCHDOG
     #ifndef watchdog_enable
       #warning "Microcontroller drivers do not define the 'watchdog_enable()' directive, no way to enable the watchdog timer; define 'NO_WATCHDOG' if not supported"
-      #define watchdog_enable()     NO_OP
+      #define watchdog_enable()     no_operation()
     #endif
 
     #ifndef watchdog_disable
       #warning "Microcontroller drivers do not define the 'watchdog_disable()' directive, no way to disable the watchdog timer; define 'NO_WATCHDOG' if not supported"
-      #define watchdog_disable()    NO_OP
+      #define watchdog_disable()    no_operation()
     #endif
 
     #ifndef watchdog_pet
       #warning "Microcontroller drivers do not define the 'watchdog_pet()' directive, how are you going to pet your fluffy doggo? Define 'NO_WATCHDOG' if not supported"
-      #define watchdog_pet()        NO_OP
+      #define watchdog_pet()        no_operation()
     #endif
 
   #else
     // Watchdog not supported, assign no-ops
-    #define watchdog_enable()       NO_OP
-    #define watchdog_disable()      NO_OP
-    #define watchdog_pet()          NO_OP
+    #define watchdog_enable()       no_operation()
+    #define watchdog_disable()      no_operation()
+    #define watchdog_pet()          no_operation()
   #endif
 
   // Clock Frequency
@@ -112,6 +112,10 @@
   #ifndef NO_SPI
     #ifndef spi_busy_check
       #error "Microcontroller drivers do not define the 'spi_busy_check()' directive, please define it."
+    #endif
+
+    #ifndef spi_busy_check2
+      #error "Microcontroller drivers do not define the 'spi_busy_check2()' directive, please do so."
     #endif
 
     #ifndef spi_send_data

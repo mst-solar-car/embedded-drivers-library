@@ -14,7 +14,7 @@
 // Desired clock frequency (in Hz)
 #define MICROCONTROLLER_CLOCK_HZ   20000000
 
-#define NO_OP  _no_operation() // Does nothing in code, can be used as a breakpoint (won't be removed by optimization)
+#define no_operation()    _no_operation() // Does nothing in code, can be used as a breakpoint (won't be removed by optimization)
 
 // Watchdog
 #ifdef __MSP430_HAS_WDT_A__

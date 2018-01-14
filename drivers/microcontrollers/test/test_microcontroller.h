@@ -39,6 +39,7 @@
 
 // Useless SPI
 #define spi_busy_check()    // Nothing
+#define spi_busy_check2()   // Nothing
 #define spi_send_data(data) // Nothing
 #define spi_get_data()      // Nothing
 
