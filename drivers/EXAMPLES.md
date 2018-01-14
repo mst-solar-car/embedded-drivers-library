@@ -26,6 +26,7 @@ Each example is also setup around the MSP430F5529
 |[Reading Pins](#reading-pins)|
 |[Sending CAN Messages](#sending-can-messages)|
 |[Receiving CAN Messages](#receiving-can-messages)|
+|[Manual Register Access](#register-access)|
 
 &nbsp;
 
@@ -198,4 +199,32 @@ int main(void)
 // Masks apply to filters (ask someone about it)
 #define CAN_MASK1           0x000
 #define CAN_MASK2           0x000
+```
+
+
+&nbsp;
+
+# Register Access
+```c
+// Project/src/main.c
+#include "../drivers/solarcar.h"
+
+#define LED_PIN     P1_5  // LED
+
+void main(void)
+{
+  uint8_t port;
+  uint8_t bit;
+  vuint8_t* dirRegister;
+
+  // Get PORT and BIT
+  getPinPort(port, LED_PIN); // port = pinPort(LED_PIN); if (port == NO_PORT) return;
+  getPinBit(bit, LED_PIN); // bit = pinBit(LED_PIN); if (bit == NO_BIT) return;
+
+  // Get direction register
+  getDirReg(dirRegister, port); // dirRegister = dirReg(port); if (dirRegister == NO_REGISTER) return;
+
+  // Manually configure LED_PIN as output
+  setRegisterBitHigh(dirRegister, bit);
+}
 ```
