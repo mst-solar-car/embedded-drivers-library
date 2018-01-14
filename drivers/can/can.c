@@ -6,16 +6,19 @@
 #include "can.h"
 
 
-// Create message queues
-can_message _tx_queue[CAN_BUFFER_LENGTH];
-can_message* _tx_push;
-can_message* _tx_pop;
+/**
+ * "Private" Variables (for this file only)
+ */
+static can_message _tx_queue[CAN_BUFFER_LENGTH];
+static can_message* _tx_push;
+static can_message* _tx_pop;
 
-can_message _rx_queue[CAN_BUFFER_LENGTH];
-can_message* _rx_push;
-can_message* _rx_pop;
+static can_message _rx_queue[CAN_BUFFER_LENGTH];
+static can_message* _rx_push;
+static can_message* _rx_pop;
 
-io_pin _can_int_pin;
+static io_pin _can_int_pin;
+
 
 
 /**
@@ -198,5 +201,5 @@ void _can_handle_interrupt(void)
 
 
 void __attribute__ ((interrupt(PORT2_VECTOR))) PORT2_ISR (void) {
-can_message_check();
+  can_message_check();
 }

@@ -35,21 +35,4 @@ void _can_handle_interrupt(void);
 
 
 
-/**
- * "Private" Variables
- * Not to be accessed by the user
- */
-extern can_message _tx_queue[CAN_BUFFER_LENGTH];
-extern can_message* _tx_push;
-extern can_message* _tx_pop;
-
-extern can_message _rx_queue[CAN_BUFFER_LENGTH];
-extern can_message* _rx_push;
-extern can_message* _rx_pop;
-
-extern io_pin _can_int_pin;
-
-
-
-
 #endif
