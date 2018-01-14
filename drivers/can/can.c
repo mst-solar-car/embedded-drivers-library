@@ -7,6 +7,12 @@
 
 
 /**
+ * "Public" Variables
+ */
+can_message* can_new_msg;
+
+
+/**
  * "Private" Variables (for this file only)
  */
 static can_message _tx_queue[CAN_BUFFER_LENGTH];
@@ -17,7 +23,7 @@ static can_message _rx_queue[CAN_BUFFER_LENGTH];
 static can_message* _rx_push;
 static can_message* _rx_pop;
 
-static io_pin _can_int_pin;
+static io_pin   _can_int_pin;
 
 
 
@@ -37,6 +43,9 @@ void can_setup(io_pin cs_pin, io_pin int_pin)
   _rx_push = _rx_queue;
   _rx_pop = _rx_push;
 
+  // Initialize user access variable
+  can_new_msg = _tx_push;
+
   // Setup the CAN Controller
   can_controller_setup(cs_pin);
 }
@@ -49,17 +58,19 @@ void can_setup(io_pin cs_pin, io_pin int_pin)
  */
 can_message* can_receive(void)
 {
+  // Check for any missed interrupts or whatever
   can_message_check();
 
+  // If pointers are equal then no new messages
   if (_rx_push == _rx_pop)
     return NOTHING;
 
-  // Get the message from the front of the queue
+  // New messages! Get the message from the front of the queue
   can_message* msg = _rx_pop;
 
   // Advance the pop pointer
   _rx_pop++;
-  if (_rx_pop == (_rx_queue + CAN_BUFFER_LENGTH))
+  if (_rx_pop >= (_rx_queue + CAN_BUFFER_LENGTH))
     _rx_pop = _rx_queue; // Reset
 
   return msg;
@@ -68,33 +79,35 @@ can_message* can_receive(void)
 
 /**
  * Send a CAN Message
- *
- * @param can_message* msg  The message to send, if NULL it will send whatever is the TX queue
  */
-bool can_transmit(can_message* msg)
+bool can_transmit()
 {
-  // Make sure the user is requesting new CAN Messages when creating them
+  uint8_t i;
+  can_message* tx_push_old = _tx_push;
 
-  if (_mcp2515_is_busy() == True) {
-      return Failure;
-  }
+  // Increase push pointer before anything
+  _tx_push++;
+  if (_tx_push >= (_tx_queue + CAN_BUFFER_LENGTH))
+    _tx_push = _tx_queue;
 
-  // Send the CAN Message, return Failure if bus is busy
-  if (!can_controller_transmit(msg))
-    return Failure;
+  // Reset contents of new can message
+  _tx_push->address = NULL;
+  _tx_push->status = CAN_OK;
+  for (i = 0; i < 8; i++) _tx_push->data.data_u8[i] = NULL;
 
-  /*
+  can_new_msg = _tx_push; // Update variable for programmer to use
+
   // Send all messages in the queue
-  while (_tx_pop != _tx_push) {
+  while (_tx_pop != tx_push_old) {
     // Stop sending if the bus is busy
     if (!can_controller_transmit(_tx_pop))
       return Failure;
 
     // Advance the queue
     _tx_pop++;
-    if (_tx_pop == (_tx_queue + CAN_BUFFER_LENGTH))
-      _tx_pop = _tx_queue; // Reset
-  }*/
+    if (_tx_pop >= (_tx_queue + CAN_BUFFER_LENGTH))
+      _tx_pop = _tx_queue;
+  }
 
   // Check for any missed messages
   can_message_check();
@@ -144,29 +157,6 @@ bool can_message_check(void)
 }
 
 
-/**
- * Creates a "new" CAN Message
- */
-can_message* can_new_message(void)
-{
-  // Use memory space in the queue for this
-  can_message* msg = _tx_push;
-
-  msg->address = NULL;
-  msg->status = CAN_OK;
-
-  // Clear data
-  uint8_t i;
-  for (i = 0; i < 8; i++)
-    msg->data.data_u8[i] = NULL;
-
-  // Advance the push pointer
-  _tx_push++;
-  if (_tx_push == (_tx_queue + CAN_BUFFER_LENGTH))
-    _tx_push = _tx_queue;
-
-  return msg;
-}
 
 
 

@@ -7,10 +7,10 @@
 
 
 // Remember the chip select pin
-io_pin _can_controller_cs_pin;
+static io_pin _can_controller_cs_pin;
 
 // Buffer to hold data to be sent to the CAN Controller
-uint8_t _buffer[CAN_MESSAGE_SIZE+1];
+static uint8_t _buffer[CAN_MESSAGE_SIZE+1];
 
 
 /**
@@ -111,8 +111,8 @@ void can_controller_setup(io_pin cs_pin)
  */
 bool can_controller_transmit(can_message* msg)
 {
-  if (_mcp2515_is_busy() == TRUE) {
-    return FALSE; // CAN is busy, do not transmit the message
+  if (_mcp2515_is_busy() == True) {
+    return Failure; // CAN is busy, do not transmit the message
   }
 
   // Put the message into the buffer

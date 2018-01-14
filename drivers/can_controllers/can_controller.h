@@ -16,13 +16,6 @@
 
 
 /**
- * Variables you need to deal with
- */
-extern io_pin _can_controller_cs_pin;
-
-
-
-/**
  * Functions that the drivers should implement
  */
 

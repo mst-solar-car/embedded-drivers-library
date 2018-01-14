@@ -122,17 +122,16 @@ int main(void)
 
   while (True) {
     // Create the new CAN Message
-    can_message* msg = can_new_message();
-    msg->address = BOARD_CAN_ID;
-    msg->data.data_u8[0] = 5;
-    msg->data.data_u8[1] = 4;
-    msg->data.data_u8[2] = 3;
-    msg->data.data_u8[3] = 2;
-    msg->data.data_u8[4] = 1;
-    msg->data.data_u8[5] = 0;
+    can_new_msg->address = BOARD_CAN_ID;
+    can_new_msg->data.data_u8[0] = 5;
+    can_new_msg->data.data_u8[1] = 4;
+    can_new_msg->data.data_u8[2] = 3;
+    can_new_msg->data.data_u8[3] = 2;
+    can_new_msg->data.data_u8[4] = 1;
+    can_new_msg->data.data_u8[5] = 0;
 
-    // Send the message
-    can_transmit(msg);
+    // Send messages
+    can_transmit();
 
     __delay_cycles(10000000); // Delay
   }

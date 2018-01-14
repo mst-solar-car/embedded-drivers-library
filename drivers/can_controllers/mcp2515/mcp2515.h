@@ -9,9 +9,6 @@
 #include "../can_controller.h"
 
 
-// Buffer to hold data to be sent to the CAN Controller
-uint8_t _buffer[CAN_MESSAGE_SIZE+1];
-
 
 /**
  * Functions specific to the MCP2515 Driver
