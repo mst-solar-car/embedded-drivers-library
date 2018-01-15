@@ -62,7 +62,7 @@ void can_setup(io_pin cs_pin, io_pin int_pin)
 can_message* can_receive(void)
 {
   // Check for any missed interrupts or whatever
-  can_message_check();
+  //can_message_check();
 
   // If pointers are equal then no new messages
   if (_rx_push == _rx_pop)
@@ -103,9 +103,9 @@ bool can_transmit(void)
 
   can_new_msg = _tx_push; // Update variable for programmer to use
 
-  // Send up to 5 messages in the queue
-  uint8_t loop_count = 5;
-  while (_tx_pop != tx_push_old && loop_count >= 0) {
+  // Send messages in the queue
+  //uint8_t loop_count = 0;
+  while (_tx_pop != tx_push_old) {
     // Stop sending if the bus is busy
     if (_tx_pop->address != 0x00)
       if (!can_controller_transmit(_tx_pop))
@@ -116,11 +116,13 @@ bool can_transmit(void)
     if (_tx_pop >= (_tx_queue + CAN_BUFFER_LENGTH))
       _tx_pop = _tx_queue;
 
-    loop_count--;
+    /*if (loop_count >= 254)
+        break;
+    loop_count++;*/
   }
 
   // Check for any missed messages
-  can_message_check();
+ //can_message_check();
 
   return Success;
 }
@@ -136,14 +138,16 @@ bool can_transmit(void)
  */
 void can_message_check(void)
 {
-  uint8_t loop_count = 10;
+    setPinHigh(P6_2);
   // Check if interrupt was missed
-  while(readPin(_can_int_pin) == Low && loop_count >= 0) {
+  while(readPin(_can_int_pin) == Low) {
     // Interrupt was missed
     _can_handle_receiving_message();
-
-    loop_count--;
+    togglePin(P6_3);
+    __delay_cycles(10000); // Delay
   }
+  setPinLow(P6_2);
+  setPinLow(P6_3);
 }
 
 

@@ -197,8 +197,8 @@ void _dispatchInterrupt(uint8_t vector, uint8_t port)
   getIFGReg(ifgReg, port);
 
   // Perform operation based on what bit was toggled in the IFG register
-  intBitCheck(ifgReg, 7)
-  else intBitCheck(ifgReg, 6)
+  //intBitCheck(ifgReg, 7)
+  intBitCheck(ifgReg, 6)
   else intBitCheck(ifgReg, 5)
   else intBitCheck(ifgReg, 4)
   else intBitCheck(ifgReg, 3)
