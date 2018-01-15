@@ -26,15 +26,17 @@ static can_message* _rx_pop;
 static io_pin   _can_int_pin;
 
 
-
 /**
  * Initializes the CAN Driver
  */
 void can_setup(io_pin cs_pin, io_pin int_pin)
 {
-  // Configure the interrupt on the chip
   _can_int_pin = int_pin;
-  interruptPin(_can_int_pin);
+
+#ifndef NO_INTERRUPTS
+  // Configure pin for interrupts
+  attachInterrupt(_can_int_pin, can_message_check);
+#endif
 
   // Configure queues
   _tx_push = _tx_queue;
@@ -49,6 +51,7 @@ void can_setup(io_pin cs_pin, io_pin int_pin)
   // Setup the CAN Controller
   can_controller_setup(cs_pin);
 }
+
 
 
 /**
@@ -72,6 +75,9 @@ can_message* can_receive(void)
   _rx_pop++;
   if (_rx_pop >= (_rx_queue + CAN_BUFFER_LENGTH))
     _rx_pop = _rx_queue; // Reset
+
+  if (msg->address == NULL)
+    return NOTHING;
 
   return msg;
 }
@@ -126,6 +132,7 @@ bool can_transmit()
  */
 bool can_message_check(void)
 {
+#ifndef NO_INTERRUPTS
   uint8_t port;
   uint8_t bit;
   vuint8_t* ifgReg;
@@ -138,17 +145,16 @@ bool can_message_check(void)
   // Check if interrupt flag is set for CAN
   if (isBitHigh(*ifgReg, bit)) {
     // Interrupt was from CAN
-    _can_handle_interrupt();
-
-    setRegisterBitLow(ifgReg, bit); // Clear flag
+    _can_handle_receiving_message();
 
     return True;
   }
+#endif
 
   // Check if interrupt was missed
   if (~readPin(_can_int_pin)) {
     // Interrupt was missed
-    _can_handle_interrupt();
+    _can_handle_receiving_message();
 
     return True;
   }
@@ -172,7 +178,7 @@ bool can_message_check(void)
 /**
  * This function is further implementation of the can_message_check() function
  */
-void _can_handle_interrupt(void)
+void _can_handle_receiving_message(void)
 {
   // Receive a CAN Message into the RX queue
   can_controller_get_message(_rx_push);
@@ -187,9 +193,4 @@ void _can_handle_interrupt(void)
   _rx_push++;
   if (_rx_push == (_rx_queue + CAN_BUFFER_LENGTH))
     _rx_push = _rx_queue;
-}
-
-
-void __attribute__ ((interrupt(PORT2_VECTOR))) PORT2_ISR (void) {
-  can_message_check();
 }

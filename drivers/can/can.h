@@ -25,6 +25,8 @@ bool can_transmit();
 bool can_message_check(void);
 
 
+
+
 /**
  * "Public" Variables
  * These should be used by the user
@@ -37,7 +39,7 @@ extern can_message* can_new_msg;
  * "Private" Functions
  * These functions should only be called from inside can.c
  */
-void _can_handle_interrupt(void);
+void _can_handle_receiving_message(void);
 
 
 

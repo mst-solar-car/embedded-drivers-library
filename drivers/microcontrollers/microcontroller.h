@@ -70,13 +70,15 @@ void setPinLevel(io_pin pin, pin_level level);
 void togglePinLevel(io_pin pin);
 pin_level readPin(io_pin pin);
 
+void attachInterrupt(io_pin pin, void(*func)(void));
+#define nonPinInterrupt(vector)   void __attribute__((interrupt(vector)))  vector ## _ISR(void) // Macro for users to define non-pin interrupts (timers, etc...)
+
 
 /**
  * Aliases for pin control functions
  */
 #define inputPin(pin)     setPinMode(pin, Input)      // Configures a pin for INPUT
 #define outputPin(pin)    setPinMode(pin, Output)     // Configures a pin for OUTPUT
-#define interruptPin(pin) setPinMode(pin, Interrupt)  // Configures pin for an interrupt
 
 #define setPinHigh(pin)   setPinLevel(pin, High)    // Sets a pin HIGH
 #define setPinLow(pin)    setPinLevel(pin, Low)     // Sets a pin LOW
@@ -96,8 +98,22 @@ pin_level readPin(io_pin pin);
 
 
 
+/**
+ * "Private" Interrupt Stuff
+ */
+extern void _dispatchInterrupt(uint8_t vector, uint8_t port);
+
+// Used so microcontroller driver can register interrupt vectors
+#define REGISTER_PIN_INTERRUPT(vector, port)   void __attribute__((interrupt(vector)))  __ ## vector ## _ISR(void) { \
+                                                      _dispatchInterrupt(vector, port);\
+                                                    }
+
 
 // Make sure bit definitions are defined (unit testing)
+#define _nbSet(o, b, n) if (b == BIT ## n) o = n
+#define _numberBit(o, b) _nbSet(o, b, 0); else _nbSet(o, b, 1); else _nbSet(o, b, 2); else _nbSet(o, b, 3); else _nbSet(o, b, 4); else _nbSet(o, b, 5); else _nbSet(o, b, 6); else _nbSet(o, b, 7); \
+                         else _nbSet(o, b, 8); else _nbSet(o, b, 9); else o = -1
+
 #ifndef BIT0
 #define BIT0      (0x0001)
 #endif
@@ -160,6 +176,31 @@ pin_level readPin(io_pin pin);
 
 #ifndef BITF
 #define BITF      (0x8000)
+#endif
+
+
+#ifndef BIT10
+#define BIT10     BITA
+#endif
+
+#ifndef BIT11
+#define BIT11     BITB
+#endif
+
+#ifndef BIT12
+#define BIT12     BITC
+#endif
+
+#ifndef BIT13
+#define BIT13     BITD
+#endif
+
+#ifndef BIT14
+#define BIT14     BITE
+#endif
+
+#ifndef BIT15
+#define BIT15     BITF
 #endif
 
 

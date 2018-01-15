@@ -288,6 +288,7 @@ const uint8_t bit_map[] = {
 
 
 
+
 /**
  * Setup function for the microcontroller
  */
@@ -396,4 +397,9 @@ void microcontroller_setup(void)
   //UCB0IE   |= 0x04;     //Enable interrupts
   UCB1CTL1 &= ~UCSWRST;   //Release the bus from reset state
 }
+
+
+// Register PIN Interrupts
+REGISTER_PIN_INTERRUPT(PORT1_VECTOR, PORT1);
+REGISTER_PIN_INTERRUPT(PORT2_VECTOR, PORT2);
 

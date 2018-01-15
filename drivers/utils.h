@@ -22,8 +22,6 @@
 
 
 
-// Shorthand for setting an interrupt
-#define INTERRUPT(vector)     void __attribute__((interrupt(vector)))  vector ## _ISR(void) // Assists in creation of interrupts
 
 
 #endif

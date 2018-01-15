@@ -11,9 +11,20 @@
 #include "../microcontroller.h"
 
 
-// Desired clock frequency (in Hz)
-#define MICROCONTROLLER_CLOCK_HZ   20000000
+/**
+ * Microcontroller Specs
+ */
+#define MICROCONTROLLER_NUM_PINS                  80
+#define MICROCONTROLLER_NUM_PORTS                 9
+#define MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS   2
 
+#define MICROCONTROLLER_CLOCK_HZ                  20000000 // Clock frequency (in Hz)
+
+
+
+/**
+ * Modules
+ */
 #define no_operation()    _no_operation() // Does nothing in code, can be used as a breakpoint (won't be removed by optimization)
 
 // Watchdog
@@ -362,7 +373,6 @@ enum {
   PJOUT_REG = 0x0322,
   PJDIR_REG = 0x0324
 };
-
 
 
 

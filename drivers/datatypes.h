@@ -65,6 +65,7 @@ typedef __VUINT16_TYPE__  vuint16_t;
 
 
 typedef uint8_t io_pin;   // Custom type to represent a pin
+typedef void(*voidFuncPtr)(void);
 
 
 
@@ -88,8 +89,6 @@ typedef enum pin_mode_t {
   INPUT = 0x00,
   Input = 0x00,
 
-  Interrupt = 0x0F,
-
   OUTPUT = 0xFF,
   Output = 0xFF
 } pin_mode;
@@ -111,7 +110,8 @@ enum {
   NO_PIN      = __NULL__,
   NO_REGISTER = __NULL__,
   NO_PORT     = __NULL__,
-  NO_BIT      = __NULL__
+  NO_BIT      = __NULL__,
+  NO_VECTOR   = __NULL__
 };
 
 

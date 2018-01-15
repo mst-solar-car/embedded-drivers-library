@@ -72,10 +72,17 @@
       #define interrupts_disable()  no_operation()
     #endif
 
+    #ifndef MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS
+      #warning "Microcontroller drivers do not define the 'MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS' directive, no way to know how many ports support interrupts, resulting in wasted memory"
+      #define MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS 8
+    #endif
+
   #else
     // Interrupts not supported, assign no-ops
     #define interrupts_enable()     no_operation()
     #define interrupts_disable()    no_operation()
+
+    #define MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS   0
   #endif
 
 
