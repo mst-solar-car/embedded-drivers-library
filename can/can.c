@@ -138,16 +138,11 @@ bool can_transmit(void)
  */
 void can_message_check(void)
 {
-    setPinHigh(P6_2);
   // Check if interrupt was missed
   while(readPin(_can_int_pin) == Low) {
     // Interrupt was missed
     _can_handle_receiving_message();
-    togglePin(P6_3);
-    __delay_cycles(10000); // Delay
   }
-  setPinLow(P6_2);
-  setPinLow(P6_3);
 }
 
 
