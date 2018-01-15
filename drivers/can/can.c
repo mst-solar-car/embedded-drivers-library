@@ -66,7 +66,7 @@ can_message* can_receive(void)
 
   // If pointers are equal then no new messages
   if (_rx_push == _rx_pop)
-    return NOTHING;
+    return (can_message*)NOTHING;
 
   // New messages! Get the message from the front of the queue
   can_message* msg = _rx_pop;
@@ -76,8 +76,8 @@ can_message* can_receive(void)
   if (_rx_pop >= (_rx_queue + CAN_BUFFER_LENGTH))
     _rx_pop = _rx_queue; // Reset
 
-  if (msg->address == NULL)
-    return NOTHING;
+  if (msg->address == 0x00)
+    return (can_message*)NOTHING;
 
   return msg;
 }
@@ -86,7 +86,7 @@ can_message* can_receive(void)
 /**
  * Send a CAN Message
  */
-bool can_transmit()
+bool can_transmit(void)
 {
   uint8_t i;
   can_message* tx_push_old = _tx_push;
@@ -103,16 +103,20 @@ bool can_transmit()
 
   can_new_msg = _tx_push; // Update variable for programmer to use
 
-  // Send all messages in the queue
-  while (_tx_pop != tx_push_old) {
+  // Send up to 5 messages in the queue
+  uint8_t loop_count = 5;
+  while (_tx_pop != tx_push_old && loop_count >= 0) {
     // Stop sending if the bus is busy
-    if (!can_controller_transmit(_tx_pop))
-      return Failure;
+    if (_tx_pop->address != 0x00)
+      if (!can_controller_transmit(_tx_pop))
+        return Failure;
 
     // Advance the queue
     _tx_pop++;
     if (_tx_pop >= (_tx_queue + CAN_BUFFER_LENGTH))
       _tx_pop = _tx_queue;
+
+    loop_count--;
   }
 
   // Check for any missed messages
@@ -130,36 +134,16 @@ bool can_transmit()
  *
  * @return bool   TRUE if the interrupt was CAN and was handled, FALSE otherwise
  */
-bool can_message_check(void)
+void can_message_check(void)
 {
-#ifndef NO_INTERRUPTS
-  uint8_t port;
-  uint8_t bit;
-  vuint8_t* ifgReg;
-
-  // Get port, bit, and register values for interrupt checking
-  getPinPort(port, _can_int_pin, False);
-  getPinBit(bit, _can_int_pin, False);
-  getIFGReg(ifgReg, port, False);
-
-  // Check if interrupt flag is set for CAN
-  if (isBitHigh(*ifgReg, bit)) {
-    // Interrupt was from CAN
-    _can_handle_receiving_message();
-
-    return True;
-  }
-#endif
-
+  uint8_t loop_count = 10;
   // Check if interrupt was missed
-  if (~readPin(_can_int_pin)) {
+  while(readPin(_can_int_pin) == Low && loop_count >= 0) {
     // Interrupt was missed
     _can_handle_receiving_message();
 
-    return True;
+    loop_count--;
   }
-
-  return False; // Not a CAN interrupt (or no missed interrupt)
 }
 
 
