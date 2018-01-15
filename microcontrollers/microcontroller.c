@@ -191,7 +191,7 @@ void attachInterrupt(io_pin pin, void(*func)(void))
 void _dispatchInterrupt(uint8_t vector, uint8_t port)
 #ifndef NO_INTERRUPTS
 {
-  interrupts_disable(); // Disable interrupts
+  //interrupts_disable(); // Disable interrupts
 
   vuint8_t* ifgReg;
   getIFGReg(ifgReg, port);
@@ -206,7 +206,7 @@ void _dispatchInterrupt(uint8_t vector, uint8_t port)
   else intBitCheck(ifgReg, 1)
   else intBitCheck(ifgReg, 0)
 
-  interrupts_enable(); // Re-enable interrupts before leaving ISR
+ // interrupts_enable(); // Re-enable interrupts before leaving ISR
 }
 #else
 {

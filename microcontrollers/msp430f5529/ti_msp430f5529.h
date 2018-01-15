@@ -39,8 +39,8 @@
 
 
 // Interrupts
-#define interrupts_enable()     _enable_interrupts();
-#define interrupts_disable()    _disable_interrupts();
+#define interrupts_enable()     __bis_SR_register(GIE) //_enable_interrupts() //_BIS_SR(GIE)
+#define interrupts_disable()    __bic_SR_register(GIE) //_disable_interrupts() //_BIC_SR(GIE);
 
 
 // SPI
