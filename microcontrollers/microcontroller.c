@@ -192,7 +192,6 @@ void _dispatchInterrupt(uint8_t vector, uint8_t port)
 #ifndef NO_INTERRUPTS
 {
   //interrupts_disable(); // Disable interrupts
-
   vuint8_t* ifgReg;
   getIFGReg(ifgReg, port);
 

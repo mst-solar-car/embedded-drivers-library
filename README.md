@@ -49,8 +49,8 @@ The following table lists the data types (`typedef`s) defined by this library:
 |&nbsp;|&nbsp;|
 |`io_pin`|`uint8_t`|
 |`bool`| Enum: `False`, `Failure`, `Busy`, `True`, or `Success`|
-|`pin_mode`| Enum: `Input`, `Interrupt`, or `Output`|
-|`pin_level`| Enum: `Low`, or `High`|
+|`pin_mode`| Enum: `Input` or `Output`|
+|`pin_level`| Enum: `Low` or `High`|
 |&nbsp;|&nbsp;|
 |`group_64`| Union. (see file) |
 |`can_message`| Struct. (see file) |

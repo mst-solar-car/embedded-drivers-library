@@ -39,7 +39,6 @@ The following table lists the functions that can be used for controlling pins/re
 |`setPinMode(pin, mode)`| Configures `pin` in `mode` (`Input`, `Output`, or `Interrupt`)|
 |`inputPin(pin)`| Alias for `setPinMode(pin, Input)`|
 |`outputPin(pin)`| Alias for `setPinMode(pin, Output)`|
-|`interruptPin(pin)`| Alias for `setPinMode(pin, Interrupt)`|
 |&nbsp;|&nbsp;|
 |`setPinLevel(pin, level)`| Sets the `pin` to the `level` (`High`, or `Low`)|
 |`setPinHigh(pin)`| Alias for `setPinLevel(pin, High)`|

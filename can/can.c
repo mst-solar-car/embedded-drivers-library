@@ -62,7 +62,7 @@ void can_setup(io_pin cs_pin, io_pin int_pin)
 can_message* can_receive(void)
 {
   // Check for any missed interrupts or whatever
-  //can_message_check();
+  can_message_check();
 
   // If pointers are equal then no new messages
   if (_rx_push == _rx_pop)
@@ -122,7 +122,7 @@ bool can_transmit(void)
   }
 
   // Check for any missed messages
- //can_message_check();
+  can_message_check();
 
   return Success;
 }
