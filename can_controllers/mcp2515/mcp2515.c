@@ -34,19 +34,18 @@ void can_controller_setup(io_pin cs_pin)
   for(i = 0; i < 1000; i++);
 
   // Enter config mode
-  _mcp2515_modify(0x0F, 0x03, 0x00); // TODO: Fix constants
+  _mcp2515_modify(MCP2515_CONTROL_REGISTER, 0x03, 0x00); // TODO: Fix constants
 
-  _buffer[0] = 0x05;
-  _buffer[1] = 0xF8;
-  _buffer[2] = 0x00;
+  _buffer[0] = 0x05; // (CNF3) -|
+  _buffer[1] = 0xF8; // (CNF2)  |- Configure Baudrate for 500 kbps
+  _buffer[2] = 0x00; // (CNF1) -|
 
-  _buffer[3] = 0x23;
-  _buffer[4] = 0x00;
-  _buffer[5] = 0x00;
-  _mcp2515_write(0x28, &_buffer[0], 6); // TODO: FIX CONSTANTS
+  _buffer[3] = 0x23; // (CANINTE) enable error, rx0 & rx1 interrupts on IRQ pin
+  _buffer[4] = 0x00; // (CANINTF) register: clear all IRQ flags
+  _buffer[5] = 0x00; // (EFLG) clear all user changable error flags
+  _mcp2515_write(MCP2515_CNF3_REGISTER, &_buffer[0], 6); // TODO: FIX CONSTANTS
 
-  // TODO: Receive buffer rollover
-  _mcp2515_modify(0x60, 0x04, 0x04);
+  _mcp2515_modify(MCP2515_RX0_REGISTER, 0x04, 0x04); // Enable receive buffer rollover
 
   // First set of filters
   _buffer[0] = rightShift(CAN_FILTER1, 3);
@@ -94,19 +93,18 @@ void can_controller_setup(io_pin cs_pin)
   _buffer[7] = NULL;
   _mcp2515_write(MCP2515_MASK_REGISTER, &_buffer[0], 8);
 
-
+#ifdef MCP2515_USE_RTS_PINS
   // Set function of the RTS pins if configured
-  #ifdef MCP2515_USE_RTS_PINS
   _buffer[0] = 0x01;
   _buffer[1] = 0x01;
   _buffer[2] = 0x01;
   _mcp2515_write(MCP2515_TXRTSCTRL_REGISTER, &_buffer[0], 3); // Sets the function of TX0RTS, TX1RTS, and TX2RTS as a RTS pin
   setOutput(MCP2515_TX0RTS_PIN); // Set mode of pin for the RTS as output
   setPinHigh(MCP2515_TX0RTS_PIN);
-  #endif
+#endif
 
   // Leave config mode
-  _mcp2515_modify(0x0F, 0xE0, 0x00); // Leave configuration mode
+  _mcp2515_modify(MCP2515_CONTROL_REGISTER, 0xE0, 0x00); // Leave configuration mode
 }
 
 
@@ -145,7 +143,7 @@ bool can_controller_transmit(can_message* msg)
 
   // Transmit the message to the CAN controller
   setPinLow(_can_controller_cs_pin); // Toggle the CS pin
-  spi_transmit(DEFAULT_SPI_BUS, MCP2515_WRITE_TX_CMD);
+  spi_transmit(DEFAULT_SPI_BUS, MCP2515_LOAD_TX0_CMD);
   for (i = 0; i < CAN_MESSAGE_SIZE; i++) {
     spi_transmit(DEFAULT_SPI_BUS, _buffer[i]);
   }
@@ -170,7 +168,7 @@ void can_controller_get_message(can_message* out)
 {
   // Read the flags
   uint8_t flags;
-  _mcp2515_read(MCP2515_FLAG_REGISTER, &flags, 1);
+  _mcp2515_read(MCP2515_CANINTF_REGISTER, &flags, 1);
 
   // Check for errors
   if ((flags & MCP2515_ERROR_CHECk) != NULL) {
@@ -182,7 +180,7 @@ void can_controller_get_message(can_message* out)
 
     // Clear flags
     _mcp2515_modify(EFLAG, _buffer[0], NULL);
-    _mcp2515_modify(MCP2515_FLAG_REGISTER, MCP2515_ERROR_CHECk, NULL);
+    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_ERROR_CHECk, NULL);
   }
 
   // No errors, receive message if it's in RX Buffer 0
@@ -191,7 +189,7 @@ void can_controller_get_message(can_message* out)
     _mcp2515_get_message_from_buffer(MCP2515_RX0_REGISTER, out);
 
     // Clear flags
-    _mcp2515_modify(MCP2515_FLAG_REGISTER, MCP2515_RX0_CHECK, NULL);
+    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX0_CHECK, NULL);
   }
 
   // Receive message if it's in RX Buffer 1
@@ -200,7 +198,7 @@ void can_controller_get_message(can_message* out)
     _mcp2515_get_message_from_buffer(MCP2515_RX1_REGISTER, out);
 
     // Clear flags
-    _mcp2515_modify(MCP2515_FLAG_REGISTER, MCP2515_RX1_CHECK, NULL);
+    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX1_CHECK, NULL);
   }
 
   return;
@@ -355,7 +353,7 @@ uint8_t _mcp2515_read_status()
   //P2OUT &= BIT5;
   setPinLow(_can_controller_cs_pin);
 
-  spi_transmit(DEFAULT_SPI_BUS, MCP2515_STATUS_CMD);
+  spi_transmit(DEFAULT_SPI_BUS, MCP2515_READ_STATUS_CMD);
   status = spi_transmit(DEFAULT_SPI_BUS, NULL);
 
   setPinHigh(_can_controller_cs_pin);

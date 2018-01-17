@@ -74,7 +74,8 @@ typedef __VUINT8_TYPE__   vuint8_t;
 typedef __VUINT16_TYPE__  vuint16_t;
 
 // Aliases for types that are used often
-typedef uint8_t io_pin;     // Custom type to represent a pin
+typedef uint8_t   io_pin;         // Custom type to represent a pin
+typedef uint16_t  register_addr;  // Represents a registry address
 
 typedef void(*voidFuncPtr)(void);
 
