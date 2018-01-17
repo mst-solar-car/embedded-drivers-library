@@ -99,7 +99,7 @@ void can_controller_setup(io_pin cs_pin)
   _buffer[1] = 0x01;
   _buffer[2] = 0x01;
   _mcp2515_write(MCP2515_TXRTSCTRL_REGISTER, &_buffer[0], 3); // Sets the function of TX0RTS, TX1RTS, and TX2RTS as a RTS pin
-  setOutput(MCP2515_TX0RTS_PIN); // Set mode of pin for the RTS as output
+  outputPin(MCP2515_TX0RTS_PIN); // Set mode of pin for the RTS as output
   setPinHigh(MCP2515_TX0RTS_PIN);
 #endif
 
