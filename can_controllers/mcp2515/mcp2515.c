@@ -27,6 +27,10 @@ void can_controller_setup(io_pin cs_pin)
   _can_controller_cs_pin = cs_pin;
 
   // Configure the CAN Controller
+#ifdef MCP2515_RESET_PIN
+  outputPin(MCP2515_RESET_PIN);
+  setPinHigh(MCP2515_RESET_PIN);
+#endif
   _mcp2515_reset();
 
   // Delay for reset
@@ -101,6 +105,14 @@ void can_controller_setup(io_pin cs_pin)
   _mcp2515_write(MCP2515_TXRTSCTRL_REGISTER, &_buffer[0], 3); // Sets the function of TX0RTS, TX1RTS, and TX2RTS as a RTS pin
   outputPin(MCP2515_TX0RTS_PIN); // Set mode of pin for the RTS as output
   setPinHigh(MCP2515_TX0RTS_PIN);
+  #ifdef MCP2515_TX1RTS_PIN
+    outputPin(MCP2515_TX1RTS_PIN);
+    setPinHigh(MCP2515_TX1RTS_PIN);
+  #endif
+  #ifdef MCP2515_TX2RTS_PIN
+    outputPin(MCP2515_TX2RTS_PIN);
+    setPinHigh(MCP2515_TX2RTS_PIN);
+  #endif
 #endif
 
   // Leave config mode
@@ -286,11 +298,17 @@ void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
  */
 void _mcp2515_reset()
 {
+#ifndef MCP2515_RESET_PIN
+  // Reset over SPI
   setPinLow(_can_controller_cs_pin);
-
-  spi_transmit(DEFAULT_SPI_BUS, 0xC0); // TODO: fix constant
-
+  spi_transmit(DEFAULT_SPI_BUS, MCP2515_RESET_CMD);
   setPinHigh(_can_controller_cs_pin);
+#else
+  // Reset using the PIN
+  setPinLow(MCP2515_RESET_PIN);
+  no_operation();
+  setPinHigh(MCP2515_RESET_PIN);
+#endif
 }
 
 

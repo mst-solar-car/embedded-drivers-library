@@ -25,6 +25,7 @@ void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out);
 
 
 
+
 /**
  * Commands
  *
@@ -76,6 +77,24 @@ void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out);
 #define TEC             0x1C
 #define REC             0x1D
 
+
+
+
+
+/**
+ * Verify configuration directives
+ */
+#ifdef MCP2515_USE_RTS_PINS
+  #ifndef MCP2515_TX0RTS_PIN
+    #warning "MCP2515 is configured to use RTS pins, but the directive 'MCP2515_TX0RTS_PIN' is not defined in user_config.h"
+  #endif
+  #ifndef MCP2515_TX1RTS_PIN
+    #warning "MCP2515 is configured to use RTS pins, but the directive 'MCP2515_TX1RTS_PIN' is not defined in user_config.h"
+  #endif
+  #ifndef MCP2515_TX2RTS_PIN
+    #warning "MCP2515 is configured to use RTS pins, but the directive 'MCP2515_TX2RTS_PIN' is not defined in user_config.h"
+  #endif
+#endif
 
 
 
