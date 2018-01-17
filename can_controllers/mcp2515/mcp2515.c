@@ -94,6 +94,17 @@ void can_controller_setup(io_pin cs_pin)
   _buffer[7] = NULL;
   _mcp2515_write(MCP2515_MASK_REGISTER, &_buffer[0], 8);
 
+
+  // Set function of the RTS pins if configured
+  #ifdef MCP2515_USE_RTS_PINS
+  _buffer[0] = 0x01;
+  _buffer[1] = 0x01;
+  _buffer[2] = 0x01;
+  _mcp2515_write(MCP2515_TXRTSCTRL_REGISTER, &_buffer[0], 3); // Sets the function of TX0RTS, TX1RTS, and TX2RTS as a RTS pin
+  setOutput(MCP2515_TX0RTS_PIN); // Set mode of pin for the RTS as output
+  setPinHigh(MCP2515_TX0RTS_PIN);
+  #endif
+
   // Leave config mode
   _mcp2515_modify(0x0F, 0xE0, 0x00); // Leave configuration mode
 }
@@ -291,21 +302,30 @@ void _mcp2515_reset()
  */
 void _mcp2515_request_send()
 {
+#ifndef MCP2515_USE_RTS_PINS
+#warning "MCP2515 drivers are using SPI to send RTS commands. Try using the TX0RTS, TX1RTS, and TX2RTS pins"
+  // Send RTS signal for TX0RTS over SPI
   uint8_t buff = 0;
   uint8_t i;
 
   i = 0x80; // TODO: Fix constants specific to MCP2515
   if (buff == 0)
-    i |= 0x01;
+    i |= 0x01;  // TX0RTS
   else if (buff == 1)
-    i |= 0x02;
+    i |= 0x02;  // TX1RTS
   else if (buff == 2)
-    i |= 0x04;
+    i |= 0x04;  // TX2RTS
 
   // Send Request to Send Command
   setPinLow(_can_controller_cs_pin);
   spi_transmit(DEFAULT_SPI_BUS, i);
   setPinHigh(_can_controller_cs_pin);
+#else
+  // Send signal for TX0RTS over the TX0RTS pin
+  setPinLow(MCP2515_TX0RTS_PIN);
+  no_operation();
+  setPinHigh(MCP2515_TX0RTS_PIN);
+#endif
 }
 
 

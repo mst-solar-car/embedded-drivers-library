@@ -116,32 +116,32 @@ pin_level readPin(io_pin pin)
 static void emptyFunc(void) { }
 
 static volatile voidFuncPtr _interruptEvents[MC_NUM_INTERRUPTABLE_PORTS][8] = {
-#if MC > 8
+#if MC_NUM_INTERRUPTABLE_PORTS > 8
   #warning "More than 8 interruptable ports, some callbacks will not be initialized"
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MC > 7
+#if MC_NUM_INTERRUPTABLE_PORTS > 7
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MC > 6
+#if MC_NUM_INTERRUPTABLE_PORTS > 6
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MC > 5
+#if MC_NUM_INTERRUPTABLE_PORTS > 5
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MC > 4
+#if MC_NUM_INTERRUPTABLE_PORTS > 4
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MC > 3
+#if MC_NUM_INTERRUPTABLE_PORTS > 3
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MC > 2
+#if MC_NUM_INTERRUPTABLE_PORTS > 2
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MC > 1
+#if MC_NUM_INTERRUPTABLE_PORTS > 1
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MC > 0
+#if MC_NUM_INTERRUPTABLE_PORTS > 0
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc}
 #endif
 };

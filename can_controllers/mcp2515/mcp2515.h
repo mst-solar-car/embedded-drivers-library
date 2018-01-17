@@ -50,6 +50,7 @@ void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out);
 #define MCP2515_FILTER2_REGISTER  0x10  // RXF3SIDH - Register for part of the filters
 #define MCP2515_MASK_REGISTER     0x20  // RXM0SIDH - Register for masks
 
+#define MCP2515_TXRTSCTRL_REGISTER  0x0D  // Register for configuration of the TXnRTS pins
 
 #define EFLAG           0x2D
 #define TEC             0x1C

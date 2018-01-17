@@ -11,7 +11,7 @@
 #define MC_NUM_PORTS                  9
 #define MC_NUM_INTERRUPTABLE_PORTS    2
 
-#define MC_NUM_SPI_BUSSES             4
+#define MC_NUM_SPI_BUSES             4
 
 #define MC_CLOCK_HZ                   20000000 // Clock speed in Hz
 

@@ -18,11 +18,11 @@
 #define __TRUE__    1
 #define __FALSE__   0
 
-#define __HIGH_PIN__  0x01
-#define __LOW_PIN__   0x00
+#define __HIGH__  0x01
+#define __LOW__   0x00
 
-#define __OUTPUT_PIN__  0xFF
-#define __INPUT_PIN__   0x00
+#define __OUTPUT__  0xFF
+#define __INPUT__   0x00
 
 
 
@@ -97,43 +97,44 @@ typedef enum bool_t {
 
 // Enum for pin direction
 typedef enum pin_mode_t {
-  INPUT = __INPUT_PIN__,
-  Input = __INPUT_PIN__,
+  INPUT = __INPUT__,
+  Input = __INPUT__,
 
-  OUTPUT = __OUTPUT_PIN__,
-  Output = __OUTPUT_PIN__
+  OUTPUT = __OUTPUT__,
+  Output = __OUTPUT__
 } pin_mode;
 
 // Enum for pin level
 typedef enum pin_level_t {
-  LOW = __LOW_PIN__,
-  Low = __LOW_PIN__,
+  LOW = __LOW__,
+  Low = __LOW__,
 
-  HIGH = __HIGH_PIN__,
-  High = __HIGH_PIN__
+  HIGH = __HIGH__,
+  High = __HIGH__
 } pin_level;
+
 
 // Enum for SPI Bus identifiers
 typedef enum spi_bus_t {
 #ifndef MC_NO_SPI
   SPI_BUS_1 = 1,
-#if MC_NUM_SPI_BUSSES > 1
+#if MC_NUM_SPI_BUSES  > 1
   SPI_BUS_2,
 #endif
-#if MC_NUM_SPI_BUSSES > 2
+#if MC_NUM_SPI_BUSES  > 2
   SPI_BUS_3,
 #endif
-#if MC_NUM_SPI_BUSSES > 3
+#if MC_NUM_SPI_BUSES > 3
   SPI_BUS_4,
 #endif
-#if MC_NUM_SPI_BUSSES > 4
+#if MC_NUM_SPI_BUSES > 4
   SPI_BUS_5,
 #endif
-#if MC_NUM_SPI_BUSSES > 5
+#if MC_NUM_SPI_BUSES > 5
   SPI_BUS_6,
 #endif
-#if MC_NUM_SPI_BUSSES > 6
-  #error "PLEASE ADD MORE SPI BUSSES TO datatypes.h"
+#if MC_NUM_SPI_BUSES > 6
+  #error "PLEASE ADD MORE SPI BUSES TO datatypes.h"
 #endif
 #endif
 } spi_bus;

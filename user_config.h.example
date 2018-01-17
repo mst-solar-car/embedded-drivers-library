@@ -30,6 +30,15 @@
 
 
 /*********************************
+ *  CAN Controller Configuration *
+ *********************************/
+
+//#define MCP2515_USE_RTS_PINS  // Uncomment to configure the MCP2515 to use RTS pins instead of RTS SPI Commands
+//#define MCP2515_TX0RTS_PIN    P4_7  // Uncomment and change this value when using the RTS pins
+
+
+
+/*********************************
  *      SPI Configuration        *
  *********************************/
 
