@@ -11,7 +11,7 @@
 
 
 #define __LIBRARY_NAME__      "Solar Car Embedded Drivers Library"
-#define __LIBRARY_VERSION__   0.8
+#define __LIBRARY_VERSION__   0.9
 
 
 

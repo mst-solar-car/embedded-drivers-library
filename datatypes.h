@@ -3,6 +3,8 @@
  *
  * Author: Michael Rouse
  */
+#include "microcontrollers/spec_importer.h"
+
 #ifndef __DATATYPES_H__
 #define __DATATYPES_H__
 
@@ -12,8 +14,16 @@
 #endif
 
 #define __NULL__    0x00
-#define __FALSE__   0
+
 #define __TRUE__    1
+#define __FALSE__   0
+
+#define __HIGH_PIN__  0x01
+#define __LOW_PIN__   0x00
+
+#define __OUTPUT_PIN__  0xFF
+#define __INPUT_PIN__   0x00
+
 
 
 // Assign types set by GCC if they are not defined for some reason
@@ -63,8 +73,9 @@ typedef __UINT64_TYPE__   uint64_t;
 typedef __VUINT8_TYPE__   vuint8_t;
 typedef __VUINT16_TYPE__  vuint16_t;
 
+// Aliases for types that are used often
+typedef uint8_t io_pin;     // Custom type to represent a pin
 
-typedef uint8_t io_pin;   // Custom type to represent a pin
 typedef void(*voidFuncPtr)(void);
 
 
@@ -86,21 +97,47 @@ typedef enum bool_t {
 
 // Enum for pin direction
 typedef enum pin_mode_t {
-  INPUT = 0x00,
-  Input = 0x00,
+  INPUT = __INPUT_PIN__,
+  Input = __INPUT_PIN__,
 
-  OUTPUT = 0xFF,
-  Output = 0xFF
+  OUTPUT = __OUTPUT_PIN__,
+  Output = __OUTPUT_PIN__
 } pin_mode;
 
 // Enum for pin level
 typedef enum pin_level_t {
-  LOW = 0x00,
-  Low = 0x00,
+  LOW = __LOW_PIN__,
+  Low = __LOW_PIN__,
 
-  HIGH = 0x01,
-  High = 0x01
+  HIGH = __HIGH_PIN__,
+  High = __HIGH_PIN__
 } pin_level;
+
+// Enum for SPI Bus identifiers
+typedef enum spi_bus_t {
+#ifndef MC_NO_SPI
+  SPI_BUS_1 = 1,
+#if MC_NUM_SPI_BUSSES > 1
+  SPI_BUS_2,
+#endif
+#if MC_NUM_SPI_BUSSES > 2
+  SPI_BUS_3,
+#endif
+#if MC_NUM_SPI_BUSSES > 3
+  SPI_BUS_4,
+#endif
+#if MC_NUM_SPI_BUSSES > 4
+  SPI_BUS_5,
+#endif
+#if MC_NUM_SPI_BUSSES > 5
+  SPI_BUS_6,
+#endif
+#if MC_NUM_SPI_BUSSES > 6
+  #error "PLEASE ADD MORE SPI BUSSES TO datatypes.h"
+#endif
+#endif
+} spi_bus;
+
 
 // These are used to represent null values, there are different names to help with readability
 enum {

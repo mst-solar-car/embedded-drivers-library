@@ -115,33 +115,33 @@ pin_level readPin(io_pin pin)
 // Function for default interrupt (does nothing)
 static void emptyFunc(void) { }
 
-static volatile voidFuncPtr _interruptEvents[MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS][8] = {
-#if MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS > 8
+static volatile voidFuncPtr _interruptEvents[MC_NUM_INTERRUPTABLE_PORTS][8] = {
+#if MC > 8
   #warning "More than 8 interruptable ports, some callbacks will not be initialized"
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS > 7
+#if MC > 7
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS > 6
+#if MC > 6
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS > 5
+#if MC > 5
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS > 4
+#if MC > 4
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS > 3
+#if MC > 3
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS > 2
+#if MC > 2
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS > 1
+#if MC > 1
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc},
 #endif
-#if MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS > 0
+#if MC > 0
   {emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc, emptyFunc}
 #endif
 };
@@ -189,7 +189,7 @@ void attachInterrupt(io_pin pin, void(*func)(void))
  * It will call a user defined function if one has been specified
  */
 void _dispatchInterrupt(uint8_t vector, uint8_t port)
-#ifndef NO_INTERRUPTS
+#ifndef MC_NO_INTERRUPTS
 {
   //interrupts_disable(); // Disable interrupts
   vuint8_t* ifgReg;

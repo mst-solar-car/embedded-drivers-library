@@ -8,18 +8,8 @@
 #define MICROCONTROLLER
 
 #include <msp430f5529.h>
+#include "ti_msp430f5529.spec"
 #include "../microcontroller.h"
-
-
-/**
- * Microcontroller Specs
- */
-#define MICROCONTROLLER_NUM_PINS                  80
-#define MICROCONTROLLER_NUM_PORTS                 9
-#define MICROCONTROLLER_NUM_INTERRUPTABLE_PORTS   2
-
-#define MICROCONTROLLER_CLOCK_HZ                  20000000 // Clock frequency (in Hz)
-
 
 
 /**
@@ -41,15 +31,6 @@
 // Interrupts
 #define interrupts_enable()     __bis_SR_register(GIE) //_enable_interrupts()
 #define interrupts_disable()    __bic_SR_register(GIE) //_disable_interrupts()
-
-
-// SPI
-#define spi_busy_check()      while((UCB1STAT & BIT1) != 0)
-#define spi_busy_check2()     while((UCB1STAT & BIT0) != 0)
-#define spi_send_data(data)   UCB1TXBUF = data
-#define spi_get_data()        UCB1RXBUF
-
-
 
 
 // Port names mapped to an integer for use in an array
@@ -174,7 +155,6 @@ enum {
   P2_6 = PIN35,
   P2_7 = PIN36
 };
-
 
 // Port 3
 enum {

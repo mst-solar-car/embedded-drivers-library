@@ -1,7 +1,7 @@
 {
   "files.associations": {
-    "*.h.test": "c",
-    "*.c.test": "c",
-    "*.test": "cpp"
+    "*.test": "c",
+    "*.spec": "c",
+    "*.example": "c"
   }
 }

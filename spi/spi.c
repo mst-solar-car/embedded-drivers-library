@@ -10,7 +10,7 @@
 /**
  * Setup for SPI hardware
  */
-void spi_setup(io_pin mosi, io_pin miso, io_pin sck)
+void spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck)
 {
     uint8_t port;
     vuint8_t* reg;
@@ -27,6 +27,9 @@ void spi_setup(io_pin mosi, io_pin miso, io_pin sck)
     port = pinPort(sck);
     reg = selReg(port);
     setRegisterBitHigh(reg, pinBit(sck));
+
+    // Setup special microcontroller registers
+    microcontroller_spi_setup(bus);
 }
 
 
@@ -34,16 +37,13 @@ void spi_setup(io_pin mosi, io_pin miso, io_pin sck)
 /**
  * Transmit over SPI
  *
+ * @param spi_bus   bus     The bus to send Data over
  * @param uint8_t   data    Data to send
  *
  * @return uint8_t  Data received from transmission
  */
-uint8_t spi_transmit(uint8_t data)
+uint8_t spi_transmit(spi_bus bus, uint8_t data)
 {
-    spi_busy_check();
-    spi_send_data(data);
-    spi_busy_check2();
-
-    return spi_get_data();
+  return microcontroller_spi_transmit(bus, data);
 }
 

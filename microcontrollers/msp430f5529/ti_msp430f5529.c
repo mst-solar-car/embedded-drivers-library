@@ -295,9 +295,7 @@ const uint8_t bit_map[] = {
 void microcontroller_setup(void)
 {
   // Disable watchdog
-  #ifndef NO_WATCHDOG
   watchdog_disable();
-  #endif
 
   // Configure each pin as OUTPUT and set all bits LOW initially
   setRegister(dirReg(PORT1), OUTPUT);  setRegister(outReg(PORT1), LOW);
@@ -309,10 +307,8 @@ void microcontroller_setup(void)
   setRegister(dirReg(PORT7), OUTPUT);  setRegister(outReg(PORT7), LOW);
   setRegister(dirReg(PORT8), OUTPUT);  setRegister(outReg(PORT8), LOW);
 
-  // Enable interrupts (by default)
-  #ifndef NO_INTERRUPTS
+  // Enable interrupts
   interrupts_enable();
-  #endif
 
 
   // Initialize the clock (by Jesse Cureton)
@@ -322,8 +318,8 @@ void microcontroller_setup(void)
   uint16_t ratio, dco_div_bits;
   uint8_t mode = 0;
 
-  uint16_t sysfreq = MICROCONTROLLER_CLOCK_HZ / 1000; // Get clock in kHz
-  ratio = MICROCONTROLLER_CLOCK_HZ / 32768; // Ratio of clock and crystal frequency
+  uint16_t sysfreq = MC_CLOCK_HZ / 1000; // Get clock in kHz
+  ratio = MC_CLOCK_HZ / 32768; // Ratio of clock and crystal frequency
   dco_div_bits = FLLD__2;
 
   if (sysfreq > 1600) {
@@ -386,16 +382,79 @@ void microcontroller_setup(void)
   // UG for optimization.
   // 32 x 32 x 20 MHz / 32,768 Hz = 625000 MCLK cycles for DCO to settle
   __delay_cycles(625000);
+}
 
 
-  // Initialize SPI
-  UCB1CTL1  = UCSWRST;    //Hold the device in a reset state while we configure
-  UCB1CTL0  = 0x69;       //SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
-  UCB1CTL1 |= UCSSEL_3;       //SPI clock (BRCLK) source = SMCLK
-  UCB1BR1   = 0x00;       //Set the high bit of the baud rate generator
-  UCB1BR0   = 0x14;       //Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
-  //UCB0IE   |= 0x04;     //Enable interrupts
-  UCB1CTL1 &= ~UCSWRST;   //Release the bus from reset state
+
+
+/**
+ * Configure a SPI Bus
+ */
+void microcontroller_spi_setup(spi_bus bus)
+{
+  switch (bus) {
+    case SPI_BUS_1:
+      // UCA0
+      break;
+
+    case SPI_BUS_2:
+      // UCA1
+      break;
+
+    case SPI_BUS_3:
+      // UCB0
+      break;
+
+    case SPI_BUS_4:
+      // UCB1
+      UCB1CTL1  = UCSWRST;    //Hold the device in a reset state while we configure
+      UCB1CTL0  = 0x69;       //SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+      UCB1CTL1 |= UCSSEL_3;       //SPI clock (BRCLK) source = SMCLK
+      UCB1BR1   = 0x00;       //Set the high bit of the baud rate generator
+      UCB1BR0   = 0x14;       //Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+      //UCB0IE   |= 0x04;     //Enable interrupts
+      UCB1CTL1 &= ~UCSWRST;   //Release the bus from reset state
+      break;
+  }
+}
+
+
+/**
+ * Send Data over a SPI bus
+ */
+uint8_t microcontroller_spi_transmit(spi_bus bus, uint8_t data)
+{
+  switch (bus) {
+    case SPI_BUS_1:
+      // UCA0
+      while ((UCA0STAT & BIT1) != 0);
+      UCA0TXBUF = data;
+      while ((UCA0STAT & BIT0) != 0);
+      return UCA0RXBUF;
+
+    case SPI_BUS_2:
+      // UCA1
+      while ((UCA1STAT & BIT1) != 0);
+      UCA1TXBUF = data;
+      while ((UCA1STAT & BIT0) != 0);
+      return UCA1RXBUF;
+
+    case SPI_BUS_3:
+      // UCB0
+      while ((UCB0STAT & BIT1) != 0);
+      UCB0TXBUF = data;
+      while ((UCB0STAT & BIT0) != 0);
+      return UCB0RXBUF;
+
+    case SPI_BUS_4:
+      // UCB1
+      while ((UCB1STAT & BIT1) != 0);
+      UCB1TXBUF = data;
+      while ((UCB1STAT & BIT0) != 0);
+      return UCB1RXBUF;
+  }
+
+  return 0;
 }
 
 

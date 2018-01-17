@@ -7,7 +7,7 @@
 
 
 // Remember the chip select pin
-static io_pin _can_controller_cs_pin;
+static io_pin   _can_controller_cs_pin;
 
 // Buffer to hold data to be sent to the CAN Controller
 static uint8_t _buffer[CAN_MESSAGE_SIZE+1];
@@ -134,9 +134,9 @@ bool can_controller_transmit(can_message* msg)
 
   // Transmit the message to the CAN controller
   setPinLow(_can_controller_cs_pin); // Toggle the CS pin
-  spi_transmit(MCP2515_WRITE_TX_CMD);
+  spi_transmit(DEFAULT_SPI_BUS, MCP2515_WRITE_TX_CMD);
   for (i = 0; i < CAN_MESSAGE_SIZE; i++) {
-    spi_transmit(_buffer[i]);
+    spi_transmit(DEFAULT_SPI_BUS, _buffer[i]);
   }
   setPinHigh(_can_controller_cs_pin); // Untoggle the CS pin
 
@@ -218,12 +218,12 @@ void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t bytes)
 
   setPinLow(_can_controller_cs_pin); // Toggle the CS pin
 
-  spi_transmit(MCP2515_WRITE_CMD);
-  spi_transmit(addr);
+  spi_transmit(DEFAULT_SPI_BUS, MCP2515_WRITE_CMD);
+  spi_transmit(DEFAULT_SPI_BUS, addr);
   for (i = 0; i < (bytes - 1); i++) {
-    spi_transmit(*buff++);
+    spi_transmit(DEFAULT_SPI_BUS, *buff++);
   }
-  spi_transmit(*buff);
+  spi_transmit(DEFAULT_SPI_BUS, *buff);
 
   setPinHigh(_can_controller_cs_pin); // Untoggle the CS pin
 }
@@ -240,10 +240,10 @@ void _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data)
 {
   setPinLow(_can_controller_cs_pin);
 
-  spi_transmit(MCP2515_MODIFY_CMD);
-  spi_transmit(addr);
-  spi_transmit(mask);
-  spi_transmit(data);
+  spi_transmit(DEFAULT_SPI_BUS, MCP2515_MODIFY_CMD);
+  spi_transmit(DEFAULT_SPI_BUS, addr);
+  spi_transmit(DEFAULT_SPI_BUS, mask);
+  spi_transmit(DEFAULT_SPI_BUS, data);
 
   setPinHigh(_can_controller_cs_pin);
 }
@@ -262,11 +262,11 @@ void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
 
   setPinLow(_can_controller_cs_pin);
 
-  spi_transmit(MCP2515_READ_CMD);
-  spi_transmit(addr);
+  spi_transmit(DEFAULT_SPI_BUS, MCP2515_READ_CMD);
+  spi_transmit(DEFAULT_SPI_BUS, addr);
 
   for (i = 0; i < bytes; i++) {
-    *out++ = spi_transmit(NULL); // Transmit nothing to read a value
+    *out++ = spi_transmit(DEFAULT_SPI_BUS, NULL); // Transmit nothing to read a value
   }
   setPinHigh(_can_controller_cs_pin);
 }
@@ -279,7 +279,7 @@ void _mcp2515_reset()
 {
   setPinLow(_can_controller_cs_pin);
 
-  spi_transmit(0xC0); // TODO: fix constant
+  spi_transmit(DEFAULT_SPI_BUS, 0xC0); // TODO: fix constant
 
   setPinHigh(_can_controller_cs_pin);
 }
@@ -304,7 +304,7 @@ void _mcp2515_request_send()
 
   // Send Request to Send Command
   setPinLow(_can_controller_cs_pin);
-  spi_transmit(i);
+  spi_transmit(DEFAULT_SPI_BUS, i);
   setPinHigh(_can_controller_cs_pin);
 }
 
@@ -335,8 +335,8 @@ uint8_t _mcp2515_read_status()
   //P2OUT &= BIT5;
   setPinLow(_can_controller_cs_pin);
 
-  spi_transmit(MCP2515_STATUS_CMD);
-  status = spi_transmit(NULL);
+  spi_transmit(DEFAULT_SPI_BUS, MCP2515_STATUS_CMD);
+  status = spi_transmit(DEFAULT_SPI_BUS, NULL);
 
   setPinHigh(_can_controller_cs_pin);
   //P2OUT |= BIT5;

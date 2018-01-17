@@ -6,6 +6,7 @@
  * Author: Michael Rouse
  */
 #include "../user_config.h"
+#include "spec_importer.h"
 #include "../datatypes.h"
 #include "../utils.h"
 
@@ -14,9 +15,18 @@
 
 
 /**
- * Functions that the drivers should define
+ * Functions that the drivers should
  */
+
+// Initializes pins, clock, and anything else on the microcontroller (runs before the main function)
 extern void microcontroller_setup(void) __attribute__((constructor));
+
+// Configures a bus for SPI
+extern void microcontroller_spi_setup(spi_bus bus);
+
+// Sends data over SPI on a bus and returns the result
+extern uint8_t microcontroller_spi_transmit(spi_bus bus, uint8_t data);
+
 
 
 /**
@@ -27,7 +37,7 @@ extern const vuint16_t* out_registers[];  // PxOUT
 extern const vuint16_t* in_registers[];   // PxIN
 extern const vuint16_t* sel_registers[];  // PxSEL
 extern const vuint16_t* ies_registers[];  // PxIES  (Interrupt Edge Select)
-extern const vuint16_t* ie_registers[];   // PxIE   (Intterupt Enable)
+extern const vuint16_t* ie_registers[];   // PxIE   (Interrupt Enable)
 extern const vuint16_t* ifg_registers[];  // PxIFG  (Interrupt Flag)
 
 extern const uint8_t port_map[];          // Pin4 => P6.7 => PORT6
@@ -36,8 +46,48 @@ extern const uint8_t bit_map[];           // Pin4 => P6.7 => BIT7
 
 
 
-// Everything below this line is not important to microcontroller driver implementation
-// Everything below this line should only be used in microcontroller.c
+
+
+// Everything below is defined in microcontroller.c, and does not need to be defined by the user
+// Use the pin control directives in your program though
+
+
+/**
+ * Aliases for pin control functions
+ */
+#define inputPin(pin)     setPinMode(pin, Input)      // Configures a pin for INPUT
+#define outputPin(pin)    setPinMode(pin, Output)     // Configures a pin for OUTPUT
+
+#define setPinHigh(pin)   setPinLevel(pin, High)    // Sets a pin HIGH
+#define setPinLow(pin)    setPinLevel(pin, Low)     // Sets a pin LOW
+#define togglePin(pin)    togglePinLevel(pin)       // Sets HIGH if LOW, and LOW if HIGH
+
+#define isPinHigh(pin)    (readPin(pin) == High)    // Tells if a pin is High
+#define isPinLow(pin)     (readPin(pin) == Low)     // Tells if a pin is Low
+
+
+/**
+ * Functions for controlling pins (microcontroller.c--NOT driver implementation)
+ */
+void setPinMode(io_pin pin, pin_mode mode);
+void setPinLevel(io_pin pin, pin_level level);
+void togglePinLevel(io_pin pin);
+pin_level readPin(io_pin pin);
+
+void attachInterrupt(io_pin pin, void(*func)(void));
+#define nonPinInterrupt(vector)   void __attribute__((interrupt(vector)))  vector ## _ISR(void) // Macro for users to define non-pin interrupts (timers, etc...)
+
+
+
+
+/**
+ * Directive for direct pin manipulation
+ * Probably for unit testing and stuff
+ */
+#define setRegister(reg, bits)           *reg = bits
+#define setRegisterBitHigh(reg, bit)     setBitHigh(*reg, bit)
+#define setRegisterBitLow(reg, bit)      setBitLow(*reg, bit)
+#define toggleRegisterBit(reg, bit)      toggleBit(*reg, bit)
 
 
 // Array helper functions
@@ -60,41 +110,6 @@ extern const uint8_t bit_map[];           // Pin4 => P6.7 => BIT7
 #define getIESReg(var, port, ...)   var = iesReg(port); if (var == NO_REGISTER) return __VA_ARGS__
 #define getIEReg(var, port, ...)    var = ieReg(port);  if (var == NO_REGISTER) return __VA_ARGS__
 #define getIFGReg(var, port, ...)   var = ifgReg(port); if (var == NO_REGISTER) return __VA_ARGS__
-
-
-/**
- * Functions for controlling pins (microcontroller.c--NOT driver implementation)
- */
-void setPinMode(io_pin pin, pin_mode mode);
-void setPinLevel(io_pin pin, pin_level level);
-void togglePinLevel(io_pin pin);
-pin_level readPin(io_pin pin);
-
-void attachInterrupt(io_pin pin, void(*func)(void));
-#define nonPinInterrupt(vector)   void __attribute__((interrupt(vector)))  vector ## _ISR(void) // Macro for users to define non-pin interrupts (timers, etc...)
-
-
-/**
- * Aliases for pin control functions
- */
-#define inputPin(pin)     setPinMode(pin, Input)      // Configures a pin for INPUT
-#define outputPin(pin)    setPinMode(pin, Output)     // Configures a pin for OUTPUT
-
-#define setPinHigh(pin)   setPinLevel(pin, High)    // Sets a pin HIGH
-#define setPinLow(pin)    setPinLevel(pin, Low)     // Sets a pin LOW
-#define togglePin(pin)    togglePinLevel(pin)       // Sets HIGH if LOW, and LOW if HIGH
-
-#define isPinHigh(pin)    (readPin(pin) == High)    // Tells if a pin is High
-#define isPinLow(pin)     (readPin(pin) == Low)     // Tells if a pin is Low
-
-/**
- * Directive for direct pin manipulation
- * Probably for unit testing and stuff
- */
-#define setRegister(reg, bits)           *reg = bits
-#define setRegisterBitHigh(reg, bit)     setBitHigh(*reg, bit)
-#define setRegisterBitLow(reg, bit)      setBitLow(*reg, bit)
-#define toggleRegisterBit(reg, bit)      toggleBit(*reg, bit)
 
 
 
