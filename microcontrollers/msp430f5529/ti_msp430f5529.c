@@ -395,14 +395,35 @@ void microcontroller_spi_setup(spi_bus bus)
   switch (bus) {
     case SPI_BUS_1:
       // UCA0
+      UCA0CTL1  = UCSWRST;	//Hold the device in a reset state while we configure
+			UCA0CTL0  = 0x69;		//SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+			UCA0CTL1 |= UCSSEL_3;		//SPI clock (BRCLK) source = SMCLK
+			UCA0BR1	  = 0x00;		//Set the high bit of the baud rate generator
+			UCA0BR0	  = 0x14;		//Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+			//UCA0IE   |= 0x04;		//Enable interrupts
+			UCA0CTL1 &= ~UCSWRST;	//Release the bus from reset state
       break;
 
     case SPI_BUS_2:
       // UCA1
+      UCA1CTL1  = UCSWRST;	//Hold the device in a reset state while we configure
+			UCA1CTL0  = 0x69;		//SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+			UCA1CTL1 |= UCSSEL_3;		//SPI clock (BRCLK) source = SMCLK
+			UCA1BR1	  = 0x00;		//Set the high bit of the baud rate generator
+			UCA1BR0	  = 0x14;		//Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+			//UCA1IE   |= 0x04;		//Enable interrupts
+			UCA1CTL1 &= ~UCSWRST;	//Release the bus from reset state
       break;
 
     case SPI_BUS_3:
       // UCB0
+      UCB0CTL1  = UCSWRST;	//Hold the device in a reset state while we configure
+			UCB0CTL0  = 0x69;		//SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+			UCB0CTL1 |= UCSSEL_3;		//SPI clock (BRCLK) source = SMCLK
+			UCB0BR1	  = 0x00;		//Set the high bit of the baud rate generator
+			UCB0BR0	  = 0x14;		//Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+			//UCB0IE   |= 0x04;		//Enable interrupts
+			UCB0CTL1 &= ~UCSWRST;	//Release the bus from reset state
       break;
 
     case SPI_BUS_4:
@@ -412,7 +433,7 @@ void microcontroller_spi_setup(spi_bus bus)
       UCB1CTL1 |= UCSSEL_3;       //SPI clock (BRCLK) source = SMCLK
       UCB1BR1   = 0x00;       //Set the high bit of the baud rate generator
       UCB1BR0   = 0x14;       //Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
-      //UCB0IE   |= 0x04;     //Enable interrupts
+      //UCB1IE   |= 0x04;     //Enable interrupts
       UCB1CTL1 &= ~UCSWRST;   //Release the bus from reset state
       break;
   }
@@ -427,30 +448,30 @@ uint8_t microcontroller_spi_transmit(spi_bus bus, uint8_t data)
   switch (bus) {
     case SPI_BUS_1:
       // UCA0
-      while ((UCA0STAT & BIT1) != 0);
+      while ((UCA0STAT & UCIDLE) != 0);
       UCA0TXBUF = data;
-      while ((UCA0STAT & BIT0) != 0);
+      while ((UCA0STAT & UCBUSY) != 0);
       return UCA0RXBUF;
 
     case SPI_BUS_2:
       // UCA1
-      while ((UCA1STAT & BIT1) != 0);
+      while ((UCA1STAT & UCIDLE) != 0);
       UCA1TXBUF = data;
-      while ((UCA1STAT & BIT0) != 0);
+      while ((UCA1STAT & UCBUSY) != 0);
       return UCA1RXBUF;
 
     case SPI_BUS_3:
       // UCB0
-      while ((UCB0STAT & BIT1) != 0);
+      while ((UCB0STAT & UCIDLE) != 0);
       UCB0TXBUF = data;
-      while ((UCB0STAT & BIT0) != 0);
+      while ((UCB0STAT & UCBUSY) != 0);
       return UCB0RXBUF;
 
     case SPI_BUS_4:
       // UCB1
-      while ((UCB1STAT & BIT1) != 0);
+      while ((UCB1STAT & UCIDLE) != 0);
       UCB1TXBUF = data;
-      while ((UCB1STAT & BIT0) != 0);
+      while ((UCB1STAT & UCBUSY) != 0);
       return UCB1RXBUF;
   }
 
