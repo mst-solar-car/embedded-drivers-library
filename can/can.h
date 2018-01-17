@@ -37,9 +37,11 @@ extern can_message* can_new_msg;
 
 /**
  * "Private" Functions
- * These functions should only be called from inside can.c
+ * These functions should only be called from inside can.c, or the
+ * CAN Controller
  */
 void _can_handle_receiving_message(void);
+extern can_message* _can_get_next_receive_ptr(void);
 
 
 

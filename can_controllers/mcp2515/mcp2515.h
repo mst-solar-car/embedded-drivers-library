@@ -8,24 +8,6 @@
 
 #include "../can_controller.h"
 
-
-
-/**
- * Functions specific to the MCP2515 Driver
- */
-void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t bytes);
-void _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data);
-void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes);
-void _mcp2515_reset(void);
-void _mcp2515_request_send(void);
-bool _mcp2515_is_busy(void);
-uint8_t _mcp2515_read_status(void);
-void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out);
-
-
-
-
-
 /**
  * Commands
  *
@@ -64,11 +46,13 @@ void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out);
 #define MCP2515_CANINTE_REGISTER    0x2B  // Interrupt config register
 #define MCP2515_CANINTF_REGISTER    0x2C  // Holds flags
 #define MCP2515_EFLG_REGISTER       0x2D  // Error flags
+#define MCP2515_BFPCTRL_REGISTER    0x0C
+
 
 
 #define MCP2515_RX0_CHECK         0x01  // Used to determine if a message is in RX0
 #define MCP2515_RX1_CHECK         0x02  // Used to determine if a message is in RX1
-#define MCP2515_ERROR_CHECk       0x20  // Used to determine if flags have errors
+#define MCP2515_ERROR_CHECK       0x20  // Used to determine if flags have errors
 #define MCP2515_REMOTE_CHECK      0x08  // Used to check if message is remote request frame
 
 
@@ -86,7 +70,7 @@ void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out);
  */
 #ifdef MCP2515_USE_RTS_PINS
   #ifndef MCP2515_TX0RTS_PIN
-    #warning "MCP2515 is configured to use RTS pins, but the directive 'MCP2515_TX0RTS_PIN' is not defined in user_config.h"
+    #error "MCP2515 is configured to use RTS pins, but the directive 'MCP2515_TX0RTS_PIN' is not defined in user_config.h"
   #endif
   #ifndef MCP2515_TX1RTS_PIN
     #warning "MCP2515 is configured to use RTS pins, but the directive 'MCP2515_TX1RTS_PIN' is not defined in user_config.h"
@@ -96,6 +80,14 @@ void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out);
   #endif
 #endif
 
-
+// Verify directives for using RXnBF pins
+#ifdef MCP2515_USE_RXBF_PINS
+  #ifndef MCP2515_RX0BF_PIN
+    #error "MCP2515 is configured to use RXnBF pins but the 'MCP2515_RX0BF_PIN' directive is not defined in user_config.h"
+  #endif
+  #ifndef MCP2515_RX1BF_PIN
+    #error "MCP2515 is configured to use RXnBF pins but the 'MCP2515_RX1BF_PIN' directive is not defined in user_config.h"
+  #endif
+#endif
 
 #endif

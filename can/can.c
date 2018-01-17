@@ -23,7 +23,6 @@ static can_message _rx_queue[CAN_BUFFER_LENGTH];
 static can_message* _rx_push;
 static can_message* _rx_pop;
 
-static io_pin   _can_int_pin;
 
 
 /**
@@ -31,13 +30,6 @@ static io_pin   _can_int_pin;
  */
 void can_setup(io_pin cs_pin, io_pin int_pin)
 {
-  _can_int_pin = int_pin;
-
-#ifndef NO_INTERRUPTS
-  // Configure pin for interrupts
-  attachInterrupt(_can_int_pin, can_message_check);
-#endif
-
   // Configure queues
   _tx_push = _tx_queue;
   _tx_pop = _tx_push;
@@ -49,7 +41,7 @@ void can_setup(io_pin cs_pin, io_pin int_pin)
   can_new_msg = _tx_push;
 
   // Setup the CAN Controller
-  can_controller_setup(cs_pin);
+  can_controller_setup(int_pin, cs_pin);
 }
 
 
@@ -62,7 +54,7 @@ void can_setup(io_pin cs_pin, io_pin int_pin)
 can_message* can_receive(void)
 {
   // Check for any missed interrupts or whatever
-  can_message_check();
+  can_controller_poll();
 
   // If pointers are equal then no new messages
   if (_rx_push == _rx_pop)
@@ -78,6 +70,8 @@ can_message* can_receive(void)
 
   if (msg->address == 0x00)
     return (can_message*)NOTHING;
+
+
 
   return msg;
 }
@@ -122,27 +116,9 @@ bool can_transmit(void)
   }
 
   // Check for any missed messages
-  can_message_check();
+  can_controller_poll();
 
   return Success;
-}
-
-
-/**
- * Checks if the interrupt that occured was for CAN, and if it was it will receive the message
- * If you are using interrupts, then call this function when the port interrupt occurs.
- *
- * This can also be used to check if an interrupt was missed (by calling it in the main loop)
- *
- * @return bool   TRUE if the interrupt was CAN and was handled, FALSE otherwise
- */
-void can_message_check(void)
-{
-  // Check if interrupt was missed
-  while(readPin(_can_int_pin) == Low) {
-    // Interrupt was missed
-    _can_handle_receiving_message();
-  }
 }
 
 
@@ -159,21 +135,17 @@ void can_message_check(void)
 
 
 /**
- * This function is further implementation of the can_message_check() function
+ * Used by the CAN controller drivers to place a message in the CAN
+ * Receive buffer
  */
-void _can_handle_receiving_message(void)
+can_message* _can_get_next_receive_ptr(void)
 {
-  // Receive a CAN Message into the RX queue
-  can_controller_get_message(_rx_push);
+  can_message* next = _rx_push; // Preserve
 
-  // If message is an error, ignore it
-  #ifndef CAN_RECEIVE_ERROR_PACKETS
-  if (_rx_push->status == CAN_ERROR)
-    return;
-  #endif
-
-  // Advance the rx push pointer to the next spot
+  // Increment pointer
   _rx_push++;
   if (_rx_push == (_rx_queue + CAN_BUFFER_LENGTH))
     _rx_push = _rx_queue;
+
+  return next;
 }

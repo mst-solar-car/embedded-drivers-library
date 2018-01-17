@@ -10,6 +10,7 @@
 #include "../utils.h"
 #include "../spi/spi.h"
 #include "../can/constants.h"
+#include "../can/can.h"
 
 #ifndef __CAN_CONTROLLER_H__
 #define __CAN_CONTROLLER_H__
@@ -25,7 +26,7 @@
  * This function should do all the configuration needed for the CAN Controller
  * to function properly.
  */
-extern void can_controller_setup(io_pin cs_pin);
+extern void can_controller_setup(io_pin int_pin, io_pin cs_pin);
 
 
 /*
@@ -41,14 +42,10 @@ extern bool can_controller_transmit(can_message* msg);
 
 
 /**
- * CAN Controller Get Message
- *
- * Reads the data of a received CAN Message from the MCP2515 and returns it
- * as a pointer to a can_message.
- *
- * @param can_message* out   The message received
+ * This is used to check for missed interrupts, or to poll when you
+ * have no interrupts
  */
-extern void can_controller_get_message(can_message* out);
+extern void can_controller_poll();
 
 
 

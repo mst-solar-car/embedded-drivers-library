@@ -8,9 +8,31 @@
 
 // Remember the chip select pin
 static io_pin   _can_controller_cs_pin;
+static io_pin   _can_controller_int_pin;
 
 // Buffer to hold data to be sent to the CAN Controller
 static uint8_t _buffer[CAN_MESSAGE_SIZE+1];
+
+/**
+ * "Private" Functions specific to MCP2515
+ */
+static void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t bytes);
+static void _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data);
+static void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes);
+static void _mcp2515_reset(void);
+static void _mcp2515_request_send(void);
+static bool _mcp2515_is_busy(void);
+static uint8_t _mcp2515_read_status(void);
+static void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out);
+
+
+#ifdef MCP2515_USE_RXBF_PINS
+static void _mcp2515_handle_RX0BF_interrupt(void);
+static void _mcp2515_handle_RX1BF_interrupt(void);
+#else
+static void _mcp2515_get_message(can_message* out);
+#endif
+
 
 
 /**
@@ -19,12 +41,25 @@ static uint8_t _buffer[CAN_MESSAGE_SIZE+1];
  * This function should do all the configuration needed for the CAN Controller
  * to function properly.
  */
-void can_controller_setup(io_pin cs_pin)
+void can_controller_setup(io_pin int_pin, io_pin cs_pin)
 {
   // Setup the CS pin
-  outputPin(cs_pin);
-  setPinHigh(cs_pin);
   _can_controller_cs_pin = cs_pin;
+  outputPin(_can_controller_cs_pin);
+  setPinHigh(_can_controller_cs_pin);
+
+  // Setup the INT pin
+  _can_controller_int_pin = int_pin;
+#ifndef MC_NO_INTERRUPTS
+#ifndef MCP2515_USE_RXBF_PINS
+  // Use only a single interrupt pin
+  attachInterrupt(_can_controller_int_pin, can_controller_poll);
+#else
+  // Use interrupts for RX0BF and RX1BF
+  attachInterrupt(MCP2515_RX0BF_PIN, _mcp2515_handle_RX0BF_interrupt);
+  attachInterrupt(MCP2515_RX1BF_PIN, _mcp2515_handle_RX1BF_interrupt);
+#endif
+#endif
 
   // Configure the CAN Controller
 #ifdef MCP2515_RESET_PIN
@@ -44,12 +79,18 @@ void can_controller_setup(io_pin cs_pin)
   _buffer[1] = 0xF8; // (CNF2)  |- Configure Baudrate for 500 kbps
   _buffer[2] = 0x00; // (CNF1) -|
 
+#ifndef MCP2515_USE_RXBF_PINS
   _buffer[3] = 0x23; // (CANINTE) enable error, rx0 & rx1 interrupts on IRQ pin
+#else
+  _buffer[3] = 0x23; // If useing the RXnBF pins then don't do anything with the INT pin
+#endif
   _buffer[4] = 0x00; // (CANINTF) register: clear all IRQ flags
   _buffer[5] = 0x00; // (EFLG) clear all user changable error flags
   _mcp2515_write(MCP2515_CNF3_REGISTER, &_buffer[0], 6); // TODO: FIX CONSTANTS
 
+#ifndef MCP2515_NO_ROLLOVER
   _mcp2515_modify(MCP2515_RX0_REGISTER, 0x04, 0x04); // Enable receive buffer rollover
+#endif
 
   // First set of filters
   _buffer[0] = rightShift(CAN_FILTER1, 3);
@@ -103,8 +144,10 @@ void can_controller_setup(io_pin cs_pin)
   _buffer[1] = 0x01;
   _buffer[2] = 0x01;
   _mcp2515_write(MCP2515_TXRTSCTRL_REGISTER, &_buffer[0], 3); // Sets the function of TX0RTS, TX1RTS, and TX2RTS as a RTS pin
+
   outputPin(MCP2515_TX0RTS_PIN); // Set mode of pin for the RTS as output
   setPinHigh(MCP2515_TX0RTS_PIN);
+
   #ifdef MCP2515_TX1RTS_PIN
     outputPin(MCP2515_TX1RTS_PIN);
     setPinHigh(MCP2515_TX1RTS_PIN);
@@ -113,6 +156,15 @@ void can_controller_setup(io_pin cs_pin)
     outputPin(MCP2515_TX2RTS_PIN);
     setPinHigh(MCP2515_TX2RTS_PIN);
   #endif
+#endif
+
+#ifdef MCP2515_USE_RXBF_PINS
+  // Configure the RXnBF pin functionality
+  _buffer[0] = 0x01;
+  _buffer[1] = 0x01;
+  _buffer[2] = 0x01;
+  _buffer[3] = 0x01;
+  _mcp2515_write(MCP2515_BFPCTRL_REGISTER, &_buffer[0], 4);
 #endif
 
   // Leave config mode
@@ -169,49 +221,24 @@ bool can_controller_transmit(can_message* msg)
 
 
 /**
- * CAN Controller Get Message
- *
- * Reads the data of a received CAN Message from the MCP2515 and returns it
- * as a pointer to a can_message.
- *
- * @param can_message* out   The message received
+ * This is used to check for missed interrupts, or to poll when you
+ * have no interrupts
  */
-void can_controller_get_message(can_message* out)
+void can_controller_poll(void)
 {
-  // Read the flags
-  uint8_t flags;
-  _mcp2515_read(MCP2515_CANINTF_REGISTER, &flags, 1);
-
-  // Check for errors
-  if ((flags & MCP2515_ERROR_CHECk) != NULL) {
-    // Error exists...
-    out->status = CAN_ERROR;
-
-    _mcp2515_read(EFLAG, &_buffer[0], 1);
-    _mcp2515_read(TEC, &_buffer[1], 2);
-
-    // Clear flags
-    _mcp2515_modify(EFLAG, _buffer[0], NULL);
-    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_ERROR_CHECk, NULL);
+#ifndef MCP2515_USE_RXBF_PINS
+  while (readPin(_can_controller_int_pin) == Low) {
+    // Interrupt occured
+    _mcp2515_get_message(_can_get_next_receive_ptr());
   }
 
-  // No errors, receive message if it's in RX Buffer 0
-  else if ((flags & MCP2515_RX0_CHECK) != NULL) {
-    // Read CAN Message
-    _mcp2515_get_message_from_buffer(MCP2515_RX0_REGISTER, out);
+#else
+  // Check RX0BF
+  _mcp2515_handle_RX0BF_interrupt();
 
-    // Clear flags
-    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX0_CHECK, NULL);
-  }
-
-  // Receive message if it's in RX Buffer 1
-  else if ((flags & MCP2515_RX1_CHECK) != NULL) {
-    // Read CAN Message
-    _mcp2515_get_message_from_buffer(MCP2515_RX1_REGISTER, out);
-
-    // Clear flags
-    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX1_CHECK, NULL);
-  }
+  // Check RX1BF
+  _mcp2515_handle_RX1BF_interrupt();
+#endif
 
   return;
 }
@@ -233,7 +260,7 @@ void can_controller_get_message(can_message* out)
  * @param uint8_t*  buff    Data to send
  * @param uint8_t   bytes   Number of bytes to write
  */
-void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t bytes)
+static void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t bytes)
 {
   uint8_t i;
 
@@ -257,7 +284,7 @@ void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t bytes)
  * @param uint8_t   mask    Bit mask
  * @param uint8_t   data    New Bit data
  */
-void _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data)
+static void _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data)
 {
   setPinLow(_can_controller_cs_pin);
 
@@ -277,7 +304,7 @@ void _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data)
  * @param uint8_t*  out     Buffer to save data to
  * @param uint8_t   bytes   Number of bytes to read
  */
-void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
+static void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
 {
   uint8_t i;
 
@@ -296,7 +323,7 @@ void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
 /**
  * Resets the MCP2515
  */
-void _mcp2515_reset()
+static void _mcp2515_reset()
 {
 #ifndef MCP2515_RESET_PIN
   // Reset over SPI
@@ -316,7 +343,7 @@ void _mcp2515_reset()
  * Tells the CAN Controller to send a message
  *
  */
-void _mcp2515_request_send()
+static void _mcp2515_request_send()
 {
 #ifndef MCP2515_USE_RTS_PINS
 #warning "MCP2515 drivers are using SPI to send RTS commands. Try using the TX0RTS, TX1RTS, and TX2RTS pins"
@@ -348,7 +375,7 @@ void _mcp2515_request_send()
 /**
  * Checks if CAN is busy
  */
-bool _mcp2515_is_busy(void)
+static bool _mcp2515_is_busy(void)
 {
   uint8_t status = _mcp2515_read_status();
 
@@ -364,7 +391,7 @@ bool _mcp2515_is_busy(void)
 /**
  * Returns the status on the MCP2515
  */
-uint8_t _mcp2515_read_status()
+static uint8_t _mcp2515_read_status()
 {
   uint8_t status = NULL;
 
@@ -386,7 +413,7 @@ uint8_t _mcp2515_read_status()
  * @param uint8_t       rxbuf     The RX Buffer to read the CAN Message from
  * @param can_message*  out       Pointer to a CAN Message to save data to
  */
-void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out)
+static void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out)
 {
   // Read from the specified RX Buffer
   _mcp2515_read(rxbuf, &_buffer[0], CAN_MESSAGE_SIZE + 1);
@@ -417,3 +444,78 @@ void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out)
 
 
 
+
+/**
+ * This is used for handling an interrupt that occured on the RX0BF pin
+ */
+#ifdef MCP2515_USE_RXBF_PINS
+static void _mcp2515_handle_RX0BF_interrupt(void)
+{
+  // Receive message(s) from the RX0 Buffer
+  while (readPin(MCP2515_RX0BF_PIN) == Low)
+  {
+    _mcp2515_get_message_from_buffer(MCP2515_RX0_REGISTER, _can_get_next_receive_ptr());
+    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX0_CHECK, NULL);
+  }
+}
+#endif
+
+
+/**
+ * This is used for handling an interrupt that occured on the RX1BF pin
+ */
+#ifdef MCP2515_USE_RXBF_PINS
+static void _mcp2515_handle_RX1BF_interrupt(void)
+{
+  // Receive message(s) from the RX1 Buffer
+  while (readPin(MCP2515_RX1BF_PIN) == Low)
+  {
+    _mcp2515_get_message_from_buffer(MCP2515_RX1_REGISTER, _can_get_next_receive_ptr());
+    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX1_CHECK, NULL);
+  }
+}
+#endif
+
+
+/**
+ * This is used when you don't know what buffer the interrupt came from (only one interrupt pin)
+ */
+#ifndef MCP2515_USE_RXBF_PINS
+static void _mcp2515_get_message(can_message* out)
+{
+  // Read the flags
+  uint8_t flags;
+  _mcp2515_read(MCP2515_CANINTF_REGISTER, &flags, 1);
+
+  // Check for errors
+  if ((flags & MCP2515_ERROR_CHECK) != NULL) {
+    // Error exists...
+    out->status = CAN_ERROR;
+
+    _mcp2515_read(EFLAG, &_buffer[0], 1);
+    _mcp2515_read(TEC, &_buffer[1], 2);
+
+    // Clear flags
+    _mcp2515_modify(EFLAG, _buffer[0], NULL);
+    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_ERROR_CHECK, NULL);
+  }
+
+  // No errors, receive message if it's in RX Buffer 0
+  else if ((flags & MCP2515_RX0_CHECK) != NULL) {
+    // Read CAN Message
+    _mcp2515_get_message_from_buffer(MCP2515_RX0_REGISTER, out);
+
+    // Clear flags
+    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX0_CHECK, NULL);
+  }
+
+  // Receive message if it's in RX Buffer 1
+  else if ((flags & MCP2515_RX1_CHECK) != NULL) {
+    // Read CAN Message
+    _mcp2515_get_message_from_buffer(MCP2515_RX1_REGISTER, out);
+
+    // Clear flags
+    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX1_CHECK, NULL);
+  }
+}
+#endif
