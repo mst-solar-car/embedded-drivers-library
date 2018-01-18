@@ -115,7 +115,7 @@ int main(void)
 int main(void)
 {
   // Initialize SPI
-  spi_setup(SPI_MOSI, SPI_MISO, SPI_CLK);
+  spi_setup(SPI_BUS_4, SPI_MOSI, SPI_MISO, SPI_CLK);
 
   // Initialize CAN
   can_setup(CAN_CS, CAN_INT);
@@ -162,7 +162,7 @@ int main(void)
 int main(void)
 {
   // Initialize SPI
-  spi_setup(SPI_MOSI, SPI_MISO, SPI_CLK);
+  spi_setup(SPI_BUS_4, SPI_MOSI, SPI_MISO, SPI_CLK);
 
   // Initialize CAN
   can_setup(CAN_CS, CAN_INT);
@@ -198,6 +198,8 @@ int main(void)
 // Masks apply to filters (ask someone about it)
 #define CAN_MASK1           0x000
 #define CAN_MASK2           0x000
+
+#default SPI_BUS            SPI_BUS_4
 ```
 
 
