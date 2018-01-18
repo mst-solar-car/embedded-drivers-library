@@ -64,7 +64,7 @@ The following functions are availble to make easy creation if ISRs:
 |`attachInterrupt(pin, func)`| This will call `func` (with no parameters) whenever an interrupt occurs on `pin`. <br/>If `pin` is not interruptable then there will not be any errors, it will fail silently and never interrupt |
 |`nonPinInterrupt(vector)`|This is used to create a function that is the ISR for an interrupt that doesn't belong to a pin (timer, watchdog, etc...)|
 
-Please see the [examples](../EXAMPLES.md) to see how to use these functions.
+Please see the [examples](../EXAMPLES.md#interrupts) to see how to use these functions.
 
 *NOTE:* You do not need to clear any interrupt flags inside the ISR, this is done by the library.
 
