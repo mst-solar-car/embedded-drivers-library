@@ -6,7 +6,7 @@ README file that outlines how that driver works, what functionality it provides
 to the user, and so on.
 
 | Driver | Description |
-|:------:|-------------|
+|--------|-------------|
 |[Microcontrollers](microcontrollers/README.md)|Device-specific drivers for controlling pins and registers on a microcontroller|
 |[CAN](can/README.md)| Driver for communication over CAN. Just a wrapper around a CAN Controller driver |
 |[CAN Controllers](can_controllers/README.md)|Device-specific drivers that are used by the CAN drivers to communicate over a CAN Bus |
@@ -21,9 +21,6 @@ configuration constants.
 
 The only exception is when it makes interfacing with drivers easier, and they are
 configuration items that should not need to be easily changed (such as CAN filters, etc...).
-
-Anything that needs a pin for configuration should accept it in the `driver_setup()` function,
-**NOT AS A DIRECTIVE**.
 
 For when directive configuration is desired, the directives should be declared inside the [`user_config.h`](user_config.h) file.
 
@@ -54,6 +51,7 @@ The following table lists the data types (`typedef`s) defined by this library:
 |&nbsp;|&nbsp;|
 |`group_64`| Union. (see file) |
 |`can_message`| Struct. (see file) |
+|`spi_bus`| `SPI_BUS_x` (this will chanage based on how many SPI buses the microcontroller supports)|
 
 These are all defined in [`datatypes.h`](datatypes.h).
 

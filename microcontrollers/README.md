@@ -11,7 +11,7 @@ So, if ever switching to a new microcontroller write drivers based on the [`MSP4
 &nbsp;
 
 | Section |
-|:-------:|
+|-------|
 |[About](#about)|
 |[Pin Control API](#pin-control-api)|
 |[Register Manipulation API](#register-manipulation-api)|
@@ -36,7 +36,7 @@ The following table lists the functions that can be used for controlling pins/re
 
 | Function Syntax | Description |
 |-------------------|-----------|
-|`setPinMode(pin, mode)`| Configures `pin` in `mode` (`Input`, `Output`, or `Interrupt`)|
+|`setPinMode(pin, mode)`| Configures `pin` in `mode` (`Input`, or `Output`)|
 |`inputPin(pin)`| Alias for `setPinMode(pin, Input)`|
 |`outputPin(pin)`| Alias for `setPinMode(pin, Output)`|
 |&nbsp;|&nbsp;|
@@ -103,9 +103,26 @@ This section will talk about *what* you have to define in order to have a functi
 
 Again, this was written when we only used the `MSP430F5529`, so another microcontroller might label things differently, or not even have some features. This library tries to accomidate for that but might need further modification for other microcontrollers.
 
+If any of the directives or functions (not the arrays) listed in the following sections are not defined, then you will get an error at compile time.
 
-If any of the directives (not the arrays) listed in the following sections are not defined, then you will get an error at compile time.
+&nbsp;
 
+## Spec File
+You should have a `.spec` file in the folder for the microcontroller drivers, then, add that file to the `spec_importer.h` file.
+
+In the `.spec` file you should define the following:
+
+| Directive Name | Description |
+|--------------|-------------|
+|`MC_NUM_PINS`  | Number of pins on the microcontroller |
+|`MC_NUM_PORTS` | Number of ports on the microcontroller |
+|`MC_NUM_INTERRUPTABLE_PORTS`| Number of ports that support interrupts |
+|`MC_NUM_SPI_BUSES`|Number of SPI buses that the microcontroller has |
+|`MC_CLOCK_HZ`|Speed of the microcontroller clock in Hertz|
+|&nbsp;|&nbsp;
+|`MC_NO_SPI`|(**OPTIONAL**) Only define this if the microcontroller doesn't support SPI |
+|`MC_NO_INTERRUPTS`|(**OPTIONAL**) Only define this if the microcontroller doesn't support interrupts |
+|`MC_NO_WATCHDOG`|(**OPTIONAL**) Only define this if the microcontroller doesn't have a Watchdog timer|
 
 &nbsp;
 
@@ -115,7 +132,7 @@ The heart of the microcontroller drivers revolves around the definition of `regi
 These arrays contain pointers to certain registers needed to control pins, interrupts, etc...
 
 | Array Name | Description |
-|:----------:|-------------|
+|----------|-------------|
 |`dir_registers`| Registers for marking pins as `Input` or `Output`|
 |`out_registers`| Registers for setting the state (`High` or `Low`) for pins configured as `Output` |
 |`in_registers`| Registers for reading value of pins marked as `Input`|
@@ -123,7 +140,7 @@ These arrays contain pointers to certain registers needed to control pins, inter
 |`ies_registers`| Registers for configuring Interrupt Edge Select for interruptable pins |
 |`ie_registers`| Registers for configuring Interrupt Enable for interruptable pins |
 |`ifg_registers`| Registers for getting Interrupt Flags |
-|&nbsp;|&nsbp;|
+|&nbsp;|&nbsp;|
 |`port_map`|This array *does not* contain pointers. It should have the same number of elements as pins on the microcontroller, and should map to a `port` that can be used in the other arrays. |
 |&nbsp;|&nbsp;|
 |`bit_map`| This array *does not* contain pointers. It should have the same number of elements as pins on the microcontroller, and should map to a `bit` that the pin maps to in a register. |
@@ -132,7 +149,7 @@ These arrays contain pointers to certain registers needed to control pins, inter
 &nbsp;
 
 ## Watchdog Timer
-First off, if the microcontroller does not have a watchdog timer, then you need to have `#define NO_WATCHDOG` inside your header file for the microcontroller.
+First off, if the microcontroller does not have a watchdog timer, then you need to have `#define NO_WATCHDOG` inside your spec file for the microcontroller.
 
 If it does have a watchdog timer then you need to define the following directives (usually one-liners):
 
@@ -146,7 +163,7 @@ If it does have a watchdog timer then you need to define the following directive
 &nbsp;
 
 ## Interrupts
-First off, if the microcontroller does not support interrupts (weird), then you need to have `#define NO_INTERRUPTS` in your header file.
+First off, if the microcontroller does not support interrupts (weird), then you need to have `#define NO_INTERRUPTS` in your spec file.
 
 If it does have interrupts, then you need the following directives:
 
@@ -158,16 +175,14 @@ If it does have interrupts, then you need the following directives:
 &nbsp;
 
 ## SPI
-First off, if the microcontroller does not support SPI (weird), then you need to have `#define NO_SPI` in your header file.
+First off, if the microcontroller does not support SPI (weird), then you need to have `#define NO_SPI` in your spec file.
 
-If it does have SPI (it should), then you need the following directives:
+If it does have SPI (it should), then you need the following functions inside your implementation file:
 
 | Directive | Description |
 |-----------|-------------|
-|`spi_busy_check()`| Checks if SPI is busy (*before* sending data)|
-|`spi_busy_check2()`| Checks if SPI is busy (*after* sending data)|
-|`spi_send_data(data)`| Moves `data` into the register for SPI transmission|
-|`spi_get_data()`| Should just evalute to the SPI RX register|
+|`microcontroller_spi_setup(bus_id)`| Configures the `bus_id` SPI Bus |
+|`microcontroller_spi_transmit(bus_id, data)`| Sends `data` of the `bus_id` SPI Bus. Returns what was received in response |
 
 
 &nbsp;

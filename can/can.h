@@ -22,7 +22,6 @@
 void can_setup(io_pin cs_pin, io_pin int_pin);
 can_message* can_receive(void);
 bool can_transmit(void);
-void can_message_check(void);
 
 
 
@@ -40,9 +39,10 @@ extern can_message* can_new_msg;
  * These functions should only be called from inside can.c, or the
  * CAN Controller
  */
-void _can_handle_receiving_message(void);
 extern can_message* _can_get_next_receive_ptr(void);
 
 
 
+
+// TODO: Add directive verification
 #endif
