@@ -346,7 +346,6 @@ static void _mcp2515_reset()
 static void _mcp2515_request_send()
 {
 #ifndef MCP2515_USE_RTS_PINS
-#warning "MCP2515 drivers are using SPI to send RTS commands. Try using the TX0RTS, TX1RTS, and TX2RTS pins"
   // Send RTS signal for TX0RTS over SPI
   uint8_t buff = 0;
   uint8_t i;

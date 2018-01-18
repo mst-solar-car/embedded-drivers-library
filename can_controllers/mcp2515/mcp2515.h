@@ -78,6 +78,8 @@
   #ifndef MCP2515_TX2RTS_PIN
     #warning "MCP2515 is configured to use RTS pins, but the directive 'MCP2515_TX2RTS_PIN' is not defined in user_config.h"
   #endif
+#else
+  #warning "MCP2515 drivers are using SPI to send RTS commands. Try using the TX0RTS, TX1RTS, and TX2RTS pins"
 #endif
 
 // Verify directives for using RXnBF pins
@@ -88,6 +90,9 @@
   #ifndef MCP2515_RX1BF_PIN
     #error "MCP2515 is configured to use RXnBF pins but the 'MCP2515_RX1BF_PIN' directive is not defined in user_config.h"
   #endif
+#else
+  #warning "MCP2515 drivers are using a single interrupt pins to receive messages from RX0 and RX1 buffers, try using the RX0BF and RX1BF pins"
 #endif
+
 
 #endif
