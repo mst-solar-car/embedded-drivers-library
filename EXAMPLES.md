@@ -238,17 +238,16 @@ void main(void)
 // Project/src/main.c
 #include "../drivers/solarcar.h"
 
-
 #define DEBUG_LED_1 P6_6
 #define DEBUG_LED_2 P6_7
 
-
+// ISR for P2_5 interrupt
 void P2_5_ISR(void);
 
 
 void main(void)
 {
-  attachInterrupt(P2_5);
+  attachInterrupt(P2_5, P2_5_ISR);
 
   // Imagine that this example configures a system timer here
 
