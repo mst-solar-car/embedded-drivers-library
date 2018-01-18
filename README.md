@@ -48,10 +48,10 @@ The following table lists the data types (`typedef`s) defined by this library:
 |`bool`| Enum: `False`, `Failure`, `Busy`, `True`, or `Success`|
 |`pin_mode`| Enum: `Input` or `Output`|
 |`pin_level`| Enum: `Low` or `High`|
+|`spi_bus`| Enum: `SPI_BUS_x` (this will chanage based on how many SPI buses the microcontroller supports)|
 |&nbsp;|&nbsp;|
 |`group_64`| Union. (see file) |
 |`can_message`| Struct. (see file) |
-|`spi_bus`| `SPI_BUS_x` (this will chanage based on how many SPI buses the microcontroller supports)|
 
 These are all defined in [`datatypes.h`](datatypes.h).
 
