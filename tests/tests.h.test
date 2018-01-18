@@ -1,0 +1,29 @@
+#ifndef TESTS_H_TEST
+#define TESTS_H_TEST
+#include <stdlib.h>
+#include "unity/unity.h.test"
+#include "../solarcar.h" // See, this is all you need to do to use the drivers :)
+
+
+#define CAT(a, ...) PRIMITIVE_CAT(a, __VA_ARGS__)
+#define PRIMITIVE_CAT(a, ...) a ## __VA_ARGS__
+
+// Used to make the group setup function
+#define GROUP_SETUP()   void CAT(GROUP, _setup)(void)
+#define PERFORM_SETUP() CAT(GROUP, _setup)()
+
+// Used to make unit test functions
+#define TEST(name) void CAT(CAT(CAT(test_, GROUP), _), name)(void)
+
+// Used to run a group unit test
+#define RUN(name) PERFORM_SETUP(); RUN_TEST(CAT(CAT(CAT(test_, GROUP), _), name))
+
+// Used to create function to run group unit tests
+#define GROUP_RUNNER()   void CAT(run_, GROUP)(void)
+
+// Used to run a group runner
+#define RUN_GROUP(group)    CAT(run_, group)()
+
+
+
+#endif

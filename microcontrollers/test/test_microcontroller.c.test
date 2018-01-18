@@ -102,6 +102,12 @@ uint16_t*  port1_out_reg;
 uint16_t*  port1_in_reg;
 uint16_t*  port1_sel_reg;
 
+uint8_t*   spi1_tx_reg;
+uint8_t*   spi1_rx_reg;
+
+uint8_t*   spi2_tx_reg;
+uint8_t*   spi2_rx_reg;
+
 
 
 #include <stdlib.h> // This should NOT be in your implementation file, this is needed for malloc
@@ -132,6 +138,17 @@ void microcontroller_setup(void)
   port1_sel_reg = malloc(sizeof(uint16_t));
   setRegister(port1_sel_reg, LOW);
 
+  spi1_tx_reg = malloc(sizeof(uint8_t));
+  setRegister(spi1_tx_reg, LOW);
+
+  spi1_rx_reg = malloc(sizeof(uint8_t));
+  setRegister(spi1_rx_reg, LOW);
+
+  spi2_tx_reg = malloc(sizeof(uint8_t));
+  setRegister(spi2_tx_reg, LOW);
+
+  spi2_rx_reg = malloc(sizeof(uint8_t));
+  setRegister(spi2_rx_reg, LOW);
 
   // Now, we update the arrays created outside of this function and point them
   // to the pointers
@@ -144,17 +161,29 @@ void microcontroller_setup(void)
   // Here, after initializing ports is where you would do stuff
   // like configure clock and other basic stuff.
 }
-
+#include <stdio.h>
 
 // SPI initialization
 void microcontroller_spi_setup(spi_bus bus)
 {
   // Nothing
+
 }
 
 uint8_t microcontroller_spi_transmit(spi_bus bus, uint8_t data)
 {
   // Nothing
+  switch (bus) {
+    case SPI_BUS_1:
+      *spi1_tx_reg = data;
+      *spi2_rx_reg = data;
+      return *spi1_rx_reg;
+    case SPI_BUS_2:
+      *spi2_tx_reg = data;
+      *spi1_rx_reg = data;
+      return *spi2_rx_reg;
+  }
+
   return 0;
 }
 

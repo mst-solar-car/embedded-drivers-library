@@ -1,0 +1,105 @@
+/**
+ * Unit Tests for SPI
+ *
+ * Author: Michael Rouse
+ */
+#ifdef GROUP
+#undef GROUP
+#endif
+
+#define GROUP SPI
+
+#define MOSI  P1_0
+#define MISO  P1_1
+#define SCK   P1_2
+
+#define MOSI2 P1_3
+#define MISO2 P1_4
+#define SCK2  P1_5
+
+/**
+ * Test the functionality of SPI setup
+ */
+TEST(setup)
+{
+  TEST_ASSERT_BITS_LOW(BIT0, *port1_sel_reg); // Confirm bit is low
+  TEST_ASSERT_BITS_LOW(BIT1, *port1_sel_reg);
+  TEST_ASSERT_BITS_LOW(BIT2, *port1_sel_reg);
+
+  spi_setup(SPI_BUS_1, MOSI, MISO, SCK);
+
+  TEST_ASSERT_BITS_HIGH(BIT0, *port1_sel_reg); // Confirm bits are high now
+  TEST_ASSERT_BITS_HIGH(BIT1, *port1_sel_reg);
+  TEST_ASSERT_BITS_HIGH(BIT2, *port1_sel_reg);
+}
+
+/**
+ * Test the functionality of SPI transmit
+ */
+TEST(transmit)
+{
+  TEST_ASSERT_BITS_LOW(0xFF, *spi1_tx_reg);
+
+  spi_transmit(SPI_BUS_1, 99);
+
+  TEST_ASSERT_EQUAL(99, *spi1_tx_reg);
+}
+
+
+/**
+ * Setup with multiple buses
+ */
+TEST(setupMultipleBuses)
+{
+  TEST_ASSERT_EQUAL(0x00, *port1_sel_reg);
+
+  spi_setup(SPI_BUS_1, MOSI, MISO, SCK);
+  TEST_ASSERT_BITS_HIGH(BIT0 + BIT1 + BIT2, *port1_sel_reg);
+
+  spi_setup(SPI_BUS_2, MOSI2, MISO2, SCK2);
+  TEST_ASSERT_BITS_HIGH(BIT3 + BIT4 + BIT5, *port1_sel_reg);
+}
+
+
+/**
+ * Transmit with multiple buses
+ */
+TEST(transmitMultipleBuses)
+{
+  TEST_ASSERT_EQUAL(0x00, *spi1_tx_reg);
+  TEST_ASSERT_EQUAL(0x00, *spi2_tx_reg);
+  TEST_ASSERT_EQUAL(0x00, *spi1_rx_reg);
+  TEST_ASSERT_EQUAL(0x00, *spi2_rx_reg);
+
+  uint8_t result = spi_transmit(SPI_BUS_1, 55);
+  TEST_ASSERT_EQUAL(55, *spi1_tx_reg);
+  TEST_ASSERT_EQUAL(0x00, result);
+
+  result = spi_transmit(SPI_BUS_2, 44);
+  TEST_ASSERT_EQUAL(44, *spi2_tx_reg);
+  TEST_ASSERT_EQUAL(55, result);
+
+  result = spi_transmit(SPI_BUS_1, 66);
+  TEST_ASSERT_EQUAL(44, result);
+}
+
+
+// Setup function for each test
+GROUP_SETUP()
+{
+  *port1_sel_reg = 0x00;
+  *spi1_tx_reg = 0x00;
+  *spi1_rx_reg = 0x00;
+  *spi2_tx_reg = 0x00;
+  *spi2_rx_reg = 0x00;
+}
+
+
+// Run all the tests in this group
+GROUP_RUNNER()
+{
+  RUN(setup);
+  RUN(setupMultipleBuses);
+  RUN(transmit);
+  RUN(transmitMultipleBuses);
+}

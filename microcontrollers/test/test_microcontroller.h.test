@@ -72,6 +72,12 @@ extern uint16_t*  port1_out_reg;
 extern uint16_t*  port1_in_reg;
 extern uint16_t*  port1_sel_reg;
 
+extern uint8_t*   spi1_tx_reg;
+extern uint8_t*   spi1_rx_reg;
+
+extern uint8_t*   spi2_tx_reg;
+extern uint8_t*   spi2_rx_reg;
+
 
 #endif
 #endif

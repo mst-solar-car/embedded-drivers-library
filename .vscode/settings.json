@@ -2,6 +2,8 @@
   "files.associations": {
     "*.test": "c",
     "*.spec": "c",
-    "*.example": "c"
+    "*.example": "c",
+    "solarcar.h": "c",
+    "stdlib.h": "c"
   }
 }

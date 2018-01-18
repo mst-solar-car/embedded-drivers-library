@@ -1,0 +1,74 @@
+/**
+ * Unit Tests for Pin Control
+ *
+ * Author: Michael Rouse
+ */
+#ifdef GROUP
+#undef GROUP
+#endif
+
+#define GROUP PinControl
+
+
+
+
+/**
+ * Test the functionality of setting a pin as OUTPUT
+ */
+TEST(setPinAsOutput)
+{
+  TEST_ASSERT_BITS_LOW(BIT0, *port1_dir_reg); // Confirm that P1.0 is LOW to begin with
+
+  setPinMode(P1_0, OUTPUT); // Set the pin as output (should make it HIGH)
+
+  TEST_ASSERT_BITS_HIGH(BIT0, *port1_dir_reg); // Confirm that P1.0 is now HIGH
+}
+
+
+/**
+ * Test setting a pin as INPUT
+ */
+TEST(setPinAsInput)
+{
+  TEST_ASSERT_BITS_LOW(BIT6, *port1_dir_reg); // Confirm it's LOW to begin with
+  setPinMode(P1_6, OUTPUT);
+  TEST_ASSERT_BITS_HIGH(BIT6, *port1_dir_reg); // Confirm that it's now HIGH
+
+  setPinMode(P1_6, INPUT);
+
+  TEST_ASSERT_BITS_LOW(BIT6, *port1_dir_reg); // Should be LOW after being marked as INPUT
+}
+
+
+/**
+ * Test setting multiple pins
+ */
+TEST(setMultiplePins)
+{
+  TEST_ASSERT_BITS_LOW(BIT0, *port1_dir_reg);
+  TEST_ASSERT_BITS_LOW(BIT7, *port1_dir_reg);
+
+  setPinMode(P1_0, OUTPUT);
+  setPinMode(P1_7, OUTPUT);
+
+  TEST_ASSERT_BITS_HIGH(BIT0, *port1_dir_reg);
+  TEST_ASSERT_BITS_HIGH(BIT7, *port1_dir_reg);
+}
+
+
+// Setup function for each test in this group
+GROUP_SETUP()
+{
+  *port1_dir_reg = 0x00;
+  *port1_out_reg = 0x00;
+  *port1_in_reg = 0x00;
+  *port1_sel_reg = 0x00;
+}
+
+// Run all the tests for this group
+GROUP_RUNNER()
+{
+  RUN(setPinAsOutput);
+  RUN(setPinAsInput);
+  RUN(setMultiplePins);
+}

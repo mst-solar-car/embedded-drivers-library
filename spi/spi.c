@@ -21,7 +21,6 @@ void spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck)
 
     port = pinPort(miso);
     reg = selReg(port);
-
     setRegisterBitHigh(reg, pinBit(miso));
 
     port = pinPort(sck);
