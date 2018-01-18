@@ -11,6 +11,7 @@ to the user, and so on.
 |[CAN](can/README.md)| Driver for communication over CAN. Just a wrapper around a CAN Controller driver |
 |[CAN Controllers](can_controllers/README.md)|Device-specific drivers that are used by the CAN drivers to communicate over a CAN Bus |
 |[SPI](spi/README.md)|Drivers that interface with the Microcontroller drivers for communication on a SPI Bus|
+|[Pin Control](#pin-control-api)|How to control pins using this library|
 |[Bit Manipulation](#bit-manipulation-api)|Used for generic bit manipulation anywhere in program|
 |[Examples](EXAMPLES.md)|Minimal-code examples for getting a hang of this library|
 
@@ -69,6 +70,30 @@ The folling table lists the constants defined by this library:
 |`NO_REGISTER`|`NULL`|
 |`NO_PORT`|`NULL`|
 |`NO_BIT`|`NULL`|
+
+&nbsp;
+
+# Pin Control API
+The following table lists the functions that can be used for controlling pins/registers on a device (please note that pin naming should be detailed in specific microcontroller driver documentation):
+
+| Function Syntax | Description |
+|-------------------|-----------|
+|`setPinMode(pin, mode)`| Configures `pin` in `mode` (`Input`, or `Output`)|
+|`inputPin(pin)`| Alias for `setPinMode(pin, Input)`|
+|`outputPin(pin)`| Alias for `setPinMode(pin, Output)`|
+|&nbsp;|&nbsp;|
+|`setPinLevel(pin, level)`| Sets the `pin` to the `level` (`High`, or `Low`)|
+|`setPinHigh(pin)`| Alias for `setPinLevel(pin, High)`|
+|`setPinLow(pin)`| Alias for `setPinLevel(pin, Low)`|
+|&nbsp;|&nbsp;|
+|`togglePinLevel(pin)`| Sets `pin` as `High` if it's `Low`, and vice-versa|
+|`togglePin(pin)`| Alias for `togglePinLevel(pin)`|
+|&nbsp;|&nbsp;|
+|`readPin(pin)`| Reads the state of a pin, returns `High` or `Low`|
+|`isPinHigh(pin)`| Alias for `(readPin(pin) == High)`|
+|`isPinLow(pin)`| Alias for `(readPin(pin) == Low)`|
+
+These are all defined in [`microcontroller.h`](microcontrollers/microcontroller.h).
 
 &nbsp;
 

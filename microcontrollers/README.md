@@ -13,7 +13,7 @@ So, if ever switching to a new microcontroller write drivers based on the [`MSP4
 | Section |
 |-------|
 |[About](#about)|
-|[Pin Control API](#pin-control-api)|
+|[Pin Control API](../README.md#pin-control-api)|
 |[Interrupt API](#interrupt-api)|
 |[Register Manipulation API](#register-manipulation-api)|
 |[Implementing Microcontroller Drivers](#microcontroller-interface)|
@@ -30,29 +30,6 @@ In the microcontroller-specific drivers, all that the user needs to do is popula
 
 The [`importer.h`](importer.h) file is what loads the microcontroller-specific drivers. Since Code Composer Studio knows the target microcontroller, it automagically defines constants that represent what the target is. This can be used to make this library portable. By adding another `#elif defined(__MY_MICROCONTROLLER__)` and then load the microcontroller-specific `.h` file, you'll get this modular functionality that seems pretty cool.
 
-&nbsp;
-
-# Pin Control API
-The following table lists the functions that can be used for controlling pins/registers on a device (please note that pin naming should be detailed in specific microcontroller driver documentation):
-
-| Function Syntax | Description |
-|-------------------|-----------|
-|`setPinMode(pin, mode)`| Configures `pin` in `mode` (`Input`, or `Output`)|
-|`inputPin(pin)`| Alias for `setPinMode(pin, Input)`|
-|`outputPin(pin)`| Alias for `setPinMode(pin, Output)`|
-|&nbsp;|&nbsp;|
-|`setPinLevel(pin, level)`| Sets the `pin` to the `level` (`High`, or `Low`)|
-|`setPinHigh(pin)`| Alias for `setPinLevel(pin, High)`|
-|`setPinLow(pin)`| Alias for `setPinLevel(pin, Low)`|
-|&nbsp;|&nbsp;|
-|`togglePinLevel(pin)`| Sets `pin` as `High` if it's `Low`, and vice-versa|
-|`togglePin(pin)`| Alias for `togglePinLevel(pin)`|
-|&nbsp;|&nbsp;|
-|`readPin(pin)`| Reads the state of a pin, returns `High` or `Low`|
-|`isPinHigh(pin)`| Alias for `(readPin(pin) == High)`|
-|`isPinLow(pin)`| Alias for `(readPin(pin) == Low)`|
-
-These are all defined in [`microcontroller.h`](microcontrollers/microcontroller.h).
 
 &nbsp;
 
