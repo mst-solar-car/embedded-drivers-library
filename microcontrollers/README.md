@@ -136,7 +136,7 @@ These arrays contain pointers to certain registers needed to control pins, inter
 |`dir_registers`| Registers for marking pins as `Input` or `Output`|
 |`out_registers`| Registers for setting the state (`High` or `Low`) for pins configured as `Output` |
 |`in_registers`| Registers for reading value of pins marked as `Input`|
-|`sel_registers`| I don't really know what these registers do, but SPI uses them|
+|`sel_registers`| Registers to select pin functionality |
 |`ies_registers`| Registers for configuring Interrupt Edge Select for interruptable pins |
 |`ie_registers`| Registers for configuring Interrupt Enable for interruptable pins |
 |`ifg_registers`| Registers for getting Interrupt Flags |
