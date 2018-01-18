@@ -27,6 +27,7 @@ Each example is also setup around the MSP430F5529
 |[Sending CAN Messages](#sending-can-messages)|
 |[Receiving CAN Messages](#receiving-can-messages)|
 |[Manual Register Access](#register-access)|
+|[Interrupts](#interrupts)|
 
 &nbsp;
 
@@ -227,5 +228,45 @@ void main(void)
 
   // Manually configure LED_PIN as output
   setRegisterBitHigh(dirRegister, bit);
+}
+```
+
+&nbsp;
+
+# Interrupts
+```c
+// Project/src/main.c
+#include "../drivers/solarcar.h"
+
+
+#define DEBUG_LED_1 P6_6
+#define DEBUG_LED_2 P6_7
+
+
+void P2_5_ISR(void);
+
+
+void main(void)
+{
+  attachInterrupt(P2_5);
+
+  // Imagine that this example configures a system timer here
+
+  while (True) {
+    // Do nothing
+  }
+}
+
+// Toggle an LED when an interrupt on P2.5 occurs
+void P2_5_ISR(void)
+{
+  togglePin(DEBUG_LED_1);
+}
+
+// Interrupt for the timer
+// Toggle an LED when the timer overflows
+nonPinInterrupt(TIMER1_A0_VECTOR)
+{
+  togglePin(DEBUG_LED_2);
 }
 ```

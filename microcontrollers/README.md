@@ -14,6 +14,7 @@ So, if ever switching to a new microcontroller write drivers based on the [`MSP4
 |-------|
 |[About](#about)|
 |[Pin Control API](#pin-control-api)|
+|[Interrupt API](#interrupt-api)|
 |[Register Manipulation API](#register-manipulation-api)|
 |[Implementing Microcontroller Drivers](#microcontroller-interface)|
 
@@ -52,6 +53,20 @@ The following table lists the functions that can be used for controlling pins/re
 |`isPinLow(pin)`| Alias for `(readPin(pin) == Low)`|
 
 These are all defined in [`microcontroller.h`](microcontrollers/microcontroller.h).
+
+&nbsp;
+
+# Interrupt API
+The following functions are availble to make easy creation if ISRs:
+
+| Function Syntax | Description |
+|-----------------|-------------|
+|`attachInterrupt(pin, func)`| This will call `func` (with no parameters) whenever an interrupt occurs on `pin`. <br/>If `pin` is not interruptable then there will not be any errors, it will fail silently and never interrupt |
+|`nonPinInterrupt(vector)`|This is used to create a function that is the ISR for an interrupt that doesn't belong to a pin (timer, watchdog, etc...)|
+
+Please see the [examples](../EXAMPLES.md) to see how to use these functions.
+
+*NOTE:* You do not need to clear any interrupt flags inside the ISR, this is done by the library.
 
 &nbsp;
 
