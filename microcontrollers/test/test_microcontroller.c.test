@@ -146,4 +146,17 @@ void microcontroller_setup(void)
 }
 
 
+// SPI initialization
+void microcontroller_spi_setup(spi_bus bus)
+{
+  // Nothing
+}
+
+uint8_t microcontroller_spi_transmit(spi_bus bus, uint8_t data)
+{
+  // Nothing
+  return 0;
+}
+
+
 #endif

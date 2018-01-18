@@ -137,6 +137,8 @@ typedef enum spi_bus_t {
 #if MC_NUM_SPI_BUSES > 6
   #error "PLEASE ADD MORE SPI BUSES TO datatypes.h"
 #endif
+#else
+  NO_SPI_BUS = 0,
 #endif
 } spi_bus;
 

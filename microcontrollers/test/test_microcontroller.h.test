@@ -25,24 +25,11 @@
 
 // Import the microcontroller.h file, this will give you access to datatypes.h,
 // it will also declare functions and variables needed
+#include "test_microcontroller.spec"
 #include "../microcontroller.h"
 
 
-// As of this time, this "microcontroller" does not support
-// interrupts or a watchdog timer
-#define NO_INTERRUPTS
-#define NO_WATCHDOG
-
-// This "microcontroller" has a 5 Hz clock! (TOO FAST 4 ME)
-#define MICROCONTROLLER_CLOCK_HZ   5
-
-
-// Useless SPI
-#define spi_busy_check()    // Nothing
-#define spi_busy_check2()   // Nothing
-#define spi_send_data(data) // Nothing
-#define spi_get_data()      // Nothing
-
+#define no_operation()    // Nothing
 
 // As stated in the giant comment block at the beginning of this file,
 // this microcontroller only has one PORT, PORT1

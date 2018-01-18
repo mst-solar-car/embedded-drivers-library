@@ -6,7 +6,7 @@
  *
  * Author: Michael Rouse
  */
-// gcc -x c drivers/tests/tests.c.test drivers/microcontrollers/microcontroller.c drivers/microcontrollers/test/test_microcontroller.c.test drivers/tests/unity/unity.c.test -o tests.out -D UNIT_TEST
+// gcc -x c tests/tests.c.test microcontrollers/microcontroller.c microcontrollers/test/test_microcontroller.c.test tests/unity/unity.c.test -o tests.out -D UNIT_TEST
 
 #ifdef UNIT_TEST
 #include <stdlib.h>

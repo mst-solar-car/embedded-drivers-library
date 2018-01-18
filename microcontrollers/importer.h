@@ -110,9 +110,14 @@
     #warning "Microcontroller drivers do not support SPI transmission"
   #endif
 
+  // Warn about no interrupts
+  #ifdef MC_NO_INTERRUPTS
+    #warning "Microcontroller drivers do not support Interrupts"
+  #endif
+
   // Number of pins
   #ifndef MC_NUM_PINS
-    #warning "Microcontroller spec does not define the 'MC_NUM_PINS' directive to identify how many pins it has"
+    #error "Microcontroller spec does not define the 'MC_NUM_PINS' directive to identify how many pins it has"
   #endif
 
 #else
