@@ -189,6 +189,18 @@ If it does have interrupts, then you need the following directives:
 
 &nbsp;
 
+### Declaring Interrupts
+If your microcontroller supports interrupts on pins, then at the bottom of your `.c` file you need to register the vectors that those interrupts occur on.
+
+You can do this with the following syntax:
+
+```c
+REGISTER_PIN_INTERRUPT(VECTOR, PORT);
+```
+
+
+&nbsp;
+
 ## SPI
 First off, if the microcontroller does not support SPI (weird), then you need to have `#define NO_SPI` in your spec file.
 
