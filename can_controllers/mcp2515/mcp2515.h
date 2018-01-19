@@ -64,7 +64,6 @@
 
 
 
-
 /**
  * Verify configuration directives
  */
@@ -93,6 +92,52 @@
 #else
   #warning "MCP2515 drivers are using a single interrupt pins to receive messages from RX0 and RX1 buffers, try using the RX0BF and RX1BF pins"
 #endif
+
+// Verify that CAN Filters exist
+#ifndef CAN_FILTER1
+  #define CAN_FILTER1 0x000
+  #warning "'CAN_FILTER1' not defined in user config file"
+#endif
+#ifndef CAN_FILTER2
+  #define CAN_FILTER2 0x000
+  #warning "'CAN_FILTER2' not defined in user config file"
+#endif
+#ifndef CAN_FILTER3
+  #define CAN_FILTER3 0x000
+  #warning "'CAN_FILTER3' not defined in user config file"
+#endif
+#ifndef CAN_FILTER4
+  #define CAN_FILTER4 0x000
+  #warning "'CAN_FILTER4' not defined in user config file"
+#endif
+#ifndef CAN_FILTER5
+  #define CAN_FILTER5 0x000
+  #warning "'CAN_FILTER5' not defined in user config file"
+#endif
+#ifndef CAN_FILTER6
+  #define CAN_FILTER6 0x000
+  #warning "'CAN_FILTER6' not defined in user config file"
+#endif
+
+// Verify that CAN Masks are defined
+#ifndef CAN_MASK1
+  #define CAN_MASK1 0x000
+  #warning "'CAN_MASK1' not defined in user config file"
+#endif
+#ifndef CAN_MASK2
+  #define CAN_MASK2 0x000
+  #warning "'CAN_MASK2' not defined in user config file"
+#endif
+
+
+
+
+
+
+
+
+
+
 
 
 #endif

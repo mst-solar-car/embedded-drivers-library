@@ -4,8 +4,17 @@
 #ifndef __CAN_CONSTANTS_H__
 #define __CAN_CONSTANTS_H__
 
+#include "../config.h"
+
 // Probably won't need to change these
+#ifndef CAN_BUFFER_LENGTH
 #define CAN_BUFFER_LENGTH   32
+#endif
+
+// CAN_MESSAGE_SIZE can not be changed
+#ifdef CAN_MESSAGE_SIZE
+#undef CAN_MESSAGE_SIZE
+#endif
 #define CAN_MESSAGE_SIZE    13
 
 // CAN Message Statuses

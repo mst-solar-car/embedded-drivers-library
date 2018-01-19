@@ -21,7 +21,28 @@
   #include USER_CONFIG_FILE
 #else
   // No clue yet
+
+
 #endif
 
 
+
+
+
+/**
+ * Directive Enforcement
+ */
+#ifndef UNIT_TEST
+#ifdef USER_CONFIG
+
+#ifndef DEFAULT_SPI_BUS
+  #error "Your user config file MUST define 'DEFAULT_SPI_BUS', which is the SPI bus used by the library"
+#endif
+
+
+
+#else
+  #error "User config file not imported, please make sure you define 'USER_CONFIG' in your config file"
+#endif
+#endif
 #endif
