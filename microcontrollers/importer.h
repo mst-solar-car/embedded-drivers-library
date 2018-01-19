@@ -10,6 +10,7 @@
  */
 #ifndef __MICROCONTROLLER_IMPORTER_H__
 #define __MICROCONTROLLER_IMPORTER_H__
+#include "spec_importer.h"
 
 /**
  * ADD MICROCONTROLLERS HERE (as #elif statements)
@@ -47,17 +48,12 @@
       #define interrupts_disable()  no_operation()
     #endif
 
-    #ifndef MC_NUM_INTERRUPTABLE_PORTS
-      #warning "Microcontroller drivers do not define the 'MC_NUM_INTERRUPTABLE_PORTS' directive, no way to know how many ports support interrupts, resulting in wasted memory"
-      #define MC_NUM_INTERRUPTABLE_PORTS 8
-    #endif
-
   #else
     // Interrupts not supported, assign no-ops
+    #undef interrupts_enable
     #define interrupts_enable()     no_operation()
+    #undef interrupts_disable
     #define interrupts_disable()    no_operation()
-
-    #define MC_NUM_INTERRUPTABLE_PORTS   0
   #endif
 
   // Watchdog
@@ -79,8 +75,11 @@
 
   #else
     // Watchdog not supported, assign no-ops
+    #undef watchdog_enable
     #define watchdog_enable()       no_operation()
+    #undef watchdog_disable
     #define watchdog_disable()      no_operation()
+    #undef watchdog_pet
     #define watchdog_pet()          no_operation()
   #endif
 
@@ -93,32 +92,7 @@
 #endif
 
 
-// Enforce specification
-#ifdef MICROCONTROLLER_SPECS
-  // Clock Speed
-  #ifndef MC_CLOCK_HZ
-    #error "Spec file for microcontroller drivers do not define the 'MC_CLOCK_HZ' directive that is the clock speed in Hertz"
-  #endif
 
-  // Warn about no SPI
-  #ifdef MC_NO_SPI
-    #warning "Microcontroller drivers do not support SPI transmission"
-  #endif
-
-  // Warn about no interrupts
-  #ifdef MC_NO_INTERRUPTS
-    #warning "Microcontroller drivers do not support Interrupts"
-  #endif
-
-  // Number of pins
-  #ifndef MC_NUM_PINS
-    #error "Microcontroller spec does not define the 'MC_NUM_PINS' directive to identify how many pins it has"
-  #endif
-
-#else
-  // NO Microcontroller specs specified
-  #error "Unknown microcontroller specs, please add a *.spec file to your microcontroller driver folder, and add it to the microcontrollers/spec_importer.h file"
-#endif
 
 
 

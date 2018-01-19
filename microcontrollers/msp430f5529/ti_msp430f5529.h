@@ -27,7 +27,6 @@
 #define watchdog_enable()       WDTCTL = WDT_ARST_1000    // Reset every 1 second (1000ms)
 #define watchdog_pet()          WDTCTL = WDTPW + WDTCNTCL  // Clear Watchdog timer (prevents reset)
 
-
 // Interrupts
 #define interrupts_enable()     __bis_SR_register(GIE) //_enable_interrupts()
 #define interrupts_disable()    __bic_SR_register(GIE) //_disable_interrupts()
@@ -46,96 +45,23 @@ enum {
   PORTJ
 };
 
-
 // Enums for each pin on the microcontroller
 enum {
-  PIN1 = 1,
-  PIN2,
-  PIN3,
-  PIN4,
-  PIN5,
-  PIN6,
-  PIN7,
-  PIN8,
-  PIN9,
-  PIN10,
-  PIN11,
-  PIN12,
-  PIN13,
-  PIN14,
-  PIN15,
-  PIN16,
-  PIN17,
-  PIN18,
-  PIN19,
-  PIN20,
-  PIN21,
-  PIN22,
-  PIN23,
-  PIN24,
-  PIN25,
-  PIN26,
-  PIN27,
-  PIN28,
-  PIN29,
-  PIN30,
-  PIN31,
-  PIN32,
-  PIN33,
-  PIN34,
-  PIN35,
-  PIN36,
-  PIN37,
-  PIN38,
-  PIN39,
-  PIN40,
-  PIN41,
-  PIN42,
-  PIN43,
-  PIN44,
-  PIN45,
-  PIN46,
-  PIN47,
-  PIN48,
-  PIN49,
-  PIN50,
-  PIN51,
-  PIN52,
-  PIN53,
-  PIN54,
-  PIN55,
-  PIN56,
-  PIN57,
-  PIN58,
-  PIN59,
-  PIN60,
-  PIN61,
-  PIN62,
-  PIN63,
-  PIN64,
-  PIN65,
-  PIN66,
-  PIN67,
-  PIN68,
-  PIN69,
-  PIN70,
-  PIN71,
-  PIN72,
-  PIN73,
-  PIN74,
-  PIN75,
-  PIN76,
-  PIN77,
-  PIN78,
-  PIN79,
-  PIN80
+  PIN1 = 1, PIN2, PIN3, PIN4, PIN5, PIN6, PIN7, PIN8, PIN9, PIN10,
+  PIN11, PIN12, PIN13, PIN14, PIN15, PIN16, PIN17, PIN18, PIN19, PIN20,
+  PIN21, PIN22, PIN23, PIN24, PIN25, PIN26, PIN27, PIN28, PIN29, PIN30,
+  PIN31, PIN32, PIN33, PIN34, PIN35, PIN36, PIN37, PIN38, PIN39, PIN40,
+  PIN41, PIN42, PIN43, PIN44, PIN45, PIN46, PIN47, PIN48, PIN49, PIN50,
+  PIN51, PIN52, PIN53, PIN54, PIN55, PIN56, PIN57, PIN58, PIN59, PIN60,
+  PIN61, PIN62, PIN63, PIN64, PIN65, PIN66, PIN67, PIN68, PIN69, PIN70,
+  PIN71, PIN72, PIN73, PIN74, PIN75, PIN76, PIN77, PIN78, PIN79, PIN80
 };
 
 
 // Port 1
 enum {
   P1_0 = PIN21,
-  P1_1 = PIN22,
+P1_1 = PIN22,
   P1_2 = PIN23,
   P1_3 = PIN24,
   P1_4 = PIN25,
