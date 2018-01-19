@@ -17,6 +17,8 @@ So, if ever switching to a new microcontroller write drivers based on the [`MSP4
 |[Interrupt API](#interrupt-api)|
 |[Register Manipulation API](#register-manipulation-api)|
 |[Implementing Microcontroller Drivers](#microcontroller-interface)|
+|&nbsp;|
+|[MSP430F5529](msp430f5529/README.md)|
 
 &nbsp;
 

@@ -14,7 +14,7 @@
 /**
  * ADD MICROCONTROLLERS HERE (as #elif statements)
  */
-#if defined(__MSP430F5529__)
+#ifdef __MSP430F5529__
   // Texas Instruments MSP430F5529
   #include "msp430f5529/ti_msp430f5529.h"
 
