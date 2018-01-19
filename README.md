@@ -90,12 +90,13 @@ The following table lists the functions that can be used for controlling pins/re
 |`setPinLevel(pin, level)`| Sets the `pin` to the `level` (`High`, or `Low`)|
 |`setPinHigh(pin)`| Alias for `setPinLevel(pin, High)`|
 |`setPinLow(pin)`| Alias for `setPinLevel(pin, Low)`|
+|`mimicPin(p2, p1)` | If `p1` is High, then `p2` will be set to High. If `p1` is Low, then `p2` will be set to Low. <br/>Alias for `setPinLevel(p2, readPin(p1))` |
 |&nbsp;|&nbsp;|
 |`togglePinLevel(pin)`| Sets `pin` as `High` if it's `Low`, and vice-versa|
 |`togglePin(pin)`| Alias for `togglePinLevel(pin)`|
 |&nbsp;|&nbsp;|
 |`readPin(pin)`| Reads the state of a pin, returns `High` or `Low`|
-|`isPinHigh(pin)`| Alias for `(readPin(pin) == High)`|
+|`isPinHigh(pin)`| Alias for `(readPin(pin) != Low)`|
 |`isPinLow(pin)`| Alias for `(readPin(pin) == Low)`|
 
 These are all defined in [`microcontroller.h`](microcontrollers/microcontroller.h).

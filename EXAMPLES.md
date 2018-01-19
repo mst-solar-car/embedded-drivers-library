@@ -80,6 +80,7 @@ int main(void)
   setPinLow(LED); // Off by default
 
   while (True) {
+    // An alternative to this if-statement is just using: mimicPin(LED, LED_SWITCH);
     if (isPinHigh(LED_SWITCH)) {
       // Switch is ON, turn on the LED
       setPinHigh(LED);

@@ -30,6 +30,10 @@
   // Warn about no SPI
   #ifdef MC_NO_SPI
     #warning "Microcontroller drivers do not support SPI transmission"
+  #else
+    #ifndef MC_NUM_SPI_BUSES
+      #error "Microcontroller spec does not define the 'MC_NUM_SPI_BUSES' directive for determining the number of SPI buses"
+    #endif
   #endif
 
   // Warn about no Watchdog

@@ -58,11 +58,12 @@ extern const uint8_t bit_map[];           // Pin4 => P6.7 => BIT7
 #define inputPin(pin)     setPinMode(pin, Input)      // Configures a pin for INPUT
 #define outputPin(pin)    setPinMode(pin, Output)     // Configures a pin for OUTPUT
 
-#define setPinHigh(pin)   setPinLevel(pin, High)    // Sets a pin HIGH
-#define setPinLow(pin)    setPinLevel(pin, Low)     // Sets a pin LOW
-#define togglePin(pin)    togglePinLevel(pin)       // Sets HIGH if LOW, and LOW if HIGH
+#define setPinHigh(pin)   setPinLevel(pin, High)      // Sets a pin HIGH
+#define setPinLow(pin)    setPinLevel(pin, Low)       // Sets a pin LOW
+#define togglePin(pin)    togglePinLevel(pin)         // Sets HIGH if LOW, and LOW if HIGH
+#define mimicPin(s, m)    setPinLevel(s, readPin(m))  // Duplicates the state of m to pin s
 
-#define isPinHigh(pin)    (readPin(pin) == High)    // Tells if a pin is High
+#define isPinHigh(pin)    (readPin(pin) != LOW)    // Tells if a pin is High
 #define isPinLow(pin)     (readPin(pin) == Low)     // Tells if a pin is Low
 
 
