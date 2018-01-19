@@ -18,22 +18,15 @@ void setPinMode(io_pin pin, pin_mode mode)
   uint8_t bit;
   vuint8_t *reg;
 
-  // Get the port and bit
   getPinPort(port, pin);
   getPinBit(bit, pin);
-
-  // Get the dir register
   getDirReg(reg, port);
 
   // Set the pin mode
-  if (mode == INPUT) {
-    // INPUT
-    setRegisterBitLow(reg, bit);
-  }
-  else if (mode == OUTPUT) {
-    // OUTPUT
-    setRegisterBitHigh(reg, bit);
-  }
+  if (mode == Input)
+    setRegisterBitLow(reg, bit); // Input
+  else
+    setRegisterBitHigh(reg, bit); // Output
 }
 
 
@@ -49,21 +42,14 @@ void setPinLevel(io_pin pin, pin_level level)
   uint8_t bit;
   vuint8_t *outReg;
 
-  // Get port and bit
   getPinPort(port, pin);
   getPinBit(bit, pin);
-
-  // Get out register
   getOutReg(outReg, port);
 
-  if (level == HIGH) {
-    // HIGH
-    setRegisterBitHigh(outReg, bit);
-  }
-  else {
-    // LOW
+  if (level == Low)
     setRegisterBitLow(outReg, bit);
-  }
+  else
+    setRegisterBitHigh(outReg, bit);
 }
 
 
@@ -99,16 +85,15 @@ pin_level readPin(io_pin pin)
   uint8_t bit;
   vuint8_t *inReg;
 
-  getPinPort(port, pin, LOW);
-  getPinBit(bit, pin, LOW);
-  getInReg(inReg, port, LOW);
-
+  getPinPort(port, pin, Low);
+  getPinBit(bit, pin, Low);
+  getInReg(inReg, port, Low);
 
   // Return HIGH if the bit is high
-  if ((*inReg & bit))
-    return HIGH;
+  if (isBitHigh(*inReg, bit))
+    return High;
   else
-    return LOW;
+    return Low;
 }
 
 

@@ -1,0 +1,451 @@
+/**
+ * File to MOCK (pretend to be) an MSP430F5529 for unit testing
+ */
+#include "ti_msp430f5529.h"
+#include <stdlib.h>
+
+// Converts a Port to a DIR register
+const vuint16_t* dir_registers[] = {
+  (vuint16_t*) NO_REGISTER,  // Nothing
+  (vuint16_t*) NO_REGISTER,  // Place holder
+  (vuint16_t*) NO_REGISTER,  // Place holder
+  (vuint16_t*) NO_REGISTER,  // Place holder
+  (vuint16_t*) NO_REGISTER,  // Place holder
+  (vuint16_t*) NO_REGISTER,  // Place holder
+  (vuint16_t*) NO_REGISTER,  // Place holder
+  (vuint16_t*) NO_REGISTER,  // Place holder
+  (vuint16_t*) NO_REGISTER,  // Place holder
+  (vuint16_t*) NO_REGISTER,  // Place holder
+};
+
+// Converts a Port to an OUT register
+const vuint16_t* out_registers[] = {
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+};
+
+// Converts a Port to an IN register
+const vuint16_t* in_registers[] = {
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+};
+
+// Converts a Port to a SEL register
+const vuint16_t* sel_registers[] = {
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+};
+
+// Converts a Port to IES registers
+const vuint16_t* ies_registers[] = {
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+};
+
+const vuint16_t* ie_registers[] = {
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+};
+
+const vuint16_t* ifg_registers[] = {
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+  (vuint16_t*) NO_REGISTER,
+};
+
+
+// Map a pin to a port (e.g., Pin4 => P6.7 => PORT6)
+const uint8_t port_map[] = {
+  NO_PORT, // Place holder
+  PORT6,
+  PORT6,  // 2
+  PORT6,
+  PORT6,  // 4
+  PORT7,
+  PORT7,  // 6
+  PORT7,
+  PORT7,  // 8
+  PORT5,
+  PORT5,  // 10
+  NO_PORT,
+  PORT5,  // 12
+  PORT5,
+  NO_PORT, // 14
+  PORT8,
+  PORT8,  // 16
+  PORT8,
+  NO_PORT, // 18
+  NO_PORT,
+  NO_PORT, // 20
+  PORT1,
+  PORT1,  // 22
+  PORT1,
+  PORT1,  // 24
+  PORT1,
+  PORT1,  // 26
+  PORT1,
+  PORT1,  // 28
+  PORT2,
+  PORT2,  // 30
+  PORT2,
+  PORT2,  // 32
+  PORT2,
+  PORT2,  // 34
+  PORT2,
+  PORT2,  // 36
+  PORT3,
+  PORT3,  // 38
+  PORT3,
+  PORT3,  // 40
+  PORT3,
+  PORT3,  // 42
+  PORT3,
+  PORT3,  // 44
+  PORT4,
+  PORT4,  // 46
+  PORT4,
+  PORT4,  // 48
+  NO_PORT,
+  NO_PORT, // 50
+  PORT4,
+  PORT4,  // 52
+  PORT4,
+  PORT4,  // 54
+  PORT5,
+  PORT5,  // 56
+  PORT7,
+  PORT7,  // 58
+  PORT7,
+  PORT7,  // 60
+  NO_PORT,
+  NO_PORT, // 62 PU.0/DP
+  NO_PORT,
+  NO_PORT, // 64 PU.1/DM
+  NO_PORT,
+  NO_PORT, // 66 VUSB
+  NO_PORT,
+  NO_PORT, // 68 AVSS2
+  PORT5,
+  PORT5,  // 70
+  NO_PORT,
+  PORTJ,  // 72
+  PORTJ,
+  PORTJ,  // 74
+  PORTJ,
+  NO_PORT, // 76
+  PORT6,
+  PORT6,  // 78
+  PORT6,
+  PORT6   // 80
+};
+
+
+// Maps a pin to it's bit (e.g., Pin4 => P6.7 => BIT7)
+const uint8_t bit_map[] = {
+  NO_PIN,   // Place holder
+  BIT4,
+  BIT5,
+  BIT6,
+  BIT7,
+  BIT0,
+  BIT1,
+  BIT2,
+  BIT3,
+  BIT0,
+  BIT1,
+  NO_BIT,
+  BIT4,
+  BIT5,
+  NO_BIT,
+  BIT0,
+  BIT1,
+  BIT2,
+  NO_BIT,
+  NO_BIT,
+  NO_BIT,
+  BIT0,
+  BIT1,
+  BIT2,
+  BIT3,
+  BIT4,
+  BIT5,
+  BIT6,
+  BIT7,
+  BIT0,
+  BIT1,
+  BIT2,
+  BIT3,
+  BIT4,
+  BIT5,
+  BIT6,
+  BIT7,
+  BIT0,
+  BIT1,
+  BIT2,
+  BIT3,
+  BIT4,
+  BIT5,
+  BIT6,
+  BIT7,
+  BIT0,
+  BIT1,
+  BIT2,
+  BIT3,
+  NO_BIT,
+  NO_BIT,
+  BIT4,
+  BIT5,
+  BIT6,
+  BIT7,
+  BIT6,
+  BIT7,
+  BIT4,
+  BIT5,
+  BIT6,
+  BIT7,
+  NO_BIT,
+  NO_BIT,
+  NO_BIT,
+  NO_BIT,
+  NO_BIT,
+  NO_BIT,
+  NO_BIT,
+  NO_BIT,
+  BIT2,
+  BIT3,
+  NO_BIT,
+  BIT0,
+  BIT1,
+  BIT2,
+  BIT3,
+  NO_BIT,
+  BIT0,
+  BIT1,
+  BIT2,
+  BIT3
+};
+
+// Directive to avoid typing everything out
+#define alloc1(var, arr, i) var = malloc(sizeof(uint16_t)); setRegister(var, Low); arr[i] = (vuint16_t*) var
+#define alloc2(var) var = malloc(sizeof(uint8_t)); setRegister(var, Low)
+
+#define reg(name) uint16_t* name
+
+/**
+ * Variables for simulating registers
+ */
+reg(p1_dir); reg(p2_dir); reg(p3_dir); reg(p4_dir); reg(p5_dir); reg(p6_dir);
+reg(p7_dir); reg(p8_dir); reg(pj_dir);
+
+reg(p1_out); reg(p2_out); reg(p3_out); reg(p4_out); reg(p5_out); reg(p6_out);
+reg(p7_out); reg(p8_out); reg(pj_out);
+
+reg(p1_in); reg(p2_in); reg(p3_in); reg(p4_in); reg(p5_in); reg(p6_in);
+reg(p7_in); reg(p8_in); reg(pj_in);
+
+reg(p1_sel); reg(p2_sel); reg(p3_sel); reg(p4_sel); reg(p5_sel); reg(p6_sel);
+reg(p7_sel); reg(p8_sel);
+
+reg(p1_ies); reg(p2_ies);
+reg(p1_ie);  reg(p2_ie);
+reg(p1_ifg); reg(p2_ifg);
+
+reg(UCA0CTL1);  reg(UCA0CTL0);  reg(UCA0BR0);  reg(UCA0BR1);
+reg(UCA1CTL1);  reg(UCA1CTL0);  reg(UCA1BR0);  reg(UCA1BR1);
+reg(UCB0CTL1);  reg(UCB0CTL0);  reg(UCB0BR0);  reg(UCB0BR1);
+reg(UCB1CTL1);  reg(UCB1CTL0);  reg(UCB1BR0);  reg(UCB1BR1);
+reg(UCA0TXBUF); reg(UCA0RXBUF); reg(UCA1TXBUF); reg(UCA1RXBUF);
+reg(UCB0TXBUF); reg(UCB0RXBUF); reg(UCB1TXBUF); reg(UCB1RXBUF);
+
+
+
+/**
+ * Runs before main
+ */
+void microcontroller_setup(void)
+{
+  // Create fake registers
+  alloc1(p1_dir, dir_registers, 1); alloc1(p2_dir, dir_registers, 2);
+  alloc1(p3_dir, dir_registers, 3); alloc1(p4_dir, dir_registers, 4);
+  alloc1(p5_dir, dir_registers, 5); alloc1(p6_dir, dir_registers, 6);
+  alloc1(p7_dir, dir_registers, 7); alloc1(p8_dir, dir_registers, 8);
+  alloc1(pj_dir, dir_registers, 9);
+
+  alloc1(p1_out, out_registers, 1); alloc1(p2_out, out_registers, 2);
+  alloc1(p3_out, out_registers, 3); alloc1(p4_out, out_registers, 4);
+  alloc1(p5_out, out_registers, 5); alloc1(p6_out, out_registers, 6);
+  alloc1(p7_out, out_registers, 7); alloc1(p8_out, out_registers, 8);
+  alloc1(pj_out, out_registers, 9);
+
+  alloc1(p1_in, in_registers, 1); alloc1(p2_in, in_registers, 2);
+  alloc1(p3_in, in_registers, 3); alloc1(p4_in, in_registers, 4);
+  alloc1(p5_in, in_registers, 5); alloc1(p6_in, in_registers, 6);
+  alloc1(p7_in, in_registers, 7); alloc1(p8_in, in_registers, 8);
+  alloc1(pj_in, in_registers, 9);
+
+  alloc1(p1_sel, sel_registers, 1); alloc1(p2_sel, sel_registers, 2);
+  alloc1(p3_sel, sel_registers, 3); alloc1(p4_sel, sel_registers, 4);
+  alloc1(p5_sel, sel_registers, 5); alloc1(p6_sel, sel_registers, 6);
+  alloc1(p7_sel, sel_registers, 7); alloc1(p8_sel, sel_registers, 8);
+
+  alloc1(p1_ies, ies_registers, 1); alloc1(p2_ies, ies_registers, 2);
+  alloc1(p1_ie,  ie_registers,  1); alloc1(p2_ie,  ie_registers,  2);
+  alloc1(p1_ifg, ifg_registers, 1); alloc1(p2_ifg, ifg_registers, 2);
+
+  // Fake SPI registers
+  alloc2(UCA0CTL1);  alloc2(UCA0CTL0);  alloc2(UCA0BR0);  alloc2(UCA0BR1); alloc2(UCA0TXBUF); alloc2(UCA0RXBUF);
+  alloc2(UCA1CTL1);  alloc2(UCA1CTL0);  alloc2(UCA1BR0);  alloc2(UCA1BR1); alloc2(UCA1TXBUF); alloc2(UCA1RXBUF);
+  alloc2(UCB0CTL1);  alloc2(UCB0CTL0);  alloc2(UCB0BR0);  alloc2(UCB0BR1); alloc2(UCB0TXBUF); alloc2(UCB0RXBUF);
+  alloc2(UCB1CTL1);  alloc2(UCB1CTL0);  alloc2(UCB1BR0);  alloc2(UCB1BR1); alloc2(UCB1TXBUF); alloc2(UCB1RXBUF);
+
+
+  // Some more stuff maybe?
+
+}
+
+
+void microcontroller_spi_setup(spi_bus bus)
+{
+  switch (bus) {
+    case SPI_BUS_1:
+      // UCA0
+      *UCA0CTL1  = 0x01;	//Hold the device in a reset state while we configure
+			*UCA0CTL0  = 0x69;		//SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+			*UCA0CTL1 |= 0xC0;		//SPI clock (BRCLK) source = SMCLK
+			*UCA0BR1	  = 0x00;		//Set the high bit of the baud rate generator
+			*UCA0BR0	  = 0x14;		//Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+			//UCA0IE   |= 0x04;		//Enable interrupts
+			*UCA0CTL1 &= ~0x01;	//Release the bus from reset state
+      break;
+
+    case SPI_BUS_2:
+      // UCA1
+      *UCA1CTL1  = 0x01;	//Hold the device in a reset state while we configure
+			*UCA1CTL0  = 0x69;		//SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+			*UCA1CTL1 |= 0xC0;		//SPI clock (BRCLK) source = SMCLK
+			*UCA1BR1	  = 0x00;		//Set the high bit of the baud rate generator
+			*UCA1BR0	  = 0x14;		//Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+			//UCA1IE   |= 0x04;		//Enable interrupts
+			*UCA1CTL1 &= ~0x01;	//Release the bus from reset state
+      break;
+
+    case SPI_BUS_3:
+      // UCB0
+      *UCB0CTL1  = 0x01;	//Hold the device in a reset state while we configure
+			*UCB0CTL0  = 0x69;		//SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+			*UCB0CTL1 |= 0xC0;		//SPI clock (BRCLK) source = SMCLK
+			*UCB0BR1	  = 0x00;		//Set the high bit of the baud rate generator
+			*UCB0BR0	  = 0x14;		//Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+			//UCB0IE   |= 0x04;		//Enable interrupts
+			*UCB0CTL1 &= ~0x01;	//Release the bus from reset state
+      break;
+
+    case SPI_BUS_4:
+      // UCB1
+      *UCB1CTL1  = 0x01;    //Hold the device in a reset state while we configure
+      *UCB1CTL0  = 0x69;       //SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+      *UCB1CTL1 |= 0xC0;       //SPI clock (BRCLK) source = SMCLK
+      *UCB1BR1   = 0x00;       //Set the high bit of the baud rate generator
+      *UCB1BR0   = 0x14;       //Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+      //UCB1IE   |= 0x04;     //Enable interrupts
+      *UCB1CTL1 &= ~0x01;   //Release the bus from reset state
+      break;
+  }
+}
+
+
+uint8_t microcontroller_spi_transmit(spi_bus bus, uint8_t data)
+{
+  switch (bus) {
+    case SPI_BUS_1:
+      // UCA0
+      //while ((UCA0STAT & UCIDLE) != 0);
+      *UCA0TXBUF = data;
+      //while ((UCA0STAT & UCBUSY) != 0);
+
+      // Put the data in SPI_BUS_2 for testing
+      *UCA1RXBUF = data;
+
+      return (uint8_t)*UCA0RXBUF;
+
+    case SPI_BUS_2:
+      // UCA1
+      //while ((UCA1STAT & UCIDLE) != 0);
+      *UCA1TXBUF = data;
+      //while ((UCA1STAT & UCBUSY) != 0);
+
+      // Put the data in SPI_BUS_1 for testing
+      *UCA0RXBUF = data;
+
+      return (uint8_t)*UCA1RXBUF;
+
+    case SPI_BUS_3:
+      // UCB0
+      //while ((UCB0STAT & UCIDLE) != 0);
+      *UCB0TXBUF = data;
+      //while ((UCB0STAT & UCBUSY) != 0);
+
+      // Put data in SPI_BUS_4 for testing
+      *UCB1RXBUF = data;
+
+      return (uint8_t)*UCB0RXBUF;
+
+    case SPI_BUS_4:
+      // UCB1
+      //while ((UCB1STAT & UCIDLE) != 0);
+      *UCB1TXBUF = data;
+      //while ((UCB1STAT & UCBUSY) != 0);
+
+      // Put data in SPI_BUS_3 for testing
+      *UCB0RXBUF = data;
+
+      return (uint8_t)*UCB1RXBUF;
+  }
+}

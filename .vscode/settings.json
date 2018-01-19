@@ -4,6 +4,7 @@
     "*.spec": "c",
     "*.example": "c",
     "solarcar.h": "c",
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "*.mock": "c"
   }
 }

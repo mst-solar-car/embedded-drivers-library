@@ -7,7 +7,12 @@
 #ifndef MICROCONTROLLER
 #define MICROCONTROLLER
 
+#ifndef UNIT_TEST
 #include <msp430f5529.h>
+#else
+#define _no_operation() // Nothing :)
+#endif
+
 #include "ti_msp430f5529.spec"
 #include "../microcontroller.h"
 
@@ -18,14 +23,9 @@
 #define no_operation()    _no_operation() // Does nothing in code, can be used as a breakpoint (won't be removed by optimization)
 
 // Watchdog
-#ifdef __MSP430_HAS_WDT_A__
-  #define watchdog_disable()      WDTCTL = WDTPW + WDTHOLD
-  #define watchdog_enable()       WDTCTL = WDT_ARST_1000    // Reset every 1 second (1000ms)
-  #define watchdog_pet()          WDTCTL = WDTPW + WDTCNTCL  // Clear Watchdog timer (prevents reset)
-
-#else
-  #define NO_WATCHDOG
-#endif
+#define watchdog_disable()      WDTCTL = WDTPW + WDTHOLD
+#define watchdog_enable()       WDTCTL = WDT_ARST_1000    // Reset every 1 second (1000ms)
+#define watchdog_pet()          WDTCTL = WDTPW + WDTCNTCL  // Clear Watchdog timer (prevents reset)
 
 
 // Interrupts
@@ -356,6 +356,43 @@ enum {
 
 
 
+#ifdef UNIT_TEST
+// Fake registers
+extern reg(p1_dir); extern reg(p2_dir); extern reg(p3_dir); extern reg(p4_dir); extern reg(p5_dir); extern reg(p6_dir);
+extern reg(p7_dir); extern reg(p8_dir); extern reg(pj_dir);
+
+extern reg(p1_out); extern reg(p2_out); extern reg(p3_out); extern reg(p4_out); extern reg(p5_out); extern reg(p6_out);
+extern reg(p7_out); extern reg(p8_out); extern reg(pj_out);
+
+extern reg(p1_in); extern reg(p2_in); extern reg(p3_in); extern reg(p4_in); extern reg(p5_in); extern reg(p6_in);
+extern reg(p7_in); extern reg(p8_in); extern reg(pj_in);
+
+extern reg(p1_sel); extern reg(p2_sel); extern reg(p3_sel); extern reg(p4_sel); extern reg(p5_sel); extern reg(p6_sel);
+extern reg(p7_sel); extern reg(p8_sel);
+
+extern reg(p1_ies); extern reg(p2_ies);
+extern reg(p1_ie);  extern reg(p2_ie);
+extern reg(p1_ifg); extern reg(p2_ifg);
+
+// Fake SPI registers
+extern reg(UCA0CTL1); extern reg(UCA0CTL0); extern reg(UCA0BR0); extern reg(UCA0BR1);
+extern reg(UCA1CTL1); extern reg(UCA1CTL0); extern reg(UCA1BR0); extern reg(UCA1BR1);
+extern reg(UCB0CTL1); extern reg(UCB0CTL0); extern reg(UCB0BR0); extern reg(UCB0BR1);
+extern reg(UCB1CTL1); extern reg(UCB1CTL0); extern reg(UCB1BR0); extern reg(UCB1BR1);
+extern reg(UCA0TXBUF); extern reg(UCA0RXBUF); extern reg(UCA1TXBUF); extern reg(UCA1RXBUF);
+extern reg(UCB0TXBUF); extern reg(UCB0RXBUF); extern reg(UCB1TXBUF); extern reg(UCB1RXBUF);
+
+// Aliases for the unit tests
+#define spi1_tx_buf UCA0TXBUF
+#define spi1_rx_buf UCA0RXBUF
+#define spi2_tx_buf UCA1TXBUF
+#define spi2_rx_buf UCA1RXBUF
+#define spi3_tx_buf UCB0TXBUF
+#define spi3_rx_buf UCB0RXBUF
+#define spi4_tx_buf UCB1TXBUF
+#define spi4_rx_buf UCB1RXBUF
+
+#endif
 
 
 

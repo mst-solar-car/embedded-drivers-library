@@ -82,7 +82,7 @@ void can_controller_setup(io_pin int_pin, io_pin cs_pin)
 #ifndef MCP2515_USE_RXBF_PINS
   _buffer[3] = 0x23; // (CANINTE) enable error, rx0 & rx1 interrupts on IRQ pin
 #else
-  _buffer[3] = 0x23; // If useing the RXnBF pins then don't do anything with the INT pin
+  _buffer[3] = 0x03; // If useing the RXnBF pins then don't do anything with the INT pin
 #endif
   _buffer[4] = 0x00; // (CANINTF) register: clear all IRQ flags
   _buffer[5] = 0x00; // (EFLG) clear all user changable error flags
@@ -184,6 +184,8 @@ void can_controller_setup(io_pin int_pin, io_pin cs_pin)
  */
 bool can_controller_transmit(can_message* msg)
 {
+  uint8_t i;
+
   if (_mcp2515_is_busy() == True) {
     return Failure; // CAN is busy, do not transmit the message
   }
@@ -194,16 +196,9 @@ bool can_controller_transmit(can_message* msg)
   _buffer[2] = NULL;  // Extended identifier
   _buffer[3] = NULL;  // Extended identifier
   _buffer[4] = 8;     // Length of data in bytes
-  _buffer[5] = msg->data.data_u8[0];
-  _buffer[6] = msg->data.data_u8[1];
-  _buffer[7] = msg->data.data_u8[2];
-  _buffer[8] = msg->data.data_u8[3];
-  _buffer[9] = msg->data.data_u8[4];
-  _buffer[10] = msg->data.data_u8[5];
-  _buffer[11] = msg->data.data_u8[6];
-  _buffer[12] = msg->data.data_u8[7];
+  for (i = 0; i < 8; i++)
+    _buffer[5+i] = msg->data.data_u8[i]; // Data should start at index 5 in the buffer
 
-  uint8_t i;
 
   // Transmit the message to the CAN controller
   setPinLow(_can_controller_cs_pin); // Toggle the CS pin
@@ -414,23 +409,31 @@ static uint8_t _mcp2515_read_status()
  */
 static void _mcp2515_get_message_from_buffer(uint8_t rxbuf, can_message* out)
 {
-  // Read from the specified RX Buffer
-  _mcp2515_read(rxbuf, &_buffer[0], CAN_MESSAGE_SIZE + 1);
+  uint8_t i;
 
-  // Check what type of packet
+  // Determine SPI command to send
+  uint8_t cmd = MCP2515_READ_RX0_CMD;
+  if (rxbuf == MCP2515_RX1_REGISTER)
+    cmd = MCP2515_READ_RX1_CMD;
+
+  // Read from the buffer and reset the interrupt pin
+  setPinLow(_can_controller_cs_pin);
+  spi_transmit(DEFAULT_SPI_BUS, cmd);
+  for (i = 0; i <= CAN_MESSAGE_SIZE; i++)
+    _buffer[i] = spi_transmit(DEFAULT_SPI_BUS, NULL);
+  setPinHigh(_can_controller_cs_pin);
+
+  // Read from the specified RX Buffer
+  //_mcp2515_read(rxbuf, &_buffer[0], CAN_MESSAGE_SIZE + 1);
+
+  // Check what type of packet it is
   if ((_buffer[0] & MCP2515_REMOTE_CHECK) == NULL) {
     // Standard data packet
     out->status = CAN_OK;
 
     // Fill in data
-    out->data.data_u8[0] = _buffer[6];
-    out->data.data_u8[1] = _buffer[7];
-    out->data.data_u8[2] = _buffer[8];
-    out->data.data_u8[3] = _buffer[9];
-    out->data.data_u8[4] = _buffer[10];
-    out->data.data_u8[5] = _buffer[11];
-    out->data.data_u8[6] = _buffer[12];
-    out->data.data_u8[7] = _buffer[13];
+    for (i = 0; i < 8; i++)
+      out->data.data_u8[i] = _buffer[6 + i]; // Data starts at _buffer[6]
   }
   else {
     // Remote Frame Request -- Data is irrelevant
@@ -454,7 +457,8 @@ static void _mcp2515_handle_RX0BF_interrupt(void)
   while (readPin(MCP2515_RX0BF_PIN) == Low)
   {
     _mcp2515_get_message_from_buffer(MCP2515_RX0_REGISTER, _can_get_next_receive_ptr());
-    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX0_CHECK, NULL);
+    //setPinHigh(MCP2515_RX0BF_PIN);
+    //_mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX0_CHECK, NULL);
   }
 }
 #endif
@@ -470,7 +474,8 @@ static void _mcp2515_handle_RX1BF_interrupt(void)
   while (readPin(MCP2515_RX1BF_PIN) == Low)
   {
     _mcp2515_get_message_from_buffer(MCP2515_RX1_REGISTER, _can_get_next_receive_ptr());
-    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX1_CHECK, NULL);
+    //setPinHigh(MCP2515_RX1BF_PIN);
+    //_mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX1_CHECK, NULL);
   }
 }
 #endif
@@ -505,7 +510,7 @@ static void _mcp2515_get_message(can_message* out)
     _mcp2515_get_message_from_buffer(MCP2515_RX0_REGISTER, out);
 
     // Clear flags
-    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX0_CHECK, NULL);
+    //_mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX0_CHECK, NULL);
   }
 
   // Receive message if it's in RX Buffer 1
@@ -514,7 +519,7 @@ static void _mcp2515_get_message(can_message* out)
     _mcp2515_get_message_from_buffer(MCP2515_RX1_REGISTER, out);
 
     // Clear flags
-    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX1_CHECK, NULL);
+    //_mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX1_CHECK, NULL);
   }
 }
 #endif

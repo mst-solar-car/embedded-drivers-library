@@ -1,2 +1,4 @@
 *.out
 user_config.h
+*.o
+*.tests

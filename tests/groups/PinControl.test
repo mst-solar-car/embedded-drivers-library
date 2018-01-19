@@ -9,60 +9,128 @@
 
 #define GROUP PinControl
 
-
-
-
 /**
  * Test the functionality of setting a pin as OUTPUT
  */
 TEST(setPinAsOutput)
 {
-  TEST_ASSERT_BITS_LOW(BIT0, *port1_dir_reg); // Confirm that P1.0 is LOW to begin with
-
-  setPinMode(P1_0, OUTPUT); // Set the pin as output (should make it HIGH)
-
-  TEST_ASSERT_BITS_HIGH(BIT0, *port1_dir_reg); // Confirm that P1.0 is now HIGH
+  setPinMode(P1_0, Output); // Set the pin as output (should make it HIGH)
+  TEST_ASSERT_BITS_HIGH_MESSAGE(BIT0, *p1_dir, "p1_dir did not contain High bit BIT0 after setting as Output");
 }
-
 
 /**
  * Test setting a pin as INPUT
  */
 TEST(setPinAsInput)
 {
-  TEST_ASSERT_BITS_LOW(BIT6, *port1_dir_reg); // Confirm it's LOW to begin with
-  setPinMode(P1_6, OUTPUT);
-  TEST_ASSERT_BITS_HIGH(BIT6, *port1_dir_reg); // Confirm that it's now HIGH
+  setPinMode(P1_6, Output);
+  TEST_ASSERT_BITS_HIGH_MESSAGE(BIT6, *p1_dir, "p1_dir was not High after setting as Output");
 
-  setPinMode(P1_6, INPUT);
-
-  TEST_ASSERT_BITS_LOW(BIT6, *port1_dir_reg); // Should be LOW after being marked as INPUT
+  setPinMode(P1_6, Input);
+  TEST_ASSERT_BITS_LOW_MESSAGE(BIT6, *p1_dir, "p1_dir was not Low after setting as Input");
 }
-
 
 /**
  * Test setting multiple pins
  */
 TEST(setMultiplePins)
 {
-  TEST_ASSERT_BITS_LOW(BIT0, *port1_dir_reg);
-  TEST_ASSERT_BITS_LOW(BIT7, *port1_dir_reg);
+  setPinMode(P1_0, Output);
+  setPinMode(P1_7, Output);
 
-  setPinMode(P1_0, OUTPUT);
-  setPinMode(P1_7, OUTPUT);
-
-  TEST_ASSERT_BITS_HIGH(BIT0, *port1_dir_reg);
-  TEST_ASSERT_BITS_HIGH(BIT7, *port1_dir_reg);
+  TEST_ASSERT_BITS_HIGH(BIT0, *p1_dir);
+  TEST_ASSERT_BITS_HIGH(BIT7, *p1_dir);
 }
+
+/**
+ * Setting Pins High and Low
+ */
+TEST(setPinLevels)
+{
+  setPinMode(P1_1, Output);
+
+  setPinHigh(P1_1);
+  TEST_ASSERT_BITS_HIGH_MESSAGE(BIT1, *p1_out, "setPinHigh(P1_1) did not make BIT1 in p1_out High");
+
+  setPinLow(P1_1);
+  TEST_ASSERT_BITS_LOW_MESSAGE(BIT1, *p1_out, "setPinLow(P1_1) did not make BIT1 in p1_out Low");
+}
+
+/**
+ * Read Pins
+ */
+TEST(readPins)
+{
+  pin_level level;
+  bool isHigh;
+  bool isLow;
+  setPinMode(P1_1, Input);
+
+  // Test reading if the pin is High
+  *p1_in |= BIT1;
+  level = readPin(P1_1);
+  TEST_ASSERT_EQUAL_INT16_MESSAGE(High, level, "readPin(P1_1) did not work after the pin was set to High");
+
+  isHigh = isPinHigh(P1_1);
+  isLow = isPinLow(P1_1);
+  TEST_ASSERT_EQUAL_INT16_MESSAGE(True, isHigh, "isPinHigh(P1_1) did not work after setting the pin High");
+  TEST_ASSERT_EQUAL_INT16_MESSAGE(False, isLow, "isPinLow(P1_1) did not work after setting the pin High");
+
+  // Now test reading if the pin is Low
+  *p1_in &= ~BIT1;
+  level = readPin(P1_1);
+  TEST_ASSERT_EQUAL_INT16_MESSAGE(Low, level, "readPin(P1_1) did not work after the pin was set to Low");
+
+  isHigh = isPinHigh(P1_1);
+  isLow = isPinLow(P1_1);
+  TEST_ASSERT_EQUAL_INT16_MESSAGE(False, isHigh, "isPinHigh(P1_1) did not work after setting the pin to Low");
+  TEST_ASSERT_EQUAL_INT16_MESSAGE(True, isLow, "isPinLow(P1_1) did not work after setting the pin to Low");
+}
+
+
+/**
+ * Interrupt Test
+ */
+bool interruptOccured;
+void interruptISR(void)
+{
+  interruptOccured = True;
+}
+
+TEST(interrupt)
+{
+#ifndef MC_NO_INTERRUPTS
+  interruptOccured = False;
+  *p1_out = BIT1; *p1_ies = 0x00; *p1_ifg = BIT1; *p1_ie = 0x00;
+
+  // Attach interrupt to Port1
+  attachInterrupt(P1_1, interruptISR);
+
+  TEST_ASSERT_BITS_LOW_MESSAGE(BIT1, *p1_dir, "P1_1 not set as input after attachInterrupt");
+  TEST_ASSERT_BITS_HIGH_MESSAGE(BIT1, *p1_ies, "BIT1 not High in p1_ies reg after attachInterrupt");
+  TEST_ASSERT_BITS_LOW_MESSAGE(BIT1, *p1_ifg, "BIT1 not Low in p1_ifg after attachInterrupt");
+  TEST_ASSERT_BITS_HIGH_MESSAGE(BIT1, *p1_ie, "BIT1 was not high in p1_ie after attachInterrupt");
+
+  // Trigger interrupt
+  *p1_ifg |= BIT1;  // Set the interrupt flag for P1_1
+  _dispatchInterrupt(NULL, PORT1);
+
+  TEST_ASSERT_TRUE_MESSAGE(interruptOccured, "Interrupt did not occur after dispatching interrupt");
+  TEST_ASSERT_BITS_LOW_MESSAGE(BIT1, *p1_ifg, "BIT1 in p1_ifg was not Low after ISR ran");
+#else
+  TEST_INGORE_MESSAGE("Target does not support interrupts");
+#endif
+}
+
 
 
 // Setup function for each test in this group
 GROUP_SETUP()
 {
-  *port1_dir_reg = 0x00;
-  *port1_out_reg = 0x00;
-  *port1_in_reg = 0x00;
-  *port1_sel_reg = 0x00;
+  *p1_dir = 0x00;
+  *p1_out = 0x00;
+  *p1_in = 0x00;
+  *p1_sel = 0x00;
 }
 
 // Run all the tests for this group
@@ -71,4 +139,7 @@ GROUP_RUNNER()
   RUN(setPinAsOutput);
   RUN(setPinAsInput);
   RUN(setMultiplePins);
+  RUN(setPinLevels);
+  RUN(readPins);
+  RUN(interrupt);
 }

@@ -18,7 +18,7 @@
  */
 #include "groups/PinControl.test"
 #include "groups/SPI.test"
-
+#include "groups/CAN.test"
 
 
 
@@ -28,11 +28,11 @@
 int main(void)
 {
   UNITY_BEGIN();
- spi_setup(SPI_BUS_1, MOSI, MISO, SCK);
 
   // Run each group
   RUN_GROUP(PinControl);
   RUN_GROUP(SPI);
+  RUN_GROUP(CAN);
 
   return UNITY_END();
 }
