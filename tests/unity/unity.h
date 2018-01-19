@@ -13,7 +13,7 @@ extern "C"
 {
 #endif
 
-#include "unity_internals.h.test"
+#include "unity_internals.h"
 
 /*-------------------------------------------------------
  * Test Setup / Teardown

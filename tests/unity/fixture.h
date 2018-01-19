@@ -1,13 +1,15 @@
-#ifndef TESTS_H_TEST
-#define TESTS_H_TEST
-#include <stdlib.h>
-#include "unity/unity.h.test"
-#include "../solarcar.h" // See, this is all you need to do to use the drivers :)
+/**
+ * This is a custom fixture around Unity that allows for
+ * easier declaration of tests
+ */
+#ifndef UNITY_FIXTURE
+#define UNITY_FIXTURE
 
 // Used to make a string from the group name
 #define TOSTR(x)          STRINGIFY(x)
 #define STRINGIFY(x)      #x
 
+// Concatination
 #define CAT(a, ...)       _CAT(a, __VA_ARGS__)
 #define _CAT(a, ...)      a ## __VA_ARGS__
 
@@ -28,7 +30,6 @@
 
 // Used to run a group runner
 #define RUN_GROUP(group)  CAT(group, _start)()
-
 
 
 
