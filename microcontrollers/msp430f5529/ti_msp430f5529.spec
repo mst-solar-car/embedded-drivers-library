@@ -18,7 +18,7 @@
 
 //#define MC_NO_SPI         // Uncomment if microcontroller doesn't support SPI
 //#define MC_NO_INTERRUPTS  // Uncomment if microcontroller doesn't support interrupts
-#define MC_NO_WATCHDOG    // Uncomment if microcontroller doesn't have a watchdog timer
+//#define MC_NO_WATCHDOG    // Uncomment if microcontroller doesn't have a watchdog timer
 
 
 #endif
