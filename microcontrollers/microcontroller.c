@@ -132,7 +132,6 @@ static volatile voidFuncPtr _interruptEvents[MC_NUM_INTERRUPTABLE_PORTS][8] = {
 };
 
 
-
 /**
  * Used to attach an interrupt to a certain pin
  *

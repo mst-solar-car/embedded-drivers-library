@@ -222,10 +222,11 @@ extern void _dispatchInterrupt(uint8_t vector, uint8_t port);
 
 #ifdef UNIT_TEST
 // Directive to avoid typing everything out
-#define alloc1(var, arr, i) var = malloc(sizeof(uint16_t)); setRegister(var, Low); arr[i] = (vuint16_t*) var
-#define alloc2(var) var = malloc(sizeof(uint8_t)); setRegister(var, Low)
+#define alloc1(var, arr, i) alloc2(var); arr[i] = (vuint16_t*) var
+#define alloc2(var) var = malloc(sizeof(uint16_t)); setRegister(var, Low)
 
 #define reg(name) uint16_t* name
+
 #endif
 
 

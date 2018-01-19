@@ -41,7 +41,7 @@ static void _mcp2515_get_message(can_message* out);
  * This function should do all the configuration needed for the CAN Controller
  * to function properly.
  */
-void can_controller_setup(io_pin int_pin, io_pin cs_pin)
+void can_controller_setup(io_pin cs_pin, io_pin int_pin)
 {
   // Setup the CS pin
   _can_controller_cs_pin = cs_pin;

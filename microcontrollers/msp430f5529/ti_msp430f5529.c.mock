@@ -191,35 +191,35 @@ const uint8_t port_map[] = {
 const uint8_t bit_map[] = {
   NO_PIN,   // Place holder
   BIT4,
-  BIT5,
+  BIT5, // 2
   BIT6,
-  BIT7,
+  BIT7, // 4
   BIT0,
-  BIT1,
+  BIT1, // 6
   BIT2,
-  BIT3,
+  BIT3, // 8
   BIT0,
-  BIT1,
+  BIT1, // 10
   NO_BIT,
   BIT4,
   BIT5,
   NO_BIT,
-  BIT0,
+  BIT0, // 15
   BIT1,
   BIT2,
   NO_BIT,
   NO_BIT,
-  NO_BIT,
+  NO_BIT, // 20
   BIT0,
   BIT1,
   BIT2,
   BIT3,
-  BIT4,
+  BIT4, // 25
   BIT5,
   BIT6,
   BIT7,
   BIT0,
-  BIT1,
+  BIT1, // 30
   BIT2,
   BIT3,
   BIT4,
@@ -272,11 +272,6 @@ const uint8_t bit_map[] = {
   BIT3
 };
 
-// Directive to avoid typing everything out
-#define alloc1(var, arr, i) var = malloc(sizeof(uint16_t)); setRegister(var, Low); arr[i] = (vuint16_t*) var
-#define alloc2(var) var = malloc(sizeof(uint8_t)); setRegister(var, Low)
-
-#define reg(name) uint16_t* name
 
 /**
  * Variables for simulating registers

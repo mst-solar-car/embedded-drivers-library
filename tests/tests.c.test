@@ -2,12 +2,9 @@
  * This file is home to the unit tests for the drivers.
  *
  * It should just test the basic functionality provided by the library.
- * Nothing specific like microcontrollers or SPI, just basic PIN/PORT control.
  *
  * Author: Michael Rouse
  */
-// gcc -x c tests/tests.c.test microcontrollers/microcontroller.c microcontrollers/test/test_microcontroller.c.test tests/unity/unity.c.test -o tests.out -D UNIT_TEST
-
 #ifdef UNIT_TEST
 #include "tests.h.test"
 #include "../solarcar.h" // See, this is all you need to do to use the drivers :)

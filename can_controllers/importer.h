@@ -14,6 +14,11 @@
 #ifndef __CAN_CONTROLLER_IMPORTER_H__
 #define __CAN_CONTROLLER_IMPORTER_H__
 
+#ifdef UNIT_TEST
+  // Ignore this UNIT_TEST stuff
+  #include "can_controller.h"
+  #define CAN_CONTROLLER
+#else
 
 /**
  * Add CAN Controllers here (and comment out ones that are not in use)
@@ -27,6 +32,6 @@
   #error "Unkown CAN Controller in can_controllers/importer.h"
 #endif
 
-
+#endif
 #endif
 

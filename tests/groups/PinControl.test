@@ -67,7 +67,7 @@ TEST(readPins)
   setPinMode(P1_1, Input);
 
   // Test reading if the pin is High
-  *p1_in |= BIT1;
+  setRegisterBitHigh(p1_in, BIT1);
   level = readPin(P1_1);
   TEST_ASSERT_EQUAL_INT16_MESSAGE(High, level, "readPin(P1_1) did not work after the pin was set to High");
 
@@ -77,7 +77,7 @@ TEST(readPins)
   TEST_ASSERT_EQUAL_INT16_MESSAGE(False, isLow, "isPinLow(P1_1) did not work after setting the pin High");
 
   // Now test reading if the pin is Low
-  *p1_in &= ~BIT1;
+  setRegisterBitLow(p1_in, BIT1);
   level = readPin(P1_1);
   TEST_ASSERT_EQUAL_INT16_MESSAGE(Low, level, "readPin(P1_1) did not work after the pin was set to Low");
 
@@ -112,7 +112,7 @@ TEST(interrupt)
   TEST_ASSERT_BITS_HIGH_MESSAGE(BIT1, *p1_ie, "BIT1 was not high in p1_ie after attachInterrupt");
 
   // Trigger interrupt
-  *p1_ifg |= BIT1;  // Set the interrupt flag for P1_1
+  setRegisterBitHigh(p1_ifg, BIT1);
   _dispatchInterrupt(NULL, PORT1);
 
   TEST_ASSERT_TRUE_MESSAGE(interruptOccured, "Interrupt did not occur after dispatching interrupt");

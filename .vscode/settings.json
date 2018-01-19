@@ -5,6 +5,7 @@
     "*.example": "c",
     "solarcar.h": "c",
     "stdlib.h": "c",
-    "*.mock": "c"
+    "*.mock": "c",
+    "importer.h": "c"
   }
 }

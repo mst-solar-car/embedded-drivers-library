@@ -41,7 +41,7 @@ void can_setup(io_pin cs_pin, io_pin int_pin)
   can_new_msg = _tx_push;
 
   // Setup the CAN Controller
-  can_controller_setup(int_pin, cs_pin);
+  can_controller_setup(cs_pin, int_pin);
 }
 
 
@@ -71,8 +71,6 @@ can_message* can_receive(void)
   if (msg->address == 0x00)
     return (can_message*)NOTHING;
 
-
-
   return msg;
 }
 
@@ -83,23 +81,24 @@ can_message* can_receive(void)
 bool can_transmit(void)
 {
   uint8_t i;
-  can_message* tx_push_old = _tx_push;
 
-  // Increase push pointer before anything
-  _tx_push++;
-  if (_tx_push >= (_tx_queue + CAN_BUFFER_LENGTH))
-    _tx_push = _tx_queue;
+  if (_tx_push->address != NULL) {
+    // Increase push pointer before anything
+    _tx_push++;
+    if (_tx_push >= (_tx_queue + CAN_BUFFER_LENGTH))
+      _tx_push = _tx_queue;
 
-  // Reset contents of new can message
-  _tx_push->address = NULL;
-  _tx_push->status = CAN_OK;
-  for (i = 0; i < 8; i++) _tx_push->data.data_u8[i] = NULL;
+    // Reset contents of new can message
+    _tx_push->address = NULL;
+    _tx_push->status = CAN_OK;
+    for (i = 0; i < 8; i++) _tx_push->data.data_u8[i] = NULL;
 
-  can_new_msg = _tx_push; // Update variable for programmer to use
+    can_new_msg = _tx_push; // Update variable for programmer to use
+  }
 
   // Send messages in the queue
   //uint8_t loop_count = 0;
-  while (_tx_pop != tx_push_old) {
+  while (_tx_pop != _tx_push) {
     // Stop sending if the bus is busy
     if (_tx_pop->address != 0x00)
       if (!can_controller_transmit(_tx_pop))

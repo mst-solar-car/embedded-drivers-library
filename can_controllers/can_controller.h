@@ -26,7 +26,7 @@
  * This function should do all the configuration needed for the CAN Controller
  * to function properly.
  */
-extern void can_controller_setup(io_pin int_pin, io_pin cs_pin);
+extern void can_controller_setup(io_pin cs_pin, io_pin int_pin);
 
 
 /*
@@ -48,5 +48,16 @@ extern bool can_controller_transmit(can_message* msg);
 extern void can_controller_poll();
 
 
+
+
+#ifdef UNIT_TEST
+// Fake registers
+extern reg(can_tx0_buf); extern reg(can_tx1_buf); extern reg(can_tx2_buf);
+extern reg(can_rx0_buf); extern reg(can_rx1_buf);
+
+extern bool is_can_busy;
+extern bool should_can_receive_error;
+extern bool was_can_setup;
+#endif
 
 #endif
