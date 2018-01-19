@@ -6,7 +6,7 @@
 #ifndef __CAN_H__
 #define __CAN_H__
 
-#include "../user_config.h"
+#include "../config.h"
 #include "constants.h"
 #include "../datatypes.h"
 #include "../utils.h"

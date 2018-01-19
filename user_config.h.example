@@ -4,11 +4,18 @@
  * You should not alter any other .h files for these drivers.
  *
  * Make a COPY of this file and call it "user_config.h", no not remove the ".example" from this file,
- * it should remain in the repository
+ * it should remain in the repository.
+ *
+ * The copy of this file should then be placed OUTSIDE of the folder this file is in.
+ *
+ * It MUST be named "user_config.h" if it is not named that, then you must define the directive:
+ * USER_CONFIG_FILE before you import "solarcar.h".
+ *
+ * The USER_CONFIG_FILE directive MUST be a string to your .h file that is
+ * relative to the directory that solarcar.h is in.
  */
 #ifndef USER_CONFIG
 #define USER_CONFIG
-#include "library.details.h"
 
 
 /*******************************

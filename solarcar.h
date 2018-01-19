@@ -18,7 +18,7 @@
  * This will reduce the number of imports the user needs to add themselves
  */
 #include "datatypes.h"
-#include "user_config.h"
+#include "config.h"
 #include "utils.h"
 
 #include "microcontrollers/importer.h"

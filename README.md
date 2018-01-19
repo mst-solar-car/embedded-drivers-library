@@ -23,10 +23,15 @@ configuration constants.
 The only exception is when it makes interfacing with drivers easier, and they are
 configuration items that should not need to be easily changed (such as CAN filters, etc...).
 
-For when directive configuration is desired, the directives should be declared inside the [`user_config.h`](user_config.h) file.
+For when directive configuration is desired, the directives should be declared inside the [`user_config.h`](user_config.h.example) file.
 
 The cooresponding README to each driver will document any and all `#define` directives that can go in the
 `user_config.h` file.
+
+**You need to make a copy of `user_config.h.example` and move it outside of the directory the library is in.
+Then rename it to `user_config.h`**
+
+&nbsp;
 
 
 # Data Types

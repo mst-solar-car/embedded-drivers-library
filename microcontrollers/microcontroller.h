@@ -5,7 +5,7 @@
  *
  * Author: Michael Rouse
  */
-#include "../user_config.h"
+#include "../config.h"
 #include "spec_importer.h"
 #include "../datatypes.h"
 #include "../utils.h"

@@ -14,10 +14,6 @@
   // Texas Instruments MSP430F5529
   #include "msp430f5529/ti_msp430f5529.spec"
 
-#elif defined(UNIT_TEST)
-  // Unit Test Microcontroller
-  #include "test/test_microcontroller.spec"
-
 #endif
 
 
