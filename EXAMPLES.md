@@ -201,7 +201,7 @@ int main(void)
 #define CAN_MASK1           0x000
 #define CAN_MASK2           0x000
 
-#default SPI_BUS            SPI_BUS_4
+#define DEFAULT_SPI_BUS     SPI_BUS_4
 ```
 
 
