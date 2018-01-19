@@ -23,7 +23,7 @@ The following functions are exposed by the CAN Controller drivers:
 
 | Syntax | Description |
 |--------|-------------|
-| `void can_controller_setup(int_pin, cs_pin)` | This is called by the `can_setup` function and gets passed the same parameters. |
+| `void can_controller_setup(cs_pin, int_pin)` | This is called by the `can_setup` function and gets passed the same parameters. |
 | `bool can_controller_transmit(can_message* msg)` | Transmits `msg` over the bus and returns `True` if the message was sent. `False` if it could not be sent. |
 | `void can_controller_poll()` | This function will check for a missed interrupt. If interrupts are not supported then it is the only way to check for new messages. <br/><br/>This function is called inside the `can_receive()` and `can_transmit()` functions |
 
