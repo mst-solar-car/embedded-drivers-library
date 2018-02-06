@@ -1,0 +1,18 @@
+/**
+ * Unit Tests for the Drivers Library
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+#include "../library.h"
+#include "framework/framework.h"
+
+
+void main(void)
+{
+  // Run the groups of unit tests
+  RUN_GROUP(CAN);
+  RUN_GROUP(SPI);
+
+}
+#endif

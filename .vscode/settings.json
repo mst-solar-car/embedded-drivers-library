@@ -1,6 +1,7 @@
 {
   "files.associations": {
     "*.driver": "c",
-    "*.tests": "c"
+    "*.tests": "c",
+    "framework.h": "c"
   }
 }

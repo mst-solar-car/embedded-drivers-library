@@ -12,37 +12,65 @@
 #define __UNIT_TEST_FRAMEWORK__
 #ifdef UNIT_TEST
 
+#include "../../datatypes.h"
 #include "unity.h"
 #include <stdio.h>
 #include <stdlib.h>
 
+#ifdef __GNUC__
+  #define WEAK_ATTRIBUTE __attribute__((weak))
+#else
+  #error "Unkown Compiler!"
+  #define WEAK_ATTRIBUTE
+#endif
+#define DEFER()
 
-// Used to make a string from the group name
-#define TOSTR(x)          STRINGIFY(x)
-#define STRINGIFY(x)      #x
+// Use this directive before writing any tests
+#define CREATE_GROUP(group)   void test_##group##_group_setup__(void); \
+                              void test_##group##_group_teardown__(void); \
+                              void test_##group##_group_runner__(void); \
+                              void test_##group##_group_begin__(void); \
+                              void test_##group##_group_begin__(void) { \
+                                UnityBegin(__FILE__); \
+                                printf("\n====== %s ======\n", #group);  \
+                                test_##group##_group_runner__(); \
+                                UnityEnd(); \
+                              }
 
-// Concatination
-#define CAT(a, ...)       _CAT(a, __VA_ARGS__)
-#define _CAT(a, ...)      a ## __VA_ARGS__
+// Directive that creates a test for a group
+#define TEST(group, name) void test_##group##_##name(void); \
+                          void test_##group##_test_##name##_runner__(const int line); \
+                          void test_##group##_test_##name##_runner__(const int line) { \
+                            if (TEST_PROTECT()) { \
+                              test_##group##_group_setup__(); \
+                              UnityDefaultTestRun(test_##group##_##name, #name, line); \
+                            } \
+                            if (TEST_PROTECT()) { \
+                              test_##group##_group_teardown__(); \
+                            } \
+                          } \
+                          void test_##group##_##name(void)
 
-// Used to make the group setup function
-#define GROUP_SETUP()     void CAT(GROUP, _setup)(void)
-#define PERFORM_SETUP()   CAT(GROUP, _setup)()
+// Test Setups are performed before every test
+#define GROUP_TEST_SETUP(group) void test_##group##_group_setup__(void)
 
-// Used to make unit test functions
-#define TEST(name)        void CAT(CAT(CAT(test_, GROUP), _), name)(void)
-
-// Used to run a group unit test
-#define RUN(name)         PERFORM_SETUP(); RUN_TEST(CAT(CAT(CAT(test_, GROUP), _), name))
+// Test Teardowns are peformed after every test
+#define GROUP_TEST_TEARDOWN(group)  void test_##group##_group_teardown__(void)
 
 // Used to create function to run group unit tests
-#define GROUP_RUNNER()    void CAN(GROUP, _setup)(); \
-                          void CAT(run_, GROUP)(void); \
-                          void CAT(GROUP, _start)(void) { printf("\n====== %s ======\n", TOSTR(GROUP)); CAT(run_, GROUP)(); } \
-                          void CAT(run_, GROUP)(void)
+#define GROUP_RUNNER(group)  void test_##group##_group_runner__(void)
+
+// Used to run a test
+#define PERFORM_TEST(group, name)   test_##group##_test_##name##_runner__(__LINE__);
+#define IGNORE_TEST(group, name)    Unity.TestIgnores++; printf("%s:%i:%s:IGNORE\n", __FILE__, __LINE__, #name);
 
 // Used to run a group runner
-#define RUN_GROUP(group)  CAT(group, _start)()
+#define RUN_GROUP(group)  { \
+                            void test_##group##_group_begin__(void); \
+                            test_##group##_group_begin__(); \
+                          }
+
+
 
 #endif
 #endif

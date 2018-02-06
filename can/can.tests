@@ -1,0 +1,44 @@
+/**
+ * Unit Tests for the CAN Driver
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+#include "../testing/framework/framework.h"
+
+
+CREATE_GROUP(CAN);
+
+// Test the CAN Setup Function
+TEST(CAN, setup)
+{
+  printf("YO\n");
+  TEST_ASSERT_FALSE(True);
+  TEST_ASSERT_TRUE_MESSAGE(True, "Yeahaw");
+}
+
+TEST(CAN, two)
+{
+  TEST_ASSERT_TRUE(True);
+}
+
+
+// Run all of the CAN Tests
+GROUP_RUNNER(CAN)
+{
+  PERFORM_TEST(CAN, setup);
+  IGNORE_TEST(CAN, two);
+}
+
+
+GROUP_TEST_SETUP(CAN)
+{
+  printf("Howdy\n");
+}
+
+GROUP_TEST_TEARDOWN(CAN)
+{
+  printf("Yehaw\n");
+}
+
+#endif

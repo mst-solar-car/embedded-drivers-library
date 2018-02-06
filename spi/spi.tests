@@ -1,0 +1,43 @@
+/**
+ * Unit Tests for the SPI Driver
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+#include "../testing/framework/framework.h"
+
+
+CREATE_GROUP(SPI);
+
+// Test the SPI Setup Function
+TEST(SPI, setup)
+{
+  printf("SPI YO\n");
+  TEST_ASSERT_TRUE_MESSAGE(True, "SPI Yeahaw");
+}
+
+TEST(SPI, two)
+{
+  TEST_ASSERT_TRUE(True);
+}
+
+
+// Run all of the SPI Tests
+GROUP_RUNNER(SPI)
+{
+  PERFORM_TEST(SPI, setup);
+  IGNORE_TEST(SPI, two);
+}
+
+
+GROUP_TEST_SETUP(SPI)
+{
+  printf("SPI Howdy\n");
+}
+
+GROUP_TEST_TEARDOWN(SPI)
+{
+  printf("SPI Yehaw\n");
+}
+
+#endif
