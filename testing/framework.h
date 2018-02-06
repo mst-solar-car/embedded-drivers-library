@@ -23,10 +23,9 @@
                               void test_##group##_group_runner__(void); \
                               void test_##group##_group_begin__(void); \
                               void test_##group##_group_begin__(void) { \
-                                UnityBegin(__FILE__); \
+                                Unity.TestFile = __FILE__; \
                                 printf("\n====== %s ======\n", #group);  \
                                 test_##group##_group_runner__(); \
-                                UnityEnd(); \
                               }
 
 // Directive that creates a test for a group
@@ -54,13 +53,19 @@
 
 // Used to run a test
 #define PERFORM_TEST(group, name)   test_##group##_test_##name##_runner__(__LINE__);
-#define IGNORE_TEST(group, name)    Unity.TestIgnores++; printf("%s:%i:%s:IGNORE\n", __FILE__, __LINE__, #name);
+#define IGNORE_TEST(group, name)    Unity.NumberOfTests++; \
+                                    Unity.TestIgnores++; \
+                                    printf("%s:%i:%s:IGNORE\n", __FILE__, __LINE__, #name);
 
 // Used to run a group runner
 #define RUN_GROUP(group)  { \
                             void test_##group##_group_begin__(void); \
                             test_##group##_group_begin__(); \
                           }
+
+// Create this function if you are using this test framework and you want to add
+// tests to drivers that are not in this library
+#define CUSTOM_TESTS() void UserCustomTests(void)
 
 
 #endif
