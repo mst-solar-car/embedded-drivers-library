@@ -1,6 +1,6 @@
 # Makefile for Unit Tests
 CC=gcc
-CFLAGS=-g -Wall
+CFLAGS=-g -Wall -ansi
 LANGUAGE_FLAGS=-x c
 DIRECTIVES=-D UNIT_TEST -D __$(shell echo $@ | tr a-z A-Z)__
 OUT=$@.test.out
@@ -19,4 +19,4 @@ TARGET_SOURCES=$(shell find './microcontrollers/$@' -name '*.c.mock')
 
 # Make unit tests for a target
 %:
-	$(CC) $(LANGUAGE_FLAGS) $(SOURCES) $(UNIT_TEST_FILES) -o $(OUT) $(DIRECTIVES)
+	$(CC) $(CFLAGS) $(LANGUAGE_FLAGS) $(SOURCES) $(UNIT_TEST_FILES) -o $(OUT) $(DIRECTIVES)

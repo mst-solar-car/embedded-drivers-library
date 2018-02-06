@@ -7,22 +7,22 @@
 
 #include "testing/framework.h"
 
-// Weak CUSTOM_TESTS implementation (overrided by the user)
+/* Weak CUSTOM_TESTS implementation (overrided by the user) */
 __attribute__((weak)) CUSTOM_TESTS() { }
 
 
 
 
-void main(void)
+int main(void)
 {
-  // Run the groups of unit tests
+  /* Run the groups of unit tests */
   RUN_GROUP(CAN);
   RUN_GROUP(SPI);
 
-  // Run tests that are defined by the user and not for items in this library
+  /* Run tests that are defined by the user and not for items in this library */
   UserCustomTests();
 
-  UnityEnd();
+  return UnityEnd();
 }
 
 #endif

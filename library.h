@@ -12,7 +12,7 @@
 #ifdef __GNUC__
 
 
-// Include drivers that are apart of this library
+/* Include drivers that are apart of this library */
 #include "can/interface.h"
 #include "microcontroller/interface.h"
 #include "microcontroller/registration.h"
@@ -27,11 +27,11 @@
 
 
 #else
-  // Not using GCC or MSP430 GCC, which they should be
+  /* Not using GCC or MSP430 GCC, which they should be */
   #error "You should be using GCC as your compiler!"
 
 #endif
-// Aliases for making things look nice when importing this file and the .c file
+/* Aliases for making things look nice when importing this file and the .c file */
 #define IMPORT_DRIVER_IMPLEMENTATION(driveGroup, implementation)  __STR(driveGroup/implementation/implementation.driver)
 
 #endif

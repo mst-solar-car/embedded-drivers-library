@@ -10,10 +10,10 @@
 
 
 
-// This function is for initializing the Microcontroller drivers, it should be
-// implemented with every driver for each microcontroller. It should do basic generic
-// initialization such as pins and clocks.
-// It should NOT be called by the user.
+/* This function is for initializing the Microcontroller drivers, it should be */
+/* implemented with every driver for each microcontroller. It should do basic generic */
+/* initialization such as pins and clocks. */
+/* It should NOT be called by the user. */
 void microcontroller_initialization(void);
 
 

@@ -41,28 +41,28 @@ void __attribute__((constructor)) library_initialization(void)
 #define __STR(x) #x
 #define CUSTOM_DRIVER(driveGroup, implementation)  __STR(driveGroup/implementation/implementation.driver)
 
-// Custom driver implementation of the Microcontroller
+/* Custom driver implementation of the Microcontroller */
 #ifndef MICROCONTROLLER
   #error "Unkown microcontroller!"
 #else
   #include CUSTOM_DRIVER(microcontroller, MICROCONTROLLER)
 #endif
 
-// Custom Driver implementation of the CAN Controller
+/* Custom Driver implementation of the CAN Controller */
 #ifndef CAN_CONTROLLER
   #warning "Unkown CAN Controller!"
 #else
   #include CUSTOM_DRIVER(can_controller, CAN_CONTROLLER)
 #endif
 
-// No custom implementation of SPI
+/* No custom implementation of SPI */
 #include "spi/spi.driver"
 
-// No custom implementation of CAN
+/* No custom implementation of CAN */
 #include "can/can.driver"
 
-// No custom implementation of pin_control
+/* No custom implementation of pin_control */
 #include "pin_control/pin_control.driver"
 
-// No custom implentation of interrupts
+/* No custom implentation of interrupts */
 #include "interrupts/interrupts.driver"

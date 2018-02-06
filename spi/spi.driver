@@ -17,24 +17,26 @@ static uint8_t(*spiTransmitPtr)(spi_bus, void*, uint8_t) = NULL;
 
 
 
-// Setups a specific SPI bus
+/* Setups a specific SPI bus */
 void spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck)
 {
   if (spiSetupPtr != NULL)
     spiSetupPtr(bus, mosi, miso, sck);
 }
 
-// Sends data over a SPI bus, returns received data
+/* Sends data over a SPI bus, returns received data */
 uint8_t spi_transmit(spi_bus bus, void* data, uint8_t length)
 {
   if (spiTransmitPtr != NULL)
     spiTransmitPtr(bus, data, length);
+
+  return (uint8_t)8;
 }
 
 
 
 
-// SPI Driver initialization (Should not be called by user unless unit testing)
+/* SPI Driver initialization (Should not be called by user unless unit testing) */
 void spi_initialization(void(*spiSetup)(spi_bus, io_pin, io_pin, io_pin), uint8_t(*spiTransmit)(spi_bus, void*, uint8_t))
 {
   spiSetupPtr = spiSetup;

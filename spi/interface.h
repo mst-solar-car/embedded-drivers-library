@@ -7,10 +7,10 @@
 #define __SPI_INTERFACE__
 #include "../datatypes.h"
 
-// Setups a specific SPI bus
+/* Setups a specific SPI bus */
 void spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck);
 
-// Sends data over a SPI bus, returns received data
+/* Sends data over a SPI bus, returns received data */
 uint8_t spi_transmit(spi_bus bus, void* data, uint8_t length);
 
 
@@ -18,8 +18,8 @@ uint8_t spi_transmit(spi_bus bus, void* data, uint8_t length);
 
 
 
-// This function is for initializing the SPI drivers, and should not be called
-// by the user unless in a unit test
+/* This function is for initializing the SPI drivers, and should not be called */
+/* by the user unless in a unit test */
 void spi_initialization(void(*spiSetup)(spi_bus, io_pin, io_pin, io_pin), uint8_t(*spiTransmit)(spi_bus, void*, uint8_t));
 
 

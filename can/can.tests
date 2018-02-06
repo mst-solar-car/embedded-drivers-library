@@ -9,14 +9,14 @@
 
 CREATE_GROUP(CAN);
 
-// Test the CAN Setup Function
+/* Test the CAN Setup Function */
 TEST(CAN, setup)
 {
   TEST_IGNORE();
 }
 
 
-// Run all of the CAN Tests
+/* Run all of the CAN Tests */
 GROUP_RUNNER(CAN)
 {
   PERFORM_TEST(CAN, setup);

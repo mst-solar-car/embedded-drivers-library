@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 
-// Use this directive before writing any tests
+/* Use this directive before writing any tests */
 #define CREATE_GROUP(group)   void test_##group##_group_setup__(void); \
                               void test_##group##_group_teardown__(void); \
                               void test_##group##_group_runner__(void); \
@@ -28,7 +28,7 @@
                                 test_##group##_group_runner__(); \
                               }
 
-// Directive that creates a test for a group
+/* Directive that creates a test for a group */
 #define TEST(group, name) void test_##group##_##name(void); \
                           void test_##group##_test_##name##_runner__(const int line); \
                           void test_##group##_test_##name##_runner__(const int line) { \
@@ -42,29 +42,29 @@
                           } \
                           void test_##group##_##name(void)
 
-// Test Setups are performed before every test
+/* Test Setups are performed before every test */
 #define GROUP_TEST_SETUP(group) void test_##group##_group_setup__(void)
 
-// Test Teardowns are peformed after every test
+/* Test Teardowns are peformed after every test */
 #define GROUP_TEST_TEARDOWN(group)  void test_##group##_group_teardown__(void)
 
-// Used to create function to run group unit tests
+/* Used to create function to run group unit tests */
 #define GROUP_RUNNER(group)  void test_##group##_group_runner__(void)
 
-// Used to run a test
+/* Used to run a test */
 #define PERFORM_TEST(group, name)   test_##group##_test_##name##_runner__(__LINE__);
-#define IGNORE_TEST(group, name)    Unity.NumberOfTests++; \
-                                    Unity.TestIgnores++; \
-                                    printf("%s:%i:%s:IGNORE\n", __FILE__, __LINE__, #name);
+#define IGNORE_TEST(group, name)    printf("%s:%i:%s:IGNORE\n", __FILE__, __LINE__, #name); \
+                                    Unity.NumberOfTests++; \
+                                    Unity.TestIgnores++;
 
-// Used to run a group runner
+/* Used to run a group runner */
 #define RUN_GROUP(group)  { \
                             void test_##group##_group_begin__(void); \
                             test_##group##_group_begin__(); \
                           }
 
-// Create this function if you are using this test framework and you want to add
-// tests to drivers that are not in this library
+/* Create this function if you are using this test framework and you want to add */
+/* tests to drivers that are not in this library */
 #define CUSTOM_TESTS() void UserCustomTests(void)
 
 

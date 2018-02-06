@@ -10,7 +10,7 @@
 
 CREATE_GROUP(SPI);
 
-// Test the SPI Setup Function
+/* Test the SPI Setup Function */
 TEST(SPI, setup)
 {
   TEST_IGNORE();
@@ -19,7 +19,7 @@ TEST(SPI, setup)
 
 
 
-// Run all of the SPI Tests
+/* Run all of the SPI Tests */
 GROUP_RUNNER(SPI)
 {
   PERFORM_TEST(SPI, setup);
