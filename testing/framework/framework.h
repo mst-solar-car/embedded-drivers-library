@@ -1,9 +1,21 @@
 /**
- * This is a custom fixture around Unity that allows for
- * easier declaration of tests
+ * Unit Testing Framework
+ *
+ * You can include this file in your unit tests file.
+ *
+ * This is a fixture around the Unity Framework, a fixture allows for easier interaction
+ * with a library/driver
+ *
+ * Authors: Michael Rouse
  */
-#ifndef UNITY_FIXTURE
-#define UNITY_FIXTURE
+#ifndef __UNIT_TEST_FRAMEWORK__
+#define __UNIT_TEST_FRAMEWORK__
+#ifdef UNIT_TEST
+
+#include "unity.h"
+#include <stdio.h>
+#include <stdlib.h>
+
 
 // Used to make a string from the group name
 #define TOSTR(x)          STRINGIFY(x)
@@ -24,13 +36,13 @@
 #define RUN(name)         PERFORM_SETUP(); RUN_TEST(CAT(CAT(CAT(test_, GROUP), _), name))
 
 // Used to create function to run group unit tests
-#define GROUP_RUNNER()    void CAT(run_, GROUP)(void); \
+#define GROUP_RUNNER()    void CAN(GROUP, _setup)(); \
+                          void CAT(run_, GROUP)(void); \
                           void CAT(GROUP, _start)(void) { printf("\n====== %s ======\n", TOSTR(GROUP)); CAT(run_, GROUP)(); } \
                           void CAT(run_, GROUP)(void)
 
 // Used to run a group runner
 #define RUN_GROUP(group)  CAT(group, _start)()
 
-
-
+#endif
 #endif

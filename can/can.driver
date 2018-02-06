@@ -1,0 +1,6 @@
+/**
+ * CAN Driver Implementation
+ *
+ * Authors: Everyone?
+ */
+#include "interface.h"

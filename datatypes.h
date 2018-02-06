@@ -1,17 +1,17 @@
 /**
- * File for defining data types that will be used all over the place
+ * This file includes data types, aliases, and structs that are used throughout the
+ * library and in user code
  *
- * Author: Michael Rouse
+ * Authors: Everyone?
  */
-#include "microcontrollers/spec_importer.h"
-
-#ifndef __DATATYPES_H__
-#define __DATATYPES_H__
+#ifndef __DATATYPES__
+#define __DATATYPES__
 
 // Unassign the current NULL value because we will be assigning our own
 #ifdef NULL
 #undef NULL
 #endif
+
 
 #define __NULL__    0x00
 
@@ -23,7 +23,6 @@
 
 #define __OUTPUT__  0xFF
 #define __INPUT__   0x00
-
 
 
 // Assign types set by GCC if they are not defined for some reason
@@ -77,13 +76,13 @@ typedef __VUINT16_TYPE__  vuint16_t;
 typedef uint8_t   io_pin;         // Custom type to represent a pin
 typedef uint16_t  register_addr;  // Represents a registry address
 
-typedef void(*voidFuncPtr)(void);
 
 
 
 /**
  * Data Types
  */
+
 // Boolean values (plenty of names to help with readability)
 typedef enum bool_t {
   FALSE   = __FALSE__,
@@ -152,7 +151,8 @@ enum {
   NO_REGISTER = __NULL__,
   NO_PORT     = __NULL__,
   NO_BIT      = __NULL__,
-  NO_VECTOR   = __NULL__
+  NO_VECTOR   = __NULL__,
+  NO_EMSSAGE  = __NULL__,
 };
 
 

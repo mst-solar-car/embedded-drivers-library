@@ -1,11 +1,6 @@
 {
   "files.associations": {
-    "*.test": "c",
-    "*.spec": "c",
-    "*.example": "c",
-    "solarcar.h": "c",
-    "stdlib.h": "c",
-    "*.mock": "c",
-    "importer.h": "c"
+    "*.driver": "c",
+    "*.tests": "c"
   }
 }
