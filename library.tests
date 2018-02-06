@@ -4,8 +4,8 @@
  * Authors: Michael Rouse
  */
 #ifdef UNIT_TEST
-#include "../library.h"
-#include "framework/framework.h"
+
+#include "testing/framework.h"
 
 
 void main(void)
@@ -13,6 +13,6 @@ void main(void)
   // Run the groups of unit tests
   RUN_GROUP(CAN);
   RUN_GROUP(SPI);
-
 }
+
 #endif

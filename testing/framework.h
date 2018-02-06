@@ -12,18 +12,10 @@
 #define __UNIT_TEST_FRAMEWORK__
 #ifdef UNIT_TEST
 
-#include "../../datatypes.h"
 #include "unity.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef __GNUC__
-  #define WEAK_ATTRIBUTE __attribute__((weak))
-#else
-  #error "Unkown Compiler!"
-  #define WEAK_ATTRIBUTE
-#endif
-#define DEFER()
 
 // Use this directive before writing any tests
 #define CREATE_GROUP(group)   void test_##group##_group_setup__(void); \
@@ -69,7 +61,6 @@
                             void test_##group##_group_begin__(void); \
                             test_##group##_group_begin__(); \
                           }
-
 
 
 #endif

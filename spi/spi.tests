@@ -4,7 +4,8 @@
  * Authors: Michael Rouse
  */
 #ifdef UNIT_TEST
-#include "../testing/framework/framework.h"
+#include "interface.h"
+#include "../testing/framework.h"
 
 
 CREATE_GROUP(SPI);
