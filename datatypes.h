@@ -152,9 +152,17 @@ enum {
   NO_PORT     = __NULL__,
   NO_BIT      = __NULL__,
   NO_VECTOR   = __NULL__,
-  NO_EMSSAGE  = __NULL__,
+  NO_MESSAGE  = __NULL__,
 };
 
+/* Status of a CAN Message */
+typedef enum can_status_t {
+  CAN_OK = 0x0001,
+  CAN_RTR = 0xFFFC,
+  CAN_WAKE = 0xFFFD,
+  CAN_MERROR = 0xFFFE,
+  CAN_ERROR = 0xFFFF
+} can_status;
 
 
 /* Union */
@@ -172,9 +180,12 @@ typedef union group_64_t {
 /* Struct for a CAN Message */
 typedef struct can_message_t {
   unsigned int  address;
-  unsigned int  status;
+  can_status  status;
   group_64      data;
 } can_message;
+
+
+
 
 
 

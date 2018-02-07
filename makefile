@@ -1,6 +1,6 @@
 # Makefile for Unit Tests
 CC=gcc
-CFLAGS=-g -Wall -ansi
+CFLAGS=-g -Wall
 LANGUAGE_FLAGS=-x c
 DIRECTIVES=-D UNIT_TEST -D __$(shell echo $@ | tr a-z A-Z)__
 OUT=$@.test.out

@@ -31,10 +31,6 @@ void __attribute__((constructor)) library_initialization(void)
 
 
 
-
-
-
-
 /**
  * Include driver implementations
  */
@@ -66,3 +62,7 @@ void __attribute__((constructor)) library_initialization(void)
 
 /* No custom implentation of interrupts */
 #include "interrupts/interrupts.driver"
+
+/* No custom implementation of interrupts */
+#include "exception/exception.driver"
+

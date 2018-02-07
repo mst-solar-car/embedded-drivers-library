@@ -1,6 +1,76 @@
 /**
  * CAN Driver Implementation
  *
- * Authors: Everyone?
+ * Authors: Michael Rouse
  */
+#include "../datatypes.h"
 #include "interface.h"
+#include "config.h"
+
+
+/* "Private" Variables for use only in this driver (helps for unit testing) */
+static void(*_can_controller_setup_func)(io_pin, io_pin) = NULL;
+static void(*_can_controller_poll_func)(void) = NULL;
+static void(*_can_controller_transmit_func)(can_message*) = NULL;
+static can_message*(*_can_controller_receive_func)(void) = NULL;
+
+
+/* Variable used for creating messages before calling can_transmit() */
+can_message* can_new_msg;
+can_message _can_msg_for_sending;
+
+
+/**
+ * Setups the CAN Drivers
+ */
+void can_setup(io_pin cs_pin, io_pin int_pin)
+{
+  /* Perform CAN Controller Setup */
+  _can_controller_setup_func(cs_pin, int_pin);
+}
+
+
+/**
+ * Pulls a Message from the Receive Queue and returns it to the user
+ */
+can_message* can_receive(void)
+{
+  _can_controller_poll_func(); /* Check for missed interrupts on the CAN Controller */
+
+  /* Get a message from the CAN Controller */
+  can_message* msg = _can_controller_receive_func();
+
+  return msg;
+}
+
+
+/**
+ * Transmits a message over the CAN bus (or queues it on the CAN Controller)
+ */
+void can_transmit(void)
+{
+  _can_controller_transmit_func(&_can_msg_for_sending);
+
+  /* Clear the message so the user can create a new one */
+  uint8_t i;
+  _can_msg_for_sending.address = 0x00;
+  _can_msg_for_sending.status = 0x00;
+  for (i = 0; i < 8; i++)
+    _can_msg_for_sending.data.data_u8[i] = 0x00;
+
+  /* Check for missed messages */
+  _can_controller_poll_func();
+}
+
+
+
+/* CAN Driver Initialization (called automagically or for unit testing) */
+void can_initialization(void(*can_setup_func)(io_pin, io_pin), void(*can_poll_func)(void), void(*can_transmit_func)(can_message*), can_message*(*can_receive_func)(void))
+{
+  _can_controller_setup_func = can_setup_func;
+  _can_controller_poll_func = can_poll_func;
+  _can_controller_transmit_func = can_transmit_func;
+  _can_controller_receive_func = can_receive_func;
+
+  can_new_msg = &_can_msg_for_sending;
+}

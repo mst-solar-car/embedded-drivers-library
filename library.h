@@ -31,7 +31,10 @@
   #error "You should be using GCC as your compiler!"
 
 #endif
+
+
 /* Aliases for making things look nice when importing this file and the .c file */
 #define IMPORT_DRIVER_IMPLEMENTATION(driveGroup, implementation)  __STR(driveGroup/implementation/implementation.driver)
+
 
 #endif

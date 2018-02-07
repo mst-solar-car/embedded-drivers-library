@@ -1,0 +1,8 @@
+/**
+ * MSP430F5529
+ *
+ * Authors: Michael Rouse
+ */
+#ifndef UNIT_TEST
+#include <msp430f5529.h>
+#endif

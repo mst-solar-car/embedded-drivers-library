@@ -9,28 +9,105 @@
 
 CREATE_GROUP(CAN);
 
+
+/* MOCK Can Controller */
+MOCK_FUNC(can_controller_setup, io_pin cs_pin, io_pin int_pin);
+MOCK_FUNC(can_controller_transmit, can_message* msg);
+MOCK_FUNC(can_controller_poll);
+MOCK_CUSTOM(can_message*, can_controller_receive, (void), {
+  // Create a new message
+  can_message* msg = (can_message*)malloc(sizeof(can_message));
+  msg->address = 0x666;
+  msg->status = CAN_OK;
+  return msg;
+});
+
+
+
 /* Test the CAN Setup Function */
 TEST(CAN, setup)
 {
-  TEST_IGNORE();
+  // Arrange
+  io_pin cs_pin = 6;
+  io_pin int_pin = 9;
+
+  // Act
+  can_setup(cs_pin, int_pin);
+
+  // Assert
+  TEST_ASSERT_MOCK_CALLED(can_controller_setup);
 }
+
+
+/* Test Receiving a Message from the CAN Drivers */
+TEST(CAN, receive)
+{
+  // Arrange
+  io_pin cs_pin = 6;
+  io_pin int_pin = 9;
+
+  // Act
+  can_setup(cs_pin, int_pin);
+  can_message* msg = can_receive();
+
+  // Assert
+  TEST_ASSERT_MOCK_CALLED(can_controller_poll);
+  TEST_ASSERT_NOT_NULL_MESSAGE(msg, "Value returned from can_receive was NULL");
+  TEST_ASSERT_EQUAL_MESSAGE(0x666, msg->address, "CAN Address was not 0x666");
+
+  // Cleanup
+  free(msg);
+}
+
+
+/**
+ * Tests sending a CAN Message
+ */
+TEST(CAN, transmit)
+{
+  // Arrange
+  io_pin cs_pin = 6;
+  io_pin int_pin = 9;
+
+  // Act
+  can_setup(cs_pin, int_pin);
+
+  can_transmit();
+
+  // Assert
+  TEST_ASSERT_MOCK_CALLED(can_controller_transmit);
+}
+
+
+
+
+
 
 
 /* Run all of the CAN Tests */
 GROUP_RUNNER(CAN)
 {
   PERFORM_TEST(CAN, setup);
+  PERFORM_TEST(CAN, receive);
+  PERFORM_TEST(CAN, transmit);
 }
 
 
+
+/* Runs before every test in the CAN Group */
 GROUP_TEST_SETUP(CAN)
 {
+  RESET_MOCK(can_controller_setup);
+  RESET_MOCK(can_controller_poll);
+  RESET_MOCK(can_controller_transmit);
 
+  /* Initialize the CAN Drivers */
+  can_initialization(MOCK(can_controller_setup), MOCK(can_controller_poll), MOCK(can_controller_transmit), MOCK(can_controller_receive));
 }
 
+/* Runs after every test */
 GROUP_TEST_TEARDOWN(CAN)
 {
-
 }
 
 #endif

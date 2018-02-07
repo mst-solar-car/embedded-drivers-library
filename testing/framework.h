@@ -68,5 +68,6 @@
 #define CUSTOM_TESTS() void UserCustomTests(void)
 
 
+#include "mock.h"
 #endif
 #endif
