@@ -7,22 +7,62 @@
 
 #include <stdlib.h>
 
-#define _GENERATE_MOCK_NAME(name)  MOCK_##name
+/* Helper directives to avoid typing things out multiple times */
+#define MOCK(name)   MOCK_##name
+#define _MOCK_COUNTER_NAME(name)    NumberTimesMOCK##name##Called
+#define _MOCK_TMP_NAME(name) 		MOCK_TEMP_##name##_TEMP
 
+#define _INC_MOCK(name)       _MOCK_COUNTER_NAME(name)++;
+#define RESET_MOCK(name)      _MOCK_COUNTER_NAME(name) = 0;
+
+
+/* Helpers */
+#define _C(a, ...)	_PRIMITIVE_CAT(a, __VA_ARGS__)
+#define _PRIMITIVE_CAT(a, ...) 	a ## __VA_ARGS__
+#define _NUM_ARGS(P1, P2, P3, P4, P5, P6, Pn, ...) Pn
+#define NUM_ARGS(...) _NUM_ARGS(-1, ##__VA_ARGS__, 5, 4, 3, 2, 1, 0)
 
 /* Directives for creating Mock Functions */
-#define MOCK_FUNC(name, ...)  int NumberTimesMOCK##name##Called; \
-                              void _GENERATE_MOCK_NAME(name)(__VA_ARGS__) \
-                              { \
-                                NumberTimesMOCK##name##Called++; \
-                              }
+#define MOCK_FUNC(name, ...) 	*_MOCK_TMP_NAME(name); \
+								              _C(__MOCK_FUNC_, NUM_ARGS(__VA_ARGS__))(name, __typeof__(*_MOCK_TMP_NAME(name)), __VA_ARGS__)
 
-/* Allows for users to specify custom internal workings of a mock function */
-#define MOCK_CUSTOM(type, name, args, ...) int NumberTimesMOCK##name##Called; \
-                                            type _GENERATE_MOCK_NAME(name)args \
+#define __MOCK_FUNC_0(name, type)             __MOCK_FUNC_2(name, type, (void), {})
+#define __MOCK_FUNC_1(name, type, args)			  __MOCK_FUNC_2(name, type, args, {})
+
+#define __MOCK_FUNC_2(name, type, args, code) int _MOCK_COUNTER_NAME(name); \
+                                              type MOCK(name)args \
+                                              { \
+                                                _INC_MOCK(name); \
+                                                code \
+                                              }
+
+
+
+
+
+#define MOCK_FUNC55(name, args, ...)    _MOCK_TMP_NAME(name); \
+                                      int _MOCK_COUNTER_NAME(name); \
+                                      ({(is_void(_MOCK_TMP_NAME(name)) == 1 ? void : __typeof__(_MOCK_TMP_NAME(name))}) MOCK(name)args { \
+                                        _INC_MOCK(name); \
+                                        { \
+                                          __VA_ARGS__ \
+                                        } \
+                                      }
+
+
+#define MOCK_VOID(name, args, ...)    MOCK_CUSTOM(name, void, args, __VA_ARGS__)
+#define MOCK_UINT8(name, args, ...)   MOCK_CUSTOM(name, uint8_t, args, __VA_ARGS__)
+#define MOCK_UINT16(name, args, ...)  MOCK_CUSTOM(name, uint16_t, args, __VA_ARGS__)
+
+
+
+#define MOCK_CUSTOM(name, type, args, code) int _MOCK_COUNTER_NAME(name); \
+                                            type MOCK(name)args \
                                             { \
-                                              NumberTimesMOCK##name##Called++; \
-                                              __VA_ARGS__ \
+                                              _INC_MOCK(name); \
+                                              { \
+                                                code \
+                                              } \
                                             }
 
 
@@ -30,13 +70,9 @@
 #define TEST_ASSERT_MOCK_CALLED(name)               TEST_ASSERT_TRUE_MESSAGE(WAS_MOCK_CALLED(name), "Mock Function '" #name "' not called")
 #define TEST_ASSERT_MOCK_CALLED_COUNT(name, n)      TEST_ASSERT_TRUE_MESSAGE(WAS_MOCK_CALLED_COUNT(name, n), "Mock Function '" #name "' not called " #n " times")
 
-#define WAS_MOCK_CALLED(name)               (NumberTimesMOCK##name##Called > 0)
-#define WAS_MOCK_CALLED_COUNT(name, n)      (NumberTimesMOCK##name##Called == n)
+#define WAS_MOCK_CALLED(name)               (_MOCK_COUNTER_NAME(name) > 0)
+#define WAS_MOCK_CALLED_COUNT(name, n)      (_MOCK_COUNTER_NAME(name) == n)
 
-/* Resets a mock for another test */
-#define RESET_MOCK(name)  NumberTimesMOCK##name##Called = 0;
-
-#define MOCK(name)  _GENERATE_MOCK_NAME(name) /* Used to access mock functions */
 
 
 #endif

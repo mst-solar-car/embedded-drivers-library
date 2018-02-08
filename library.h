@@ -16,6 +16,8 @@
 #include "can/interface.h"
 #include "microcontroller/interface.h"
 #include "microcontroller/registration.h"
+#include "can_controller/interface.h"
+#include "can_controller/registration.h"
 #include "spi/interface.h"
 #include "pin_control/interface.h"
 #include "interrupts/interface.h"
@@ -31,10 +33,6 @@
   #error "You should be using GCC as your compiler!"
 
 #endif
-
-
-/* Aliases for making things look nice when importing this file and the .c file */
-#define IMPORT_DRIVER_IMPLEMENTATION(driveGroup, implementation)  __STR(driveGroup/implementation/implementation.driver)
 
 
 #endif

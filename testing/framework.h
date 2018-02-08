@@ -29,27 +29,27 @@
                               }
 
 /* Directive that creates a test for a group */
-#define TEST(group, name) void test_##group##_##name(void); \
-                          void test_##group##_test_##name##_runner__(const int line); \
-                          void test_##group##_test_##name##_runner__(const int line) { \
-                            if (TEST_PROTECT()) { \
-                              test_##group##_group_setup__(); \
-                              UnityDefaultTestRun(test_##group##_##name, #name, line); \
-                            } \
-                            if (TEST_PROTECT()) { \
-                              test_##group##_group_teardown__(); \
-                            } \
-                          } \
-                          void test_##group##_##name(void)
+#define TEST(group, name)     void test_##group##_##name(void); \
+                              void test_##group##_test_##name##_runner__(const int line); \
+                              void test_##group##_test_##name##_runner__(const int line) { \
+                                if (TEST_PROTECT()) { \
+                                  test_##group##_group_setup__(); \
+                                  UnityDefaultTestRun(test_##group##_##name, #name, line); \
+                                } \
+                                if (TEST_PROTECT()) { \
+                                  test_##group##_group_teardown__(); \
+                                } \
+                              } \
+                              void test_##group##_##name(void)
 
 /* Test Setups are performed before every test */
-#define GROUP_TEST_SETUP(group) void test_##group##_group_setup__(void)
+#define GROUP_TEST_SETUP(group)     void test_##group##_group_setup__(void)
 
 /* Test Teardowns are peformed after every test */
 #define GROUP_TEST_TEARDOWN(group)  void test_##group##_group_teardown__(void)
 
 /* Used to create function to run group unit tests */
-#define GROUP_RUNNER(group)  void test_##group##_group_runner__(void)
+#define GROUP_RUNNER(group)         void test_##group##_group_runner__(void)
 
 /* Used to run a test */
 #define PERFORM_TEST(group, name)   test_##group##_test_##name##_runner__(__LINE__);
@@ -57,7 +57,7 @@
                                     Unity.NumberOfTests++; \
                                     Unity.TestIgnores++;
 
-/* Used to run a group runner */
+/* Used to run a group of tests */
 #define RUN_GROUP(group)  { \
                             void test_##group##_group_begin__(void); \
                             test_##group##_group_begin__(); \
@@ -65,7 +65,7 @@
 
 /* Create this function if you are using this test framework and you want to add */
 /* tests to drivers that are not in this library */
-#define CUSTOM_TESTS() void UserCustomTests(void)
+#define CUSTOM_TESTS()    void UserCustomTests(void)
 
 
 #include "mock.h"

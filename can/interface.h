@@ -33,7 +33,11 @@ extern can_message* can_new_msg;
 
 /* This function is for initializing the CAN drivers, and should not be called */
 /* by the user unless in a unit test */
-void can_initialization(void(*can_setup_func)(io_pin, io_pin), void(*can_poll_func)(void), void(*can_transmit_func)(can_message*), can_message*(*can_receive_func)(void));
+void can_initialization(
+  void(*can_setup_func)(io_pin, io_pin),
+  void(*can_poll_func)(void),
+  void(*can_transmit_func)(can_message*)
+);
 
 
 #endif

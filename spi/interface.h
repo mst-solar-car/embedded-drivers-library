@@ -7,6 +7,8 @@
 #define __SPI_INTERFACE__
 #include "../datatypes.h"
 
+
+
 /* Setups a specific SPI bus */
 void spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck);
 

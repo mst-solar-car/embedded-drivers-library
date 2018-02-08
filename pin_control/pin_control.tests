@@ -1,0 +1,79 @@
+/**
+ * Unit Tests for the Pin Control Drivers
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+#include "interface.h"
+#include "../testing/framework.h"
+
+CREATE_GROUP(PinControl);
+
+
+/* MOCK Functions */
+MOCK_VOID(set_pin_mode, (io_pin pin, pin_mode mode));
+MOCK_VOID(set_pin_level, (io_pin pin, pin_level level));
+MOCK_CUSTOM(read_pin, pin_level, (io_pin pin), {
+  return Low;
+});
+
+
+
+/* Test Setting Pin Mode */
+TEST(PinControl, SetPinMode)
+{
+  pin_set_mode(43, Input);
+
+  TEST_ASSERT_MOCK_CALLED(set_pin_mode);
+}
+
+
+/* Test Setting Pin Level */
+TEST(PinControl, SetPinLevel)
+{
+  pin_set_level(43, Low);
+
+  TEST_ASSERT_MOCK_CALLED(set_pin_level);
+}
+
+
+/* Test Reading the Pin */
+TEST(PinControl, ReadPin)
+{
+  pin_level level = pin_read(43);
+
+  TEST_ASSERT_MOCK_CALLED(read_pin);
+  TEST_ASSERT_EQUAL(Low, level);
+}
+
+
+
+
+/* Run all of the PinControl Tests */
+GROUP_RUNNER(PinControl)
+{
+  PERFORM_TEST(PinControl, SetPinMode);
+  PERFORM_TEST(PinControl, SetPinLevel);
+  PERFORM_TEST(PinControl, ReadPin);
+}
+
+
+
+/* Runs before every test in the PinControl Group */
+GROUP_TEST_SETUP(PinControl)
+{
+  RESET_MOCK(set_pin_mode);
+  RESET_MOCK(set_pin_level);
+  RESET_MOCK(read_pin);
+
+  /* Initialize the PinControl Drivers */
+  pin_control_initialization(MOCK(set_pin_mode), MOCK(set_pin_level), MOCK(read_pin));
+
+}
+
+/* Runs after every test */
+GROUP_TEST_TEARDOWN(PinControl)
+{
+}
+
+#endif

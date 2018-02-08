@@ -11,16 +11,10 @@ CREATE_GROUP(CAN);
 
 
 /* MOCK Can Controller */
-MOCK_FUNC(can_controller_setup, io_pin cs_pin, io_pin int_pin);
-MOCK_FUNC(can_controller_transmit, can_message* msg);
-MOCK_FUNC(can_controller_poll);
-MOCK_CUSTOM(can_message*, can_controller_receive, (void), {
-  // Create a new message
-  can_message* msg = (can_message*)malloc(sizeof(can_message));
-  msg->address = 0x666;
-  msg->status = CAN_OK;
-  return msg;
-});
+void MOCK_FUNC(can_controller_setup, (io_pin cs_pin, io_pin int_pin));
+void MOCK_FUNC(can_controller_transmit, (can_message* msg));
+void MOCK_FUNC(can_controller_poll, (void));
+
 
 
 
@@ -102,7 +96,7 @@ GROUP_TEST_SETUP(CAN)
   RESET_MOCK(can_controller_transmit);
 
   /* Initialize the CAN Drivers */
-  can_initialization(MOCK(can_controller_setup), MOCK(can_controller_poll), MOCK(can_controller_transmit), MOCK(can_controller_receive));
+  can_initialization(MOCK(can_controller_setup), MOCK(can_controller_poll), MOCK(can_controller_transmit));
 }
 
 /* Runs after every test */

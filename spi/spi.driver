@@ -41,8 +41,6 @@ void spi_initialization(void(*spiSetup)(spi_bus, io_pin, io_pin, io_pin), uint8_
 {
   spiSetupPtr = spiSetup;
   spiTransmitPtr = spiTransmit;
-
-  printf("spi_initialization()\n");
 }
 
 

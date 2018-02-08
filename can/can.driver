@@ -1,7 +1,7 @@
 /**
  * CAN Driver Implementation
  *
- * Authors: Michael Rouse
+ * Authors: Everyone?
  */
 #include "../datatypes.h"
 #include "interface.h"
@@ -12,7 +12,12 @@
 static void(*_can_controller_setup_func)(io_pin, io_pin) = NULL;
 static void(*_can_controller_poll_func)(void) = NULL;
 static void(*_can_controller_transmit_func)(can_message*) = NULL;
-static can_message*(*_can_controller_receive_func)(void) = NULL;
+
+
+/* Queue for holding received messages */
+static can_message _can_rx_queue[CAN_BUFFER_LENGTH];
+static can_message* _can_rx_push;
+static can_message* _can_rx_pop;
 
 
 /* Variable used for creating messages before calling can_transmit() */
@@ -37,8 +42,19 @@ can_message* can_receive(void)
 {
   _can_controller_poll_func(); /* Check for missed interrupts on the CAN Controller */
 
-  /* Get a message from the CAN Controller */
-  can_message* msg = _can_controller_receive_func();
+  if (_can_rx_push == _can_rx_pop)
+    return (can_message*) NO_MESSAGE;
+
+  can_message* msg = _can_rx_pop; /* You have mail! */
+
+  /* Advance the queue */
+  _can_rx_pop++;
+  if (_can_rx_pop >= (_can_rx_queue + CAN_BUFFER_LENGTH))
+    _can_rx_pop = _can_rx_queue;
+
+  /* Avoid Stupid Messages */
+  if (msg->address == 0x00)
+    return (can_message*) NO_MESSAGE;
 
   return msg;
 }
@@ -65,12 +81,19 @@ void can_transmit(void)
 
 
 /* CAN Driver Initialization (called automagically or for unit testing) */
-void can_initialization(void(*can_setup_func)(io_pin, io_pin), void(*can_poll_func)(void), void(*can_transmit_func)(can_message*), can_message*(*can_receive_func)(void))
+void can_initialization(
+  void(*can_setup_func)(io_pin, io_pin),
+  void(*can_poll_func)(void),
+  void(*can_transmit_func)(can_message*)
+)
 {
   _can_controller_setup_func = can_setup_func;
   _can_controller_poll_func = can_poll_func;
   _can_controller_transmit_func = can_transmit_func;
-  _can_controller_receive_func = can_receive_func;
+
+  /* Iniitalize Receive Queue */
+  _can_rx_pop = _can_rx_queue;
+  _can_rx_push = _can_rx_queue;
 
   can_new_msg = &_can_msg_for_sending;
 }

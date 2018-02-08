@@ -22,6 +22,10 @@
 #ifndef UNIT_TEST
 void __attribute__((constructor)) library_initialization(void)
 {
+  /* Setup each driver */
+  pin_control_initialization(__microcontroller_set_pin_mode, __microcontroller_set_pin_level, __microcontroller_read_pin);
+  can_initialization(can_controller_setup, can_controller_poll, can_controller_transmit);
+
   spi_initialization(NULL, NULL);
 }
 #endif

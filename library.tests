@@ -18,6 +18,7 @@ int main(void)
   /* Run the groups of unit tests */
   RUN_GROUP(CAN);
   RUN_GROUP(SPI);
+  RUN_GROUP(PinControl);
 
   /* Run tests that are defined by the user and not for items in this library */
   UserCustomTests();

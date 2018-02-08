@@ -1,0 +1,131 @@
+/**
+ * MCP2515 CAN Controller Implementation
+ *
+ * Authors: Everyone?
+ */
+#include "../../datatypes.h"
+#include "../interface.h"
+#include "mcp2515.h"
+
+
+/**
+ * "Private" Variables for the use of unit testing and dependency inversion
+ */
+static uint8_t(*_spi_transmit_func)(spi_bus, void*, uint8_t);
+static void(*_pin_set_mode_func)(io_pin, pin_mode);
+static void(*_pin_set_level_func)(io_pin, pin_level);
+static void(*_attach_interrupt_func)(io_pin, void(*func)(void));
+
+
+/**
+ * "Private" functions for helping with MCP2515 related stuff
+ */
+static void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t length);
+static void _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data);
+static void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes);
+static void _mcp2515_reset(void);
+static void _mcp2515_request_send(void);
+static bool _mcp2515_is_busy(void);
+static uint8_t _mcp2515_read_status(void);
+static void _mcp2515_get_message_from_buffer(uint8_t rxbuf, uint8_t* out);
+
+
+/**
+ * Interface Functions
+ */
+
+/* Initializes the CAN Controller */
+void can_controller_setup(io_pin cs_pin, io_pin int_pin)
+{
+
+}
+
+
+/* Transmits a message over the CAN Bus */
+void can_controller_transmit(can_message* msg)
+{
+
+}
+
+
+/* Checks for missed interrupts and will automatically put missed messages in the rx queue */
+void can_controller_poll(void)
+{
+
+}
+
+
+
+
+
+
+
+
+/* CAN Controller Initialization (should not be called by user unless unit testing) */
+void can_controller_initialization(
+  uint8_t(*spi_transmit_func)(spi_bus, void*, uint8_t),
+  void(*pin_set_mode_func)(io_pin, pin_mode),
+  void(*pin_set_level_func)(io_pin, pin_level),
+  void(*attach_interrupt_func)(io_pin, void(*func)(void))
+)
+{
+  _spi_transmit_func = spi_transmit_func;
+  _pin_set_mode_func = pin_set_mode_func;
+  _pin_set_level_func = pin_set_level_func;
+  _attach_interrupt_func = attach_interrupt_func;
+}
+
+
+
+
+
+/**
+ * "Private" Functions
+ */
+static void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t length)
+{
+
+}
+
+
+static void _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data)
+{
+
+}
+
+
+static void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
+{
+
+}
+
+
+static void _mcp2515_reset(void)
+{
+
+}
+
+
+static void _mcp2515_request_send(void)
+{
+
+}
+
+
+static bool _mcp2515_is_busy(void)
+{
+  return False;
+}
+
+
+static uint8_t _mcp2515_read_status(void)
+{
+  return 0;
+}
+
+
+static void _mcp2515_get_message_from_buffer(uint8_t rxbuf, uint8_t* out)
+{
+
+}
+
