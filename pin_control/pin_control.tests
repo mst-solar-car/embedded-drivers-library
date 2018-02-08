@@ -11,12 +11,11 @@ CREATE_GROUP(PinControl);
 
 
 /* MOCK Functions */
-MOCK_VOID(set_pin_mode, (io_pin pin, pin_mode mode));
-MOCK_VOID(set_pin_level, (io_pin pin, pin_level level));
-MOCK_CUSTOM(read_pin, pin_level, (io_pin pin), {
+void MOCK_FUNC(set_pin_mode, (io_pin pin, pin_mode mode));
+void MOCK_FUNC(set_pin_level, (io_pin pin, pin_level level));
+pin_level MOCK_FUNC(read_pin, (io_pin pin), {
   return Low;
 });
-
 
 
 /* Test Setting Pin Mode */

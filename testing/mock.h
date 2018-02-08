@@ -8,12 +8,12 @@
 #include <stdlib.h>
 
 /* Helper directives to avoid typing things out multiple times */
-#define MOCK(name)   MOCK_##name
+#define MOCK(name)                  MOCK_##name
 #define _MOCK_COUNTER_NAME(name)    NumberTimesMOCK##name##Called
-#define _MOCK_TMP_NAME(name) 		MOCK_TEMP_##name##_TEMP
+#define _MOCK_TMP_NAME(name) 		    MOCK_TEMP_##name##_TEMP
 
-#define _INC_MOCK(name)       _MOCK_COUNTER_NAME(name)++;
-#define RESET_MOCK(name)      _MOCK_COUNTER_NAME(name) = 0;
+#define _INC_MOCK(name)   _MOCK_COUNTER_NAME(name)++;
+#define RESET_MOCK(name)  _MOCK_COUNTER_NAME(name) = 0;
 
 
 /* Helpers */
@@ -35,35 +35,6 @@
                                                 _INC_MOCK(name); \
                                                 code \
                                               }
-
-
-
-
-
-#define MOCK_FUNC55(name, args, ...)    _MOCK_TMP_NAME(name); \
-                                      int _MOCK_COUNTER_NAME(name); \
-                                      ({(is_void(_MOCK_TMP_NAME(name)) == 1 ? void : __typeof__(_MOCK_TMP_NAME(name))}) MOCK(name)args { \
-                                        _INC_MOCK(name); \
-                                        { \
-                                          __VA_ARGS__ \
-                                        } \
-                                      }
-
-
-#define MOCK_VOID(name, args, ...)    MOCK_CUSTOM(name, void, args, __VA_ARGS__)
-#define MOCK_UINT8(name, args, ...)   MOCK_CUSTOM(name, uint8_t, args, __VA_ARGS__)
-#define MOCK_UINT16(name, args, ...)  MOCK_CUSTOM(name, uint16_t, args, __VA_ARGS__)
-
-
-
-#define MOCK_CUSTOM(name, type, args, code) int _MOCK_COUNTER_NAME(name); \
-                                            type MOCK(name)args \
-                                            { \
-                                              _INC_MOCK(name); \
-                                              { \
-                                                code \
-                                              } \
-                                            }
 
 
 /* Used to check if a mock function was called */
