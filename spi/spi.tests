@@ -10,10 +10,38 @@
 
 CREATE_GROUP(SPI);
 
+
+/* MOCK Functions */
+void MOCK_FUNC(spi_setup, (spi_bus bus, io_pin mosi, io_pin miso, io_pin sck));
+uint8_t MOCK_FUNC(spi_transmit, (spi_bus bus, void* data, uint8_t length), {
+  return 6;
+});
+
+
 /* Test the SPI Setup Function */
 TEST(SPI, setup)
 {
-  TEST_IGNORE();
+  // Act
+  spi_setup(SPI_BUS_1, 42, 43, 44);
+
+  // Assert
+  TEST_ASSERT_MOCK_CALLED(spi_setup);
+}
+
+
+/* Test SPI Transmit */
+TEST(SPI, transmit)
+{
+  // Arrange
+  uint8_t expected = 6;
+  spi_setup(SPI_BUS_1, 42, 43, 44);
+
+  // Act
+  uint8_t actual = spi_transmit(SPI_BUS_1, NULL, 0);
+
+  // Assert
+  TEST_ASSERT_MOCK_CALLED(spi_transmit);
+  TEST_ASSERT_EQUAL(expected, actual);
 }
 
 
@@ -23,11 +51,14 @@ TEST(SPI, setup)
 GROUP_RUNNER(SPI)
 {
   PERFORM_TEST(SPI, setup);
+  PERFORM_TEST(SPI, transmit);
 }
 
 
 GROUP_TEST_SETUP(SPI)
 {
+  /* Initialize the SPI Drivers */
+  spi_initialization(MOCK(spi_setup), MOCK(spi_transmit));
 }
 
 GROUP_TEST_TEARDOWN(SPI)

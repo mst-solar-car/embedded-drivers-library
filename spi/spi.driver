@@ -11,8 +11,8 @@
  * When running on a microcontroller they will be pointed towards the Microcontroller driver SPI functions,
  * when unit testing they will be pointed to mock functions to verify driver functionality
  */
-static void(*spiSetupPtr)(spi_bus, io_pin, io_pin, io_pin) = NULL;
-static uint8_t(*spiTransmitPtr)(spi_bus, void*, uint8_t) = NULL;
+static void(*_mc_spi_setup_func)(spi_bus, io_pin, io_pin, io_pin) = NULL;
+static uint8_t(*_mc_spi_transmit_func)(spi_bus, void*, uint8_t) = NULL;
 
 
 
@@ -20,17 +20,14 @@ static uint8_t(*spiTransmitPtr)(spi_bus, void*, uint8_t) = NULL;
 /* Setups a specific SPI bus */
 void spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck)
 {
-  if (spiSetupPtr != NULL)
-    spiSetupPtr(bus, mosi, miso, sck);
+  _mc_spi_setup_func(bus, mosi, miso, sck);
 }
+
 
 /* Sends data over a SPI bus, returns received data */
 uint8_t spi_transmit(spi_bus bus, void* data, uint8_t length)
 {
-  if (spiTransmitPtr != NULL)
-    spiTransmitPtr(bus, data, length);
-
-  return (uint8_t)8;
+  return _mc_spi_transmit_func(bus, data, length);
 }
 
 
@@ -39,8 +36,8 @@ uint8_t spi_transmit(spi_bus bus, void* data, uint8_t length)
 /* SPI Driver initialization (Should not be called by user unless unit testing) */
 void spi_initialization(void(*spiSetup)(spi_bus, io_pin, io_pin, io_pin), uint8_t(*spiTransmit)(spi_bus, void*, uint8_t))
 {
-  spiSetupPtr = spiSetup;
-  spiTransmitPtr = spiTransmit;
+  _mc_spi_setup_func = spiSetup;
+  _mc_spi_transmit_func = spiTransmit;
 }
 
 
