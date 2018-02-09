@@ -12,8 +12,7 @@
 #ifdef __GNUC__
 
 /* Include Utilitiy Interfaces */
-#include "utils/memory/interface.h"
-#include "utils/queue/interface.h"
+#include "utils/interface.h"
 
 /* Include driver interfaces that are apart of this library */
 #include "can/interface.h"

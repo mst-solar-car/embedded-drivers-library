@@ -37,7 +37,7 @@ TEST(SPI, transmit)
   spi_setup(SPI_BUS_1, 42, 43, 44);
 
   // Act
-  uint8_t actual = spi_transmit(SPI_BUS_1, NULL, 0);
+  uint8_t actual = spi_transmit(SPI_BUS_1, __NULL__);
 
   // Assert
   TEST_ASSERT_MOCK_CALLED(spi_transmit);

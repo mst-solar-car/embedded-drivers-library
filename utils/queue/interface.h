@@ -36,7 +36,6 @@ typedef struct Queue Queue;
 
 
 
-
 /* Actual function sunderlying those directives (You could call these directly, but why?) */
 Queue*  __Queue_New(uint16_t datatype_size);
 void*   __Queue_Pop(Queue* queue);

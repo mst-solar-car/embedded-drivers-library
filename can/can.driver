@@ -95,20 +95,11 @@ void can_initialization(
 
 
 /* Used so the CAN Controller can place a message in the receive buffer */
-void __can_add_to_receive_queue(uint16_t address, can_status status, uint8_t* data)
+void __can_add_to_receive_queue(can_message* msg)
 {
-  uint8_t i;
-
-  if (address == 0x00 || status != CAN_OK)
+  if (msg->address == 0x00 || msg->status != CAN_OK)
     return;
 
-  /* Populate the message information */
-  can_message msg;
-  msg.address = address;
-  msg.status = status;
-  for (i = 0; i < CAN_DATA_LENGTH; i++)
-    msg.data.data_u8[i] = data[i];
-
   /* Push into the queue */
-  Queue_Push(_queue, &msg);
+  Queue_Push(_queue, msg);
 }

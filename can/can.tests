@@ -66,7 +66,13 @@ TEST(CAN, ReceiveQueue)
     for (j = 0; j < 8; j++)
       buffer[j] = i;
 
-    __can_add_to_receive_queue(0x500 + i, CAN_OK, &buffer[0]);
+    can_message msg;
+    msg.address = 0x500 + i;
+    msg.status = CAN_OK;
+    for (j = 0; j < 8; j++)
+      msg.data.data_u8[j] = buffer[j];
+
+    __can_add_to_receive_queue(&msg);
   }
 
   // Assert

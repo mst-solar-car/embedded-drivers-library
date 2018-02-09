@@ -13,7 +13,7 @@
 void spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck);
 
 /* Sends data over a SPI bus, returns received data */
-uint8_t spi_transmit(spi_bus bus, void* data, uint8_t length);
+uint8_t spi_transmit(spi_bus bus, uint8_t data);
 
 
 

@@ -1,0 +1,75 @@
+/**
+ * Memory Utils Unit Tests
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+#include "interface.h"
+#include "../../testing/framework.h"
+
+
+CREATE_GROUP(MemoryUtilities);
+
+
+typedef struct _sample_t {
+  uint8_t num1;
+  uint16_t num2;
+} sample_t;
+
+
+/* Test the custom memcpy function */
+TEST(MemoryUtilities, MemCpyPrimitive)
+{
+  // Arrange
+  uint8_t destination = 99;
+  uint8_t source = 44;
+
+  // Act
+  utils_memcpy(&destination, &source, sizeof(uint8_t));
+
+  // Assert
+  TEST_ASSERT_EQUAL(source, destination);
+}
+
+
+/* Test custom memcpy with a more complicated data type */
+TEST(MemoryUtilities, MemCpyComplex)
+{
+  // Arrange
+  sample_t destination;
+  destination.num1 = 4;
+  destination.num2 = 3;
+
+  sample_t source;
+  source.num1 = 99;
+  source.num2 = 456;
+
+  // Act
+  utils_memcpy(&destination, &source, sizeof(sample_t));
+
+  // Assert
+  TEST_ASSERT_EQUAL(source.num1, destination.num1);
+  TEST_ASSERT_EQUAL(source.num2, destination.num2);
+}
+
+
+
+GROUP_RUNNER(MemoryUtilities)
+{
+  PERFORM_TEST(MemoryUtilities, MemCpyPrimitive);
+  PERFORM_TEST(MemoryUtilities, MemCpyComplex);
+}
+
+
+
+
+GROUP_TEST_SETUP(MemoryUtilities)
+{
+
+}
+
+GROUP_TEST_TEARDOWN(MemoryUtilities)
+{
+
+}
+#endif
