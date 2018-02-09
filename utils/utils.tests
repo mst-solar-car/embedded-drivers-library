@@ -15,6 +15,7 @@ CREATE_GROUP(Utilities)
 GROUP_RUNNER(Utilities)
 {
   RUN_GROUP(MemoryUtilities);
+  RUN_GROUP(Queue);
 }
 
 #endif
