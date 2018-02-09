@@ -71,7 +71,8 @@ void can_transmit(void)
   uint8_t i;
   _can_msg_for_sending.address = 0x00;
   _can_msg_for_sending.status = 0x00;
-  for (i = 0; i < 8; i++)
+
+  for (i = 0; i < CAN_DATA_LENGTH; i++)
     _can_msg_for_sending.data.data_u8[i] = 0x00;
 
   /* Check for missed messages */
@@ -96,4 +97,26 @@ void can_initialization(
   _can_rx_push = _can_rx_queue;
 
   can_new_msg = &_can_msg_for_sending;
+}
+
+
+/* Used so the CAN Controller can place a message in the receive buffer */
+void __can_add_to_receive_queue(uint16_t address, can_status status, uint8_t* data)
+{
+  uint8_t i;
+
+  if (address == 0x00 || status != CAN_OK)
+    return;
+
+  /* Populate the message information */
+  _can_rx_push->address = address;
+  _can_rx_push->status = status;
+
+  for (i = 0; i < CAN_DATA_LENGTH; i++)
+    _can_rx_push->data.data_u8[i] = data[i];
+
+  /* Advance the push pointer */
+  _can_rx_push++;
+  if (_can_rx_push >= (_can_rx_queue + CAN_BUFFER_LENGTH))
+    _can_rx_push = _can_rx_queue;
 }

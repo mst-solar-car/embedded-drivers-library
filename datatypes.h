@@ -87,12 +87,14 @@ typedef uint16_t  register_addr;  /* Represents a registry address */
 typedef enum bool_t {
   FALSE   = __FALSE__,
   False   = __FALSE__,
+  false   = __FALSE__,
   Failure = __FALSE__,
   Busy    = __FALSE__,
   No      = __FALSE__,
 
   TRUE    = __TRUE__,
   True    = __TRUE__,
+  true    = __TRUE__,
   Success = __TRUE__,
   Yes     = __TRUE__,
 } bool;

@@ -1,0 +1,59 @@
+/**
+ * This implements a queue
+ *
+ * Authors: Michael Rouse
+ */
+#include "interface.h"
+#include "../memory/interface.h"
+#include "../../datatypes.h"
+#include <stdlib.h>
+
+struct Queue {
+  void** buffer;
+  void* push_ptr;
+  void* pop_ptr;
+
+  void* buffer_end;
+  uint16_t member_size;
+};
+
+
+/* Creates a new instance of a Queue */
+Queue* __Queue_New(uint16_t datatype_size)
+{
+  Queue* queue = (Queue*)malloc(sizeof(Queue));
+  queue->buffer = (void*)malloc(QUEUE_SIZE * datatype_size);
+  queue->push_ptr = queue->buffer;
+  queue->pop_ptr = queue->buffer;
+  queue->member_size = datatype_size;
+
+  return queue;
+}
+
+
+/* Pops a value from the queue */
+void* __Queue_Pop(Queue* queue)
+{
+  void* popped = (void*)queue->pop_ptr;
+
+  /* Advance pop pointer */
+  queue->pop_ptr = queue->pop_ptr + queue->member_size;
+  if (queue->pop_ptr >= (queue->buffer + QUEUE_SIZE))
+    queue->pop_ptr = queue->buffer;
+
+  return popped;
+}
+
+
+
+
+/* Pushes a value onto the queue */
+void __Queue_Push(Queue* queue, void* data, uint16_t size)
+{
+  utils_memcpy(queue->push_ptr, data, queue->member_size);
+
+  /* Advance the push pointer */
+  queue->push_ptr = queue->push_ptr + queue->member_size;
+  if (queue->push_ptr >= (queue->buffer + QUEUE_SIZE))
+    queue->push_ptr = queue->buffer;
+}

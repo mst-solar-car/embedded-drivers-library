@@ -27,6 +27,10 @@ extern can_message* can_new_msg;
 
 
 
+/* This function is for the CAN Controller to pass received messages to the CAN Drivers */
+extern void __can_add_to_receive_queue(uint16_t address, can_status status, uint8_t* data);
+
+
 
 
 

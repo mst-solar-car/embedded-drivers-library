@@ -32,6 +32,7 @@ void can_controller_initialization(
   uint8_t(*spi_transmit_func)(spi_bus, void*, uint8_t),
   void(*pin_set_mode_func)(io_pin, pin_mode),
   void(*pin_set_level_func)(io_pin, pin_level),
-  void(*attach_interrupt_func)(io_pin, void(*func)(void))
+  void(*attach_interrupt_func)(io_pin, void(*func)(void)),
+  void(*can_receive_push_func)(uint8_t address, can_status status, uint8_t* data)
 );
 #endif

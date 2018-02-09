@@ -11,8 +11,11 @@
 #define __LIBRARY__
 #ifdef __GNUC__
 
+/* Include Utilitiy Interfaces */
+#include "utils/memory/interface.h"
+#include "utils/queue/interface.h"
 
-/* Include drivers that are apart of this library */
+/* Include driver interfaces that are apart of this library */
 #include "can/interface.h"
 #include "microcontroller/interface.h"
 #include "microcontroller/registration.h"

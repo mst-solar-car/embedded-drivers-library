@@ -1,0 +1,18 @@
+/**
+ * Memory Utils Driver Implementation
+ *
+ * Authors: Michael Rouse
+ */
+#include "interface.h"
+#include "../../datatypes.h"
+
+/* Super Simple Memory Copy */
+void utils_memcpy(void* destination, void* source, uint16_t size)
+{
+  uint8_t* src = (uint8_t*)source;
+  uint8_t* dest = (uint8_t*)destination;
+
+  uint16_t i;
+  for (i = 0; i < size; i++)
+    dest[i] = src[i];
+}

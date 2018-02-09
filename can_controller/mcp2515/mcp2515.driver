@@ -5,8 +5,14 @@
  */
 #include "../../datatypes.h"
 #include "../interface.h"
+#include "../config.h"
 #include "mcp2515.h"
 
+
+/* "Private" Variables for use in this driver */
+static can_message _cc_tx_queue[CAN_CONTROLLER_BUFFER_LENGTH];
+static can_message* _cc_tx_push;
+static can_message* _cc_tx_pop;
 
 /**
  * "Private" Variables for the use of unit testing and dependency inversion
@@ -15,6 +21,7 @@ static uint8_t(*_spi_transmit_func)(spi_bus, void*, uint8_t);
 static void(*_pin_set_mode_func)(io_pin, pin_mode);
 static void(*_pin_set_level_func)(io_pin, pin_level);
 static void(*_attach_interrupt_func)(io_pin, void(*func)(void));
+static void(*_can_receive_push_func)(uint8_t address, can_status status, uint8_t* data);
 
 
 /**
@@ -44,6 +51,9 @@ void can_controller_setup(io_pin cs_pin, io_pin int_pin)
 /* Transmits a message over the CAN Bus */
 void can_controller_transmit(can_message* msg)
 {
+  uint8_t i;
+
+
 
 }
 
@@ -66,13 +76,15 @@ void can_controller_initialization(
   uint8_t(*spi_transmit_func)(spi_bus, void*, uint8_t),
   void(*pin_set_mode_func)(io_pin, pin_mode),
   void(*pin_set_level_func)(io_pin, pin_level),
-  void(*attach_interrupt_func)(io_pin, void(*func)(void))
+  void(*attach_interrupt_func)(io_pin, void(*func)(void)),
+  void(*can_receive_push_func)(uint8_t address, can_status status, uint8_t* data)
 )
 {
   _spi_transmit_func = spi_transmit_func;
   _pin_set_mode_func = pin_set_mode_func;
   _pin_set_level_func = pin_set_level_func;
   _attach_interrupt_func = attach_interrupt_func;
+  _can_receive_push_func = can_receive_push_func;
 }
 
 

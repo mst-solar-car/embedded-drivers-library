@@ -1,0 +1,209 @@
+/**
+ * Unit Tests for the Queue
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+#include "interface.h"
+#include "../../testing/framework.h"
+
+CREATE_GROUP(Queue);
+
+/* Used in complex tests */
+typedef struct person_t {
+  uint8_t age;
+  uint16_t weight;
+} person;
+
+
+/* Variables used in all (or some) of the unit tests */
+static Queue* queue;
+
+
+TEST(Queue, NewQueue)
+{
+  // Act
+  queue = Queue_New(uint8_t);
+
+  // Assert
+  TEST_ASSERT_NOT_NULL_MESSAGE(queue, "Queue_New returned NULL");
+}
+
+
+/* Push, then Pop a single item to the queue */
+TEST(Queue, SingleItemPushAndPop)
+{
+  // Arrange
+  queue = Queue_New(uint8_t);
+
+  uint8_t expected = 200;
+
+  // Act
+  Queue_Push(queue, (&expected));
+
+  uint8_t* actual = (uint8_t*)Queue_Pop(queue);
+
+  // Assert
+  TEST_ASSERT_EQUAL(expected, *actual);
+}
+
+
+/* Push and pop multiple primitive items */
+TEST(Queue, MutlipleItemPushAndPop)
+{
+  // Arrange
+  queue = Queue_New(uint8_t);
+
+  uint8_t i;
+  uint8_t* actual;
+
+  // Act
+  for (i = 0; i < 10; i++)
+    Queue_Push(queue, &i);
+
+  // Assert
+  for (i = 0; i < 10; i++)
+  {
+    actual = (uint8_t*)Queue_Pop(queue);
+    TEST_ASSERT_EQUAL(*actual, i);
+  }
+}
+
+
+/* Push then pop complex type */
+TEST(Queue, SingleComplexItemPushAndPop)
+{
+  // Arrange
+  queue = Queue_New(person);
+
+  uint8_t expected_age = 22;
+  uint16_t expected_weight = 165;
+
+  person expected = { expected_age, expected_weight };
+
+  // Act
+  person pushed_person = { 22, 165 };
+  Queue_Push(queue, &pushed_person);
+
+  person* actual = (person*)Queue_Pop(queue);
+
+  // Assert
+  TEST_ASSERT_EQUAL(sizeof(expected), sizeof(*actual));
+  TEST_ASSERT_EQUAL(expected.age, actual->age);
+  TEST_ASSERT_EQUAL(expected.weight, actual->weight);
+}
+
+
+/* Push and Pop Multiple Complex Items */
+TEST(Queue, MutlipleComplexPushAndPop)
+{
+  // Arrange
+  queue = Queue_New(person);
+
+  uint8_t i;
+  person* actual;
+
+  // Act
+  for (i = 0; i < 10; i++)
+  {
+    person tmp = { i, i*2 };
+    Queue_Push(queue, &tmp);
+  }
+
+  // Assert
+  for (i = 0; i < 10; i++)
+  {
+    actual = (person*)Queue_Pop(queue);
+
+    TEST_ASSERT_EQUAL(sizeof(person), sizeof(*actual));
+    TEST_ASSERT_EQUAL(i, actual->age);
+    TEST_ASSERT_EQUAL(i*2, actual->weight);
+  }
+}
+
+
+/* Queue Loop Around Test */
+TEST(Queue, SimpleLoopAround)
+{
+  // Arrange
+  queue = Queue_New(uint16_t);
+
+  uint16_t i;
+  uint16_t* actual;
+
+  uint16_t limit = QUEUE_SIZE * 2;
+
+  // Act
+  for (i = 0; i < limit; i++)
+    Queue_Push(queue, &i);
+
+  // Assert
+  for (i = QUEUE_SIZE; i < limit; i++)
+  {
+    actual = (uint16_t*)Queue_Pop(queue);
+    TEST_ASSERT_EQUAL(i, *actual);
+  }
+}
+
+
+/* LoopAround test using a complex type */
+TEST(Queue, ComplexLoopAround)
+{
+ // Arrange
+  queue = Queue_New(person);
+
+  uint16_t i;
+  person* actual;
+
+  uint16_t limit = QUEUE_SIZE * 2;
+
+  // Act
+  for (i = 0; i < limit; i++)
+  {
+    person tmp = { i, i*2 };
+    Queue_Push(queue, &tmp);
+  }
+
+  // Assert
+  for (i = QUEUE_SIZE; i < limit; i++)
+  {
+    actual = (person*)Queue_Pop(queue);
+
+    TEST_ASSERT_EQUAL(sizeof(person), sizeof(*actual));
+    TEST_ASSERT_EQUAL(i, actual->age);
+    TEST_ASSERT_EQUAL(i*2, actual->weight);
+  }
+}
+
+
+
+
+
+/* Run all of the Queue Tests */
+GROUP_RUNNER(Queue)
+{
+  PERFORM_TEST(Queue, NewQueue);
+  PERFORM_TEST(Queue, SingleItemPushAndPop);
+  PERFORM_TEST(Queue, MutlipleItemPushAndPop);
+  PERFORM_TEST(Queue, SingleComplexItemPushAndPop);
+  PERFORM_TEST(Queue, MutlipleComplexPushAndPop);
+  PERFORM_TEST(Queue, SimpleLoopAround);
+  PERFORM_TEST(Queue, ComplexLoopAround);
+}
+
+
+
+/* Runs before every test in the Queue Group */
+GROUP_TEST_SETUP(Queue)
+{
+  queue = NULL;
+}
+
+/* Runs after every test */
+GROUP_TEST_TEARDOWN(Queue)
+{
+  Queue_Delete(queue);
+}
+
+
+#endif
