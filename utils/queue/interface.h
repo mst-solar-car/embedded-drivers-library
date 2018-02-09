@@ -17,18 +17,31 @@
 /* Incomplete struct since this is a multiple instance module */
 typedef struct Queue Queue;
 
-/* Directives for a "Generic" Type */
-#define Queue_New(type)         __Queue_New(sizeof(type*));
-#define Queue_Push(queue, data) __Queue_Push(queue, (void*)data, sizeof(data))
+/* Use these directives to interact with the queue */
+#define Queue_New(type)         __Queue_New(sizeof(type));
+#define Queue_Push(queue, data) __Queue_Push(queue, data, sizeof(*data))
 #define Queue_Pop(queue)        __Queue_Pop(queue) /* Just for consistency */
-#define Queue_Delete(queue)     free(queue)
+#define Queue_Delete(queue)     __Queue_Delete(&queue)
 
 
-/* Actual function sunderlying those directives */
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Actual function sunderlying those directives (You could call these directly, but why?) */
 Queue*  __Queue_New(uint16_t datatype_size);
 void*   __Queue_Pop(Queue* queue);
 void    __Queue_Push(Queue* queue, void* data, uint16_t size);
-
+void    __Queue_Delete(Queue** queue);
 
 
 

@@ -5,6 +5,7 @@
  */
 #include "../datatypes.h"
 #include "interface.h"
+#include "../utils/queue/interface.h"
 #include "config.h"
 
 
@@ -15,9 +16,7 @@ static void(*_can_controller_transmit_func)(can_message*) = NULL;
 
 
 /* Queue for holding received messages */
-static can_message _can_rx_queue[CAN_BUFFER_LENGTH];
-static can_message* _can_rx_push;
-static can_message* _can_rx_pop;
+static Queue* _queue;
 
 
 /* Variable used for creating messages before calling can_transmit() */
@@ -42,15 +41,9 @@ can_message* can_receive(void)
 {
   _can_controller_poll_func(); /* Check for missed interrupts on the CAN Controller */
 
-  if (_can_rx_push == _can_rx_pop)
+  can_message* msg = (can_message*)Queue_Pop(_queue);
+  if (msg == NO_MESSAGE)
     return (can_message*) NO_MESSAGE;
-
-  can_message* msg = _can_rx_pop; /* You have mail! */
-
-  /* Advance the queue */
-  _can_rx_pop++;
-  if (_can_rx_pop >= (_can_rx_queue + CAN_BUFFER_LENGTH))
-    _can_rx_pop = _can_rx_queue;
 
   /* Avoid Stupid Messages */
   if (msg->address == 0x00)
@@ -93,11 +86,12 @@ void can_initialization(
   _can_controller_transmit_func = can_transmit_func;
 
   /* Iniitalize Receive Queue */
-  _can_rx_pop = _can_rx_queue;
-  _can_rx_push = _can_rx_queue;
+  _queue = Queue_New(can_message);
 
   can_new_msg = &_can_msg_for_sending;
 }
+
+
 
 
 /* Used so the CAN Controller can place a message in the receive buffer */
@@ -109,14 +103,12 @@ void __can_add_to_receive_queue(uint16_t address, can_status status, uint8_t* da
     return;
 
   /* Populate the message information */
-  _can_rx_push->address = address;
-  _can_rx_push->status = status;
-
+  can_message msg;
+  msg.address = address;
+  msg.status = status;
   for (i = 0; i < CAN_DATA_LENGTH; i++)
-    _can_rx_push->data.data_u8[i] = data[i];
+    msg.data.data_u8[i] = data[i];
 
-  /* Advance the push pointer */
-  _can_rx_push++;
-  if (_can_rx_push >= (_can_rx_queue + CAN_BUFFER_LENGTH))
-    _can_rx_push = _can_rx_queue;
+  /* Push into the queue */
+  Queue_Push(_queue, &msg);
 }

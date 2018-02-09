@@ -19,7 +19,7 @@ int main(void)
   RUN_GROUP(CAN);
   RUN_GROUP(SPI);
   RUN_GROUP(PinControl);
-  RUN_GROUP(Queue);
+  //RUN_GROUP(Queue);
 
   /* Run tests that are defined by the user and not for items in this library */
   UserCustomTests();

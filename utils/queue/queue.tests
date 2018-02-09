@@ -30,6 +30,19 @@ TEST(Queue, NewQueue)
 }
 
 
+TEST(Queue, PopBeforePush)
+{
+  // Arrange
+  queue = Queue_New(uint8_t);
+
+  // Act
+  uint8_t* actual = (uint8_t*)Queue_Pop(queue);
+
+  // Assert
+  TEST_ASSERT_NULL(actual);
+}
+
+
 /* Push, then Pop a single item to the queue */
 TEST(Queue, SingleItemPushAndPop)
 {
@@ -183,6 +196,7 @@ TEST(Queue, ComplexLoopAround)
 GROUP_RUNNER(Queue)
 {
   PERFORM_TEST(Queue, NewQueue);
+  PERFORM_TEST(Queue, PopBeforePush);
   PERFORM_TEST(Queue, SingleItemPushAndPop);
   PERFORM_TEST(Queue, MutlipleItemPushAndPop);
   PERFORM_TEST(Queue, SingleComplexItemPushAndPop);

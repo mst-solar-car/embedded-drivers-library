@@ -3,29 +3,55 @@
  *
  * Authors: Michael Rouse
  */
-#include "interface.h"
-#include "../memory/interface.h"
-#include "../../datatypes.h"
 #include <stdlib.h>
+#include "../memory/interface.h"
+#include "interface.h"
+#include "../../datatypes.h"
 
+/* This struct will hold data for each item--most important thing is the read flag */
+typedef struct data_wrapper_t {
+  bool read;
+  void* data;
+} data_wrapper;
+
+
+/* Complete the struct so the internals are hidden from the user */
 struct Queue {
-  void** buffer;
-  void* push_ptr;
-  void* pop_ptr;
-
-  void* buffer_end;
-  uint16_t member_size;
+  data_wrapper buffer[QUEUE_SIZE];
+  uint8_t head;
+  uint8_t tail;
 };
+
+
+#define getHead(q) q->buffer[q->head]
+#define getTail(q) q->buffer[q->tail]
 
 
 /* Creates a new instance of a Queue */
 Queue* __Queue_New(uint16_t datatype_size)
 {
+  /* Create the Queue struct */
   Queue* queue = (Queue*)malloc(sizeof(Queue));
-  queue->buffer = (void*)malloc(QUEUE_SIZE * datatype_size);
-  queue->push_ptr = queue->buffer;
-  queue->pop_ptr = queue->buffer;
-  queue->member_size = datatype_size;
+  if (queue == (void*)NULL)
+    return (Queue*)NULL;
+
+  /* Setup list of data wrappers */
+  uint16_t i;
+  for (i = 0; i < QUEUE_SIZE; i++)
+  {
+    /* Allocate appropriate amount for the specified type */
+    queue->buffer[i].data = (void*) malloc(datatype_size);
+    if (queue->buffer[i].data == (void*)NULL)
+    {
+      free(queue);
+      return (Queue*)NULL;
+    }
+    queue->buffer[i].read = true;
+  }
+
+  /* Setup rest of struct */
+  queue->head = 0;
+  queue->tail = 0;
 
   return queue;
 }
@@ -34,26 +60,44 @@ Queue* __Queue_New(uint16_t datatype_size)
 /* Pops a value from the queue */
 void* __Queue_Pop(Queue* queue)
 {
-  void* popped = (void*)queue->pop_ptr;
+  /* Don't do anything if the queue is empty */
+  if (getTail(queue).read == true)
+    return (void*)NOTHING;
 
-  /* Advance pop pointer */
-  queue->pop_ptr = queue->pop_ptr + queue->member_size;
-  if (queue->pop_ptr >= (queue->buffer + QUEUE_SIZE))
-    queue->pop_ptr = queue->buffer;
+  void* popped = getTail(queue).data;
+  getTail(queue).read = true;
+
+  /* Advance tail of the queue*/
+  queue->tail++;
+  if (queue->tail >= QUEUE_SIZE)
+    queue->tail = 0;
 
   return popped;
 }
 
 
-
-
 /* Pushes a value onto the queue */
 void __Queue_Push(Queue* queue, void* data, uint16_t size)
 {
-  utils_memcpy(queue->push_ptr, data, queue->member_size);
+  /* Copy into the queue */
+  utils_memcpy(getHead(queue).data, data, size);
+  getHead(queue).read = false;
 
-  /* Advance the push pointer */
-  queue->push_ptr = queue->push_ptr + queue->member_size;
-  if (queue->push_ptr >= (queue->buffer + QUEUE_SIZE))
-    queue->push_ptr = queue->buffer;
+  /* Advance the head of the queue */
+  queue->head++;
+  if (queue->head >= QUEUE_SIZE)
+    queue->head = 0;
+}
+
+
+/* Deletes a queue */
+void __Queue_Delete(Queue** queue)
+{
+  uint8_t i;
+  for (i = 0; i < QUEUE_SIZE; i++)
+    free((*queue)->buffer[i].data);
+
+  free(*queue);
+
+  *queue = NULL;
 }

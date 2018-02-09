@@ -34,7 +34,7 @@ TEST(CAN, setup)
 
 
 /* Test Receiving a Message from the CAN Drivers */
-TEST(CAN, receive)
+TEST(CAN, ReceiveNothing)
 {
   // Arrange
   io_pin cs_pin = 6;
@@ -46,11 +46,37 @@ TEST(CAN, receive)
 
   // Assert
   TEST_ASSERT_MOCK_CALLED(can_controller_poll);
-  TEST_ASSERT_NOT_NULL_MESSAGE(msg, "Value returned from can_receive was NULL");
-  TEST_ASSERT_EQUAL_MESSAGE(0x666, msg->address, "CAN Address was not 0x666");
+  TEST_ASSERT_NULL(msg);
+}
 
-  // Cleanup
-  free(msg);
+
+/* Test Receive Queue */
+TEST(CAN, ReceiveQueue)
+{
+  // Arrange
+  uint16_t i;
+  uint8_t j;
+
+  uint16_t limit = 10;
+
+  // Act
+  for (i = 0; i < limit; i++)
+  {
+    uint8_t buffer[8];
+    for (j = 0; j < 8; j++)
+      buffer[j] = i;
+
+    __can_add_to_receive_queue(0x500 + i, CAN_OK, &buffer[0]);
+  }
+
+  // Assert
+  for (i = 0; i < limit; i++)
+  {
+    can_message* actual = can_receive();
+    TEST_ASSERT_EQUAL(0x500 + i, actual->address);
+    TEST_ASSERT_EQUAL(CAN_OK, actual->status);
+    TEST_ASSERT_EQUAL(i, actual->data.data_u8[0]);
+  }
 }
 
 
@@ -82,7 +108,8 @@ TEST(CAN, transmit)
 GROUP_RUNNER(CAN)
 {
   PERFORM_TEST(CAN, setup);
-  PERFORM_TEST(CAN, receive);
+  PERFORM_TEST(CAN, ReceiveNothing);
+  PERFORM_TEST(CAN, ReceiveQueue);
   PERFORM_TEST(CAN, transmit);
 }
 
