@@ -2,6 +2,15 @@
  * This file contains directives for a Fixture that makes creating microcontroller
  * drivers easier and simpler to read. A Fixture is just a wrapper.
  *
+ * So this file is weird. This fixture allows for the .spec file and the .driver
+ * file to do what they do.
+ *
+ * For the .spec file, you might notice a lot of #ifdef RUN_SPEC_FILE_LIKE_C_FILE
+ * directives in here, a lot of similar directives, and a lot of #undef
+ * This is because this fixture forces the .spec file to behave differently whether it
+ * is #include in a header file or a code file... :)
+ * So sorry.
+ *
  * Authors: Michael Rouse
  */
 #include "interface.h"
