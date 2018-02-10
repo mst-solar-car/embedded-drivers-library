@@ -15,7 +15,6 @@ __attribute__((weak)) CUSTOM_TESTS() { }
 
 int main(void)
 {
-  interrupt_attach(P2_4, NULL);
   /* Run the groups of unit tests */
   RUN_GROUP(CAN);
   RUN_GROUP(SPI);

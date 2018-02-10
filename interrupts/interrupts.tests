@@ -4,6 +4,7 @@
  * Authors: Michael Rouse
  */
 #ifdef UNIT_TEST
+#include "../library.h"
 #include "interface.h"
 #include "../testing/framework.h"
 
@@ -12,22 +13,35 @@ CREATE_GROUP(Interrupts);
 
 /* Mock Functions Needed */
 uint8_t MOCK_FUNC(get_interrupt_port_bit, (uint8_t port), {
-  return 5;
+  return 4;
+});
+
+void MOCK_FUNC(sample_isr, (void), {
+
 });
 
 
 
+/* Test Attaching and Dispatching an Interrupt */
+TEST(Interrupts, AttachAndDispatchInterrupt)
+{
+  // Arrange
+  interrupt_attach(P2_4, MOCK(sample_isr));
 
+  // Act
+  __interrupt_dispatch(PORT2);
 
-
-
+  // Assert
+  TEST_ASSERT_MOCK_CALLED(get_interrupt_port_bit);
+  TEST_ASSERT_MOCK_CALLED(sample_isr);
+}
 
 
 
 /* Run all of the Interrupts Tests */
 GROUP_RUNNER(Interrupts)
 {
-
+  PERFORM_TEST(Interrupts, AttachAndDispatchInterrupt);
 }
 
 

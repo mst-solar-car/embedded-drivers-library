@@ -212,16 +212,16 @@
 #define _PORT_BITS_9(n,p1,p2,p3,p4,p5,p6,p7,p8,p9)  _PORT_BITS_8(n,p1,p2,p3,p4,p5,p6,p7,p8) BTP(n,8,p9)
 
 
-#define _SETUP_PIN_MAP(n,b,p)                           pin_map[p].port = PORT_NAME(n); pin_map[p].bit = b;
-#define _SETUP_PIN_MAP_1(n,p1)                          _SETUP_PIN_MAP(n,1,p1)
-#define _SETUP_PIN_MAP_2(n,p1,p2)                       _SETUP_PIN_MAP_1(n,p1) _SETUP_PIN_MAP(n,2,p2)
-#define _SETUP_PIN_MAP_3(n,p1,p2,p3)                    _SETUP_PIN_MAP_2(n,p1,p2) _SETUP_PIN_MAP(n,3,p3)
-#define _SETUP_PIN_MAP_4(n,p1,p2,p3,p4)                 _SETUP_PIN_MAP_3(n,p1,p2,p3) _SETUP_PIN_MAP(n,4,p4)
-#define _SETUP_PIN_MAP_5(n,p1,p2,p3,p4,p5)              _SETUP_PIN_MAP_4(n,p1,p2,p3,p4) _SETUP_PIN_MAP(n,5,p5)
-#define _SETUP_PIN_MAP_6(n,p1,p2,p3,p4,p5,p6)           _SETUP_PIN_MAP_5(n,p1,p2,p3,p4,p5) _SETUP_PIN_MAP(n,6,p6)
-#define _SETUP_PIN_MAP_7(n,p1,p2,p3,p4,p5,p6,p7)        _SETUP_PIN_MAP_6(n,p1,p2,p3,p4,p5,p6) _SETUP_PIN_MAP(n,7,p7)
-#define _SETUP_PIN_MAP_8(n,p1,p2,p3,p4,p5,p6,p7,p8)     _SETUP_PIN_MAP_7(n,p1,p2,p3,p4,p5,p6,p7) _SETUP_PIN_MAP(n,8,p8)
-#define _SETUP_PIN_MAP_9(n,p1,p2,p3,p4,p5,p6,p7,p8,p9)  _SETUP_PIN_MAP_8(n,p1,p2,p3,p4,p5,p6,p7,p8) _SETUP_PIN_MAP(n,9,p9)
+#define _SETUP_PIN_MAP(n,b,p)                           pin_map[p].port = PORT_NAME(n); pin_map[p].bit = BIT##b;
+#define _SETUP_PIN_MAP_1(n,p1)                          _SETUP_PIN_MAP(n,0,p1)
+#define _SETUP_PIN_MAP_2(n,p1,p2)                       _SETUP_PIN_MAP_1(n,p1) _SETUP_PIN_MAP(n,1,p2)
+#define _SETUP_PIN_MAP_3(n,p1,p2,p3)                    _SETUP_PIN_MAP_2(n,p1,p2) _SETUP_PIN_MAP(n,2,p3)
+#define _SETUP_PIN_MAP_4(n,p1,p2,p3,p4)                 _SETUP_PIN_MAP_3(n,p1,p2,p3) _SETUP_PIN_MAP(n,3,p4)
+#define _SETUP_PIN_MAP_5(n,p1,p2,p3,p4,p5)              _SETUP_PIN_MAP_4(n,p1,p2,p3,p4) _SETUP_PIN_MAP(n,4,p5)
+#define _SETUP_PIN_MAP_6(n,p1,p2,p3,p4,p5,p6)           _SETUP_PIN_MAP_5(n,p1,p2,p3,p4,p5) _SETUP_PIN_MAP(n,5,p6)
+#define _SETUP_PIN_MAP_7(n,p1,p2,p3,p4,p5,p6,p7)        _SETUP_PIN_MAP_6(n,p1,p2,p3,p4,p5,p6) _SETUP_PIN_MAP(n,6,p7)
+#define _SETUP_PIN_MAP_8(n,p1,p2,p3,p4,p5,p6,p7,p8)     _SETUP_PIN_MAP_7(n,p1,p2,p3,p4,p5,p6,p7) _SETUP_PIN_MAP(n,7,p8)
+#define _SETUP_PIN_MAP_9(n,p1,p2,p3,p4,p5,p6,p7,p8,p9)  _SETUP_PIN_MAP_8(n,p1,p2,p3,p4,p5,p6,p7,p8) _SETUP_PIN_MAP(n,8,p9)
 
 
 #define _LIST_SPI_BUS(n)      SPI_BUS_##n = n,
