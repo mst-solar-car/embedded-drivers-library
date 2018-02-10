@@ -19,8 +19,9 @@
 /* Helpers */
 #define _C(a, ...)	_PRIMITIVE_CAT(a, __VA_ARGS__)
 #define _PRIMITIVE_CAT(a, ...) 	a ## __VA_ARGS__
-#define _NUM_ARGS(P1, P2, P3, P4, P5, P6, Pn, ...) Pn
-#define NUM_ARGS(...) _NUM_ARGS(-1, ##__VA_ARGS__, 5, 4, 3, 2, 1, 0)
+#define _NUM_ARGS(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, Pn, ...) Pn
+#define NUM_ARGS(...) _NUM_ARGS(-1, ##__VA_ARGS__, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+
 
 /* Directives for creating Mock Functions */
 #define MOCK_FUNC(name, ...) 	*_MOCK_TMP_NAME(name); \

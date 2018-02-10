@@ -8,6 +8,7 @@
 #ifndef __MICROCONTROLLER_INTERFACE__
 #define __MICROCONTROLLER_INTERFACE__
 
+#include "../datatypes.h"
 
 
 
@@ -30,8 +31,6 @@ void __microcontroller_read_pin(io_pin pin);
 /* initialization such as pins and clocks. */
 /* It should NOT be called by the user. */
 void microcontroller_initialization(void);
-
-
 
 
 

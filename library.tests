@@ -5,16 +5,17 @@
  */
 #ifdef UNIT_TEST
 
+#include "datatypes.h"
+#include "library.h"
 #include "testing/framework.h"
 
 /* Weak CUSTOM_TESTS implementation (overrided by the user) */
 __attribute__((weak)) CUSTOM_TESTS() { }
 
 
-
-
 int main(void)
 {
+  printf("%i\n", P1_4);
   /* Run the groups of unit tests */
   RUN_GROUP(CAN);
   RUN_GROUP(SPI);

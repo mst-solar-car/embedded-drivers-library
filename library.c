@@ -38,20 +38,20 @@ void __attribute__((constructor)) library_initialization(void)
 /**
  * Include driver implementations
  */
-#define __STR(x) #x
-#define CUSTOM_DRIVER(driveGroup, name)  __STR(driveGroup/name/name.driver)
 
 
 /* Custom driver implementation of the Microcontroller */
+#define IN_C_FILE
 #ifdef MICROCONTROLLER
-  #include CUSTOM_DRIVER(microcontroller, MICROCONTROLLER)
+  #include CUSTOM_DRIVER(microcontroller, MICROCONTROLLER, spec)
+  #include CUSTOM_DRIVER(microcontroller, MICROCONTROLLER, driver)
 #else
   #error "Unkown microcontroller!"
 #endif
 
 /* Custom Driver implementation of the CAN Controller */
 #ifdef CAN_CONTROLLER
-  #include CUSTOM_DRIVER(can_controller, CAN_CONTROLLER)
+  #include CUSTOM_DRIVER(can_controller, CAN_CONTROLLER, driver)
 #else
   #warning "Unkown CAN Controller!"
 #endif
@@ -70,3 +70,6 @@ void __attribute__((constructor)) library_initialization(void)
 
 /* No custom implementation of utilities */
 #include "utils/utils.driver"
+
+
+#undef IN_C_FILE

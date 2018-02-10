@@ -6,7 +6,9 @@
 #ifndef UNIT_TEST
 #include <msp430f5529.h>
 #endif
-
+#include "../fixture.h"
+#include "../interface.h"
+#include "../../datatypes.h"
 
 
 
@@ -26,6 +28,14 @@ void __microcontroller_set_pin_level(io_pin pin, pin_level level)
 
 /* Used by the Pin Control Driver for controlling pins */
 void __microcontroller_read_pin(io_pin pin)
+{
+
+}
+
+
+
+/* Microcontroller Initialization */
+void microcontroller_initialization(void)
 {
 
 }

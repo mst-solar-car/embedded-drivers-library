@@ -14,6 +14,7 @@
 /* Include Utilitiy Interfaces */
 #include "utils/interface.h"
 
+
 /* Include driver interfaces that are apart of this library */
 #include "can/interface.h"
 #include "microcontroller/interface.h"
@@ -27,6 +28,9 @@
 
 
 
+
+#define __STR(x) #x
+#define CUSTOM_DRIVER(driveGroup, name, ext)  __STR(driveGroup/name/name.ext)
 
 
 

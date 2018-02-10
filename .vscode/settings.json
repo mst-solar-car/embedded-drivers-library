@@ -5,6 +5,7 @@
     "framework.h": "c",
     "interface.h": "c",
     "mock.h": "c",
-    "stdlib.h": "c"
+    "stdlib.h": "c",
+    "*.spec": "c"
   }
 }
