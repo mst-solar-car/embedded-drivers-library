@@ -1,0 +1,49 @@
+/**
+ * Unit Tests for the Interrupt Drivers
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+#include "interface.h"
+#include "../testing/framework.h"
+
+CREATE_GROUP(Interrupts);
+
+
+/* Mock Functions Needed */
+uint8_t MOCK_FUNC(get_interrupt_port_bit, (uint8_t port), {
+  return 5;
+});
+
+
+
+
+
+
+
+
+
+
+/* Run all of the Interrupts Tests */
+GROUP_RUNNER(Interrupts)
+{
+
+}
+
+
+
+/* Runs before every test in the Interrupts Group */
+GROUP_TEST_SETUP(Interrupts)
+{
+  RESET_MOCK(get_interrupt_port_bit);
+
+  /* Initialize the Interrupts Drivers */
+  interrupts_initialization(MOCK(get_interrupt_port_bit));
+}
+
+/* Runs after every test */
+GROUP_TEST_TEARDOWN(Interrupts)
+{
+}
+
+#endif

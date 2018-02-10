@@ -75,9 +75,9 @@ typedef __VUINT16_TYPE__  vuint16_t;
 /* Aliases for types that are used often */
 typedef uint8_t   io_pin;         /* Custom type to represent a pin */
 typedef uint16_t  register_addr;  /* Represents a registry address */
+typedef uint8_t   spi_bus;
 
-
-
+typedef void(*voidFuncPtr)(void);
 
 
 /**
@@ -208,6 +208,7 @@ enum {
 #undef BITF
 #endif
   BITF = 0x8000,
+  MAX_BIT = BITF,
 };
 
 
@@ -236,6 +237,19 @@ typedef struct _pin_map_t {
   uint8_t port;
   uint8_t bit;
 } pin_map_t;
+
+/* Also for the internal workings of this driver */
+typedef struct pin_info_t {
+  uint8_t port;
+  uint8_t bit;
+  vuint8_t* dir_reg;
+  vuint8_t* out_reg;
+  vuint8_t* in_reg;
+  vuint8_t* sel_reg;
+  vuint8_t* ies_reg;
+  vuint8_t* ie_reg;
+  vuint8_t* ifg_reg;
+} pin_info_t;
 
 
 

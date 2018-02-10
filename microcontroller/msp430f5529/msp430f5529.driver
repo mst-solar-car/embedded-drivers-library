@@ -1,4 +1,4 @@
-/**
+  /**
  * MSP430F5529
  *
  * Authors: Michael Rouse
@@ -11,43 +11,180 @@
 #include "../../datatypes.h"
 
 
-
-
-
 /* Used by the Pin Control Driver for controlling pins */
 void __microcontroller_set_pin_mode(io_pin pin, pin_mode mode)
 {
-  pin_map_t _pin = pin_map[pin];
-  vuint8_t* dirReg = (vuint8_t*)dir_registers[_pin.port];
+  pin_info_t _pin = GetPinInfo(pin);
+
+  /* Can't configure something that is invalid */
+  if (!IsValidPinInfo(_pin) || _pin.dir_reg == NO_REGISTER)
+    return;
 
   if (mode == Input)
-    *dirReg &= ~(_pin.bit);
+    *(_pin.dir_reg) &= ~(_pin.bit);
   else
-    *dirReg |= _pin.bit;
+    *(_pin.dir_reg) |= _pin.bit;
 }
 
 
 /* Used by the Pin Control Driver for controlling pins */
 void __microcontroller_set_pin_level(io_pin pin, pin_level level)
 {
-  pin_map_t _pin = pin_map[pin];
-  vuint8_t* outReg = (vuint8_t*)out_registers[_pin.port];
+  pin_info_t _pin = GetPinInfo(pin);
 
-  if (level == High)
-    *outReg |= _pin.bit;
+  if (!IsValidPinInfo(_pin) || _pin.out_reg == NO_REGISTER)
+    return;
+
+  if (level == Low)
+    *(_pin.out_reg) &= ~(_pin.bit);
   else
-    *outReg &= ~(_pin.bit);
+    *(_pin.out_reg) |= _pin.bit;
 }
 
 
 /* Used by the Pin Control Driver for controlling pins */
 pin_level __microcontroller_read_pin(io_pin pin)
 {
-  pin_map_t _pin = pin_map[pin];
-  vuint8_t* inReg = (vuint8_t*)in_registers[_pin.port];
+  pin_info_t _pin = GetPinInfo(pin);
 
-  return (*inReg & _pin.bit);
+  if (!IsValidPinInfo(_pin) || _pin.in_reg == NO_REGISTER)
+    return Low;
+
+  return (*(_pin.in_reg) & _pin.bit);
 }
+
+
+/* Configures a SPI Bus */
+void __microcontroller_spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck)
+{
+#ifndef UNIT_TEST
+  switch (bus) {
+      case SPI_BUS_1:
+        // UCA0
+        UCA0CTL1  = UCSWRST;	//Hold the device in a reset state while we configure
+        UCA0CTL0  = 0x69;		//SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+        UCA0CTL1 |= UCSSEL_3;		//SPI clock (BRCLK) source = SMCLK
+        UCA0BR1	  = 0x00;		//Set the high bit of the baud rate generator
+        UCA0BR0	  = 0x14;		//Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+        //UCA0IE   |= 0x04;		//Enable interrupts
+        UCA0CTL1 &= ~UCSWRST;	//Release the bus from reset state
+        break;
+
+      case SPI_BUS_2:
+        // UCA1
+        UCA1CTL1  = UCSWRST;	//Hold the device in a reset state while we configure
+        UCA1CTL0  = 0x69;		//SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+        UCA1CTL1 |= UCSSEL_3;		//SPI clock (BRCLK) source = SMCLK
+        UCA1BR1	  = 0x00;		//Set the high bit of the baud rate generator
+        UCA1BR0	  = 0x14;		//Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+        //UCA1IE   |= 0x04;		//Enable interrupts
+        UCA1CTL1 &= ~UCSWRST;	//Release the bus from reset state
+        break;
+
+      case SPI_BUS_3:
+        // UCB0
+        UCB0CTL1  = UCSWRST;	//Hold the device in a reset state while we configure
+        UCB0CTL0  = 0x69;		//SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+        UCB0CTL1 |= UCSSEL_3;		//SPI clock (BRCLK) source = SMCLK
+        UCB0BR1	  = 0x00;		//Set the high bit of the baud rate generator
+        UCB0BR0	  = 0x14;		//Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+        //UCB0IE   |= 0x04;		//Enable interrupts
+        UCB0CTL1 &= ~UCSWRST;	//Release the bus from reset state
+        break;
+
+      case SPI_BUS_4:
+        // UCB1
+        UCB1CTL1  = UCSWRST;    //Hold the device in a reset state while we configure
+        UCB1CTL0  = 0x69;       //SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+        UCB1CTL1 |= UCSSEL_3;       //SPI clock (BRCLK) source = SMCLK
+        UCB1BR1   = 0x00;       //Set the high bit of the baud rate generator
+        UCB1BR0   = 0x14;       //Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+        //UCB1IE   |= 0x04;     //Enable interrupts
+        UCB1CTL1 &= ~UCSWRST;   //Release the bus from reset state
+        break;
+  }
+#endif
+}
+
+
+/* Transmits data over a SPI bus */
+uint8_t __microcontroller_spi_transmit(spi_bus bus, void* data, uint8_t size)
+{
+#ifndef UNIT_TEST
+  switch (bus) {
+    case SPI_BUS_1:
+      // UCA0
+      while ((UCA0STAT & UCIDLE) != 0);
+      UCA0TXBUF = data;
+      while ((UCA0STAT & UCBUSY) != 0);
+      return UCA0RXBUF;
+
+    case SPI_BUS_2:
+      // UCA1
+      while ((UCA1STAT & UCIDLE) != 0);
+      UCA1TXBUF = data;
+      while ((UCA1STAT & UCBUSY) != 0);
+      return UCA1RXBUF;
+
+    case SPI_BUS_3:
+      // UCB0
+      while ((UCB0STAT & UCIDLE) != 0);
+      UCB0TXBUF = data;
+      while ((UCB0STAT & UCBUSY) != 0);
+      return UCB0RXBUF;
+
+    case SPI_BUS_4:
+      // UCB1
+      while ((UCB1STAT & UCIDLE) != 0);
+      UCB1TXBUF = data;
+      while ((UCB1STAT & UCBUSY) != 0);
+      return UCB1RXBUF;
+  }
+#endif
+  return 0;
+}
+
+
+
+
+/* Determines what bit on the port an interrupt happened on */
+uint8_t __microcontroller_get_interrupt_port_bit(uint8_t port)
+{
+  vuint16_t* reg = ifg_registers[port];
+  if (reg == NO_REGISTER)
+    return NO_BIT;
+
+  uint8_t bit = NO_BIT;
+
+  if (*reg & BIT6)
+    bit = 6;
+  else if (*reg & BIT5)
+    bit = 5;
+  else if (*reg & BIT4)
+    bit = 4;
+  else if (*reg & BIT3)
+    bit = 3;
+  else if (*reg & BIT2)
+    bit = 2;
+  else if (*reg & BIT1)
+    bit = 1;
+  else if (*reg & BIT0)
+    bit = 0;
+
+  /* Clear the bit in the register */
+  if (bit != NO_BIT)
+    *reg &= ~bit;
+
+  return bit;
+}
+
+
+
+
+
+
+
+
 
 
 /* Microcontroller Initialization */

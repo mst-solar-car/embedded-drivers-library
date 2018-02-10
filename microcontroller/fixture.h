@@ -20,18 +20,18 @@
 /**
  * Ports and Pins
  */
+#undef REGISTER_PINS
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #undef REGISTER_PINS
   #define REGISTER_PINS(numberOfPins) pin_map_t pin_map[numberOfPins];
 #else
-  #undef REGISTER_PINS
   #define REGISTER_PINS(numberOfPins) enum { \
                                       _C(_LIST_PINS_, numberOfPins)() \
+                                      MC_NUMBER_OF_PINS = numberOfPins, \
                                     };
 #endif
 
+#undef REGISTER_PORTS
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #undef REGISTER_PORTS
   #define REGISTER_PORTS(...) vuint16_t* dir_registers[NUM_ARGS(__VA_ARGS__)]; \
                               vuint16_t* out_registers[NUM_ARGS(__VA_ARGS__)]; \
                               vuint16_t* in_registers[NUM_ARGS(__VA_ARGS__)]; \
@@ -40,53 +40,38 @@
                               vuint16_t* ie_registers[NUM_ARGS(__VA_ARGS__)]; \
                               vuint16_t* ifg_registers[NUM_ARGS(__VA_ARGS__)];
 #else
-  #undef REGISTER_PORTS
   #define REGISTER_PORTS(...) enum { \
                                 _C(_LIST_PORTS_, NUM_ARGS(__VA_ARGS__))(__VA_ARGS__) \
+                                MC_NUMBER_OF_PORTS = NUM_ARGS(__VA_ARGS__), \
                               };
 #endif
 
 /* Set port bits to pins in bulk */
+#undef REGISTER_PINS_FOR_PORT
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #undef REGISTER_PINS_FOR_PORT
   #define REGISTER_PINS_FOR_PORT(port, ...)   void __attribute__((constructor)) __PORT##port##_SETUP(void) { \
                                                 _C(_SETUP_PIN_MAP_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__) \
                                               };
 #else
-  #undef REGISTER_PINS_FOR_PORT
   #define REGISTER_PINS_FOR_PORT(port, ...)   enum { \
                                                 _C(_PORT_BITS_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__) \
                                               };
 #endif
 
-/* Set individually */
-#ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #undef REGISTER_PIN_FOR_PORT_BIT
-  #define REGISTER_PIN_FOR_PORT_BIT(port, bit, pin)   void __attribute__((constructor)) __PORT##port##_B##bit##_SETUP(void) { \
-                                                        pin_map[pin].port = port; \
-                                                        pin_map[pin].bit = bit; \
-                                                      }
-#else
-  #undef REGISTER_PIN_FOR_PORT_BIT
-  #define REGISTER_PIN_FOR_PORT_BIT(port, bit, pin)   enum { \
-                                                        PORTB_NAME(port, bit) = pin, \
-                                                      };
-#endif
 
 /* Add ability to register pin aliases (other functions, etc..) */
+#undef REGISTER_PIN_ALIAS
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #undef REGISTER_PIN_ALIAS
   #define REGISTER_PIN_ALIAS(alias, pin)
 #else
-  #undef REGISTER_PIN_ALIAS
   #define REGISTER_PIN_ALIAS(alias, pin)  enum { \
                                             alias = pin, \
                                           };
 #endif
 
 /* Setup Registers for the Ports */
+#undef SET_PORT_REGISTERS
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #undef SET_PORT_REGISTERS
   #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)  \
                                         void __attribute__((constructor)) PORT##port##_REGISTER_SETUP(void) { \
                                           dir_registers[PORT_NAME(port)] = REG(dir); \
@@ -98,7 +83,6 @@
                                           ifg_registers[PORT_NAME(port)] = REG(ifg); \
                                         }
 #else
-  #undef SET_PORT_REGISTERS
   #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)
 #endif
 
@@ -106,40 +90,29 @@
 /**
  * SPI Buses
  */
+#undef REGISTER_SPI_BUSES
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #undef REGISTER_SPI_BUSES
   #define REGISTER_SPI_BUSES(n)
 #else
-  #undef REGISTER_SPI_BUSES
-  #define REGISTER_SPI_BUSES(n)   typedef enum spi_bus_t { \
+  #define REGISTER_SPI_BUSES(n)   enum { \
                                     _LIST_SPI_BUSES_##n() \
-                                  } spi_bus;
+                                    MC_NUMBER_OF_SPI_BUSES = n, \
+                                  };
 #endif
+
 
 /**
  * Interrupts
  */
+#undef REGISTER_INTERRUPTABLE_PORTS
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #undef REGISTER_NONPIN_INTERRUPT
-  #define REGISTER_NONPIN_INTERRUPT(vector, ...)  void __attribute__((interrupt(vector))) __##vector##_ISR(void)\
-                                                  { \
-                                                    { \
-                                                      __VA_ARGS__ \
-                                                    } \
-                                                  };
+  #define REGISTER_INTERRUPTABLE_PORTS(...)       EVAL(_C(_LIST_INTERRUPTABLE_PORTS_, NUM_ARGS(__VA_ARGS__))(__VA_ARGS__));
 #else
-  #undef REGISTER_NONPIN_INTERRUPT
-  #define REGISTER_NONPIN_INTERRUPT(vector, ...)
+  #define REGISTER_INTERRUPTABLE_PORTS(...)       enum { \
+                                                    MC_NUMBER_OF_INTERRUPTABLE_PORTS = NUM_ARGS(__VA_ARGS__), \
+                                                  };
 #endif
 
-#ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #undef REGISTER_PIN_INTERRUPT
-  #define REGISTER_PIN_INTERRUPT(vector, port)    REGISTER_NONPIN_INTERRUPT(vector, { \
-                                                  });
-#else
-  #undef REGISTER_PIN_INTERRUPT
-  #define REGISTER_PIN_INTERRUPT(vector, port)
-#endif
 
 
 /**
@@ -149,7 +122,8 @@
 #ifndef __MICROCONTROLLER_FIXTURE__
 #define __MICROCONTROLLER_FIXTURE__
 
-/* Register Creation */
+
+
 #define REG(name) (vuint16_t*)name
 
 #define PIN_NAME(n)       PIN##n
@@ -204,9 +178,6 @@
 
 
 
-
-
-
 /**
  * Aaaaaaye, you made it. That sucks.
  * If you made it this far then something must be broken or you are curious.
@@ -215,7 +186,7 @@
  * If you're curious--I'm still sorry.
  */
 #define _LIST_PORT(p)                                                 PORT_NAME(p),
-#define _LIST_PORTS_0()                                               NYIASFLASF,
+#define _LIST_PORTS_0()                                               ____IGNORE_THIS_##__LINE__,
 #define _LIST_PORTS_1(p1)                                             _LIST_PORTS_0() _LIST_PORT(p1)
 #define _LIST_PORTS_2(p1, p2)                                         _LIST_PORTS_1(p1) _LIST_PORT(p2)
 #define _LIST_PORTS_3(p1, p2, p3)                                     _LIST_PORTS_2(p1, p2) _LIST_PORT(p3)
@@ -265,6 +236,19 @@
 #define _LIST_SPI_BUSES_8()   _LIST_SPI_BUSES_7() _LIST_SPI_BUS(7)
 #define _LIST_SPI_BUSES_9()   _LIST_SPI_BUSES_8() _LIST_SPI_BUS(7)
 #define _LIST_SPI_BUSES_10()  _LIST_SPI_BUSES_9() _LIST_SPI_BUS(10)
+
+
+/* Currently only supports up to 7 interruptable ports */
+#define _LIST_INTERRUPTABLE_PORT(p,v)                     void __attribute__((interrupt(v))) __##v##__##p##_ISR(void) { \
+                                                            __interrupt_dispatch(p); \
+                                                          };
+#define _LIST_INTERRUPTABLE_PORTS_1(p1)                   DEFER(_LIST_INTERRUPTABLE_PORT)p1
+#define _LIST_INTERRUPTABLE_PORTS_2(p1,p2)                _LIST_INTERRUPTABLE_PORTS_1(p1) DEFER(_LIST_INTERRUPTABLE_PORT)p2
+#define _LIST_INTERRUPTABLE_PORTS_3(p1,p2,p3)             _LIST_INTERRUPTABLE_PORTS_2(p1,p2) DEFER(_LIST_INTERRUPTABLE_PORT)p3
+#define _LIST_INTERRUPTABLE_PORTS_4(p1,p2,p3,p4)          _LIST_INTERRUPTABLE_PORTS_3(p1,p2,p3) DEFER(_LIST_INTERRUPTABLE_PORT)p4
+#define _LIST_INTERRUPTABLE_PORTS_5(p1,p2,p3,p4,p5)       _LIST_INTERRUPTABLE_PORTS_4(p1,p2,p3,p4) DEFER(_LIST_INTERRUPTABLE_PORT)p5
+#define _LIST_INTERRUPTABLE_PORTS_6(p1,p2,p3,p4,p5,p6)    _LIST_INTERRUPTABLE_PORTS_5(p1,p2,p3,p4,p5) DEFER(_LIST_INTERRUPTABLE_PORT)p6
+#define _LIST_INTERRUPTABLE_PORTS_7(p1,p2,p3,p4,p5,p6,p7) _LIST_INTERRUPTABLE_PORTS_6(p1,p2,p3,p4,p5,p6) DEFER(_LIST_INTERRUPTABLE_PORT)p7
 
 
 #define _LIST_PIN(n)    PIN_NAME(n) = n,
@@ -370,18 +354,56 @@
 #define _LIST_PINS_100() _LIST_PINS_99() _LIST_PIN(100)
 
 /* If you have over 100 pins then good luck */
+
+
+
+
+
+/* These EVALs and DEFERs force macros to be expanded more and more (simulating some type of recursion thing) */
+#define EVAL(...) EVAL1024(__VA_ARGS__)
+#define EVAL1024(...) EVAL512(EVAL512(__VA_ARGS__))
+#define EVAL512(...) EVAL256(EVAL256(__VA_ARGS__))
+#define EVAL256(...) EVAL128(EVAL128(__VA_ARGS__))
+#define EVAL128(...) EVAL64(EVAL64(__VA_ARGS__))
+#define EVAL64(...) EVAL32(EVAL32(__VA_ARGS__))
+#define EVAL32(...) EVAL16(EVAL16(__VA_ARGS__))
+#define EVAL16(...) EVAL8(EVAL8(__VA_ARGS__))
+#define EVAL8(...) EVAL4(EVAL4(__VA_ARGS__))
+#define EVAL4(...) EVAL2(EVAL2(__VA_ARGS__))
+#define EVAL2(...) EVAL1(EVAL1(__VA_ARGS__))
+#define EVAL1(...) __VA_ARGS__
+
+#define EMPTY()
+#define DEFER(m) m EMPTY()
+#define DEFER2(m) m EMPTY EMPTY()()
+#define DEFER3(m) m EMPTY EMPTY EMPTY()()()
+#define DEFER4(m) m EMPTY EMPTY EMPTY EMPTY()()()()
 #endif
 
 
+
+
 /**
- * This is still apart of the same fixture, I just wanted it logically separated out
+ * This Helpers Fixture contains directives that can be used inside the
+ * Microcontroller drivers to do things easily
  */
-#ifndef __MICROCONTROLLER_FIXTURE2__
-#define __MICROCONTROLLER_FIXTURE2__
+#ifndef __MICROCONTROLLER_FIXTURE_HELPERS__
+#define __MICROCONTROLLER_FIXTURE_HELPERS__
 
 /* Used For Getting Pin Information/Registers */
+#define GetPinInfo(pin)   (pin_info_t){ \
+                            pin_map[pin].port, \
+                            pin_map[pin].bit, \
+                            (vuint8_t*)dir_registers[pin_map[pin].port], \
+                            (vuint8_t*)out_registers[pin_map[pin].port], \
+                            (vuint8_t*)in_registers[pin_map[pin].port], \
+                            (vuint8_t*)sel_registers[pin_map[pin].port], \
+                            (vuint8_t*)ies_registers[pin_map[pin].port], \
+                            (vuint8_t*)ie_registers[pin_map[pin].port], \
+                            (vuint8_t*)ifg_registers[pin_map[pin].port] \
+                          };
 
-
+#define IsValidPinInfo(pi) (pi.port != NO_PORT && pi.bit != NO_BIT)
 
 
 #endif
