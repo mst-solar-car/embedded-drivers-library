@@ -41,7 +41,7 @@ void __attribute__((constructor)) library_initialization(void)
 
 
 /* Custom driver implementation of the Microcontroller */
-#define IN_C_FILE
+#define RUN_SPEC_FILE_LIKE_C_FILE
 #ifdef MICROCONTROLLER
   #include CUSTOM_DRIVER(microcontroller, MICROCONTROLLER, spec)
   #include CUSTOM_DRIVER(microcontroller, MICROCONTROLLER, driver)
@@ -72,4 +72,4 @@ void __attribute__((constructor)) library_initialization(void)
 #include "utils/utils.driver"
 
 
-#undef IN_C_FILE
+#undef RUN_SPEC_FILE_LIKE_C_FILE

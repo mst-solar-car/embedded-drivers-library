@@ -189,7 +189,7 @@ typedef struct can_message_t {
 } can_message;
 
 
-/* Something for the internal workings of this driver */
+/* Something for the internal workings of the microcontroller driver (i.e., DON'T WORRY ABOUT IT) */
 typedef struct _pin_map_t {
   uint8_t port;
   uint8_t bit;
