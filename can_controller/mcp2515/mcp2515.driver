@@ -6,8 +6,7 @@
 #include "mcp2515.h"
 #include "../interface.h"
 #include "../config.h"
-#include "../../utils/queue/interface.h"
-#include "../../datatypes.h"
+#include "../../library.h"
 
 #define leftShift(bits, n) ((uint8_t)(bits << n))
 #define rightShift(bits, n) ((uint8_t)(bits >> n))
@@ -92,7 +91,8 @@ void can_controller_transmit(can_message* msg)
 /* Checks for missed interrupts and will automatically put missed messages in the rx queue */
 void can_controller_poll(void)
 {
-  while (_pin_read_func(_cs_pin) == Low)
+  uint8_t loop_counter = 200;
+  while (_pin_read_func(_cs_pin) == Low && loop_counter-- >= 0)
   {
     _mcp2515_legacy_receive_message();
   }

@@ -3,6 +3,7 @@
  *
  */
 #include "interface.h"
+#include "../library.h"
 
 
 /**

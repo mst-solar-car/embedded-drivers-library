@@ -16,8 +16,6 @@
 #include "interface.h"
 #include "../datatypes.h"
 
-#include <stdio.h>
-
 
 /**
  * Ports and Pins
@@ -106,6 +104,19 @@
 
 
 /**
+ * SPI Buses
+ */
+#ifdef RUN_SPEC_FILE_LIKE_C_FILE
+  #undef REGISTER_SPI_BUSES
+  #define REGISTER_SPI_BUSES(n)
+#else
+  #undef REGISTER_SPI_BUSES
+  #define REGISTER_SPI_BUSES(n)   typedef enum spi_bus_t { \
+                                    _LIST_SPI_BUSES_##n() \
+                                  } spi_bus;
+#endif
+
+/**
  * Interrupts
  */
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
@@ -147,9 +158,11 @@
 
 #define _C(a, ...)	_PRIMITIVE_CAT(a, __VA_ARGS__)
 #define _PRIMITIVE_CAT(a, ...) 	a ## __VA_ARGS__
+
 #ifndef _NUM_ARGS
 #define _NUM_ARGS(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, Pn, ...) Pn
 #endif
+
 #ifndef NUM_ARGS
 #define NUM_ARGS(...) _NUM_ARGS(-1, ##__VA_ARGS__, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
 #endif
@@ -239,6 +252,19 @@
 #define _SETUP_PIN_MAP_8(n,p1,p2,p3,p4,p5,p6,p7,p8)     _SETUP_PIN_MAP_7(n,p1,p2,p3,p4,p5,p6,p7) _SETUP_PIN_MAP(n,8,p8)
 #define _SETUP_PIN_MAP_9(n,p1,p2,p3,p4,p5,p6,p7,p8,p9)  _SETUP_PIN_MAP_8(n,p1,p2,p3,p4,p5,p6,p7,p8) _SETUP_PIN_MAP(n,9,p9)
 
+
+#define _LIST_SPI_BUS(n)      SPI_BUS_##n = n,
+#define _LIST_SPI_BUSES_0()
+#define _LIST_SPI_BUSES_1()   _LIST_SPI_BUSES_0() _LIST_SPI_BUS(1)
+#define _LIST_SPI_BUSES_2()   _LIST_SPI_BUSES_1() _LIST_SPI_BUS(2)
+#define _LIST_SPI_BUSES_3()   _LIST_SPI_BUSES_2() _LIST_SPI_BUS(3)
+#define _LIST_SPI_BUSES_4()   _LIST_SPI_BUSES_3() _LIST_SPI_BUS(4)
+#define _LIST_SPI_BUSES_5()   _LIST_SPI_BUSES_4() _LIST_SPI_BUS(5)
+#define _LIST_SPI_BUSES_6()   _LIST_SPI_BUSES_5() _LIST_SPI_BUS(6)
+#define _LIST_SPI_BUSES_7()   _LIST_SPI_BUSES_6() _LIST_SPI_BUS(7)
+#define _LIST_SPI_BUSES_8()   _LIST_SPI_BUSES_7() _LIST_SPI_BUS(7)
+#define _LIST_SPI_BUSES_9()   _LIST_SPI_BUSES_8() _LIST_SPI_BUS(7)
+#define _LIST_SPI_BUSES_10()  _LIST_SPI_BUSES_9() _LIST_SPI_BUS(10)
 
 
 #define _LIST_PIN(n)    PIN_NAME(n) = n,
@@ -344,10 +370,6 @@
 #define _LIST_PINS_100() _LIST_PINS_99() _LIST_PIN(100)
 
 /* If you have over 100 pins then good luck */
-
-
-
-
 #endif
 
 

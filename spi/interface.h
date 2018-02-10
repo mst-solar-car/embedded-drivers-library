@@ -6,7 +6,7 @@
 #ifndef __SPI_INTERFACE__
 #define __SPI_INTERFACE__
 #include "../datatypes.h"
-
+#include "../library.h"
 
 
 /* Setups a specific SPI bus */

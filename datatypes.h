@@ -119,34 +119,6 @@ typedef enum pin_level_t {
 } pin_level;
 
 
-/* Enum for SPI Bus identifiers */
-typedef enum spi_bus_t {
-#ifndef MC_NO_SPI
-  SPI_BUS_1 = 1,
-#if MC_NUM_SPI_BUSES  > 1
-  SPI_BUS_2,
-#endif
-#if MC_NUM_SPI_BUSES  > 2
-  SPI_BUS_3,
-#endif
-#if MC_NUM_SPI_BUSES > 3
-  SPI_BUS_4,
-#endif
-#if MC_NUM_SPI_BUSES > 4
-  SPI_BUS_5,
-#endif
-#if MC_NUM_SPI_BUSES > 5
-  SPI_BUS_6,
-#endif
-#if MC_NUM_SPI_BUSES > 6
-  #error "PLEASE ADD MORE SPI BUSES TO datatypes.h"
-#endif
-#else
-  NO_SPI_BUS = 0,
-#endif
-} spi_bus;
-
-
 /* These are used to represent null values, there are different names to help with readability */
 enum {
   NULL        = __NULL__,

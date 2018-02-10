@@ -5,6 +5,7 @@
  */
 #ifdef UNIT_TEST
 #include "interface.h"
+#include "../library.h"
 #include "../testing/framework.h"
 
 

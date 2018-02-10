@@ -11,6 +11,8 @@
 #define __LIBRARY__
 #ifdef __GNUC__
 
+#include "datatypes.h"
+
 /* Include Utilitiy Interfaces */
 #include "utils/interface.h"
 
