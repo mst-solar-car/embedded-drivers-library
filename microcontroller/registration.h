@@ -13,8 +13,5 @@
 #endif
 
 
-#include "msp430f5529/msp430f5529.spec"
-
-
 
 #endif

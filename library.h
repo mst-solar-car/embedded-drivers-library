@@ -16,28 +16,21 @@
 
 
 /* Include driver interfaces that are apart of this library */
+#undef LOAD_CUSTOM_DRIVER_CODE
+
 #include "can/interface.h"
 #include "microcontroller/interface.h"
-#include "microcontroller/registration.h"
+#include "microcontroller/loader.h"
 #include "can_controller/interface.h"
-#include "can_controller/registration.h"
+#include "can_controller/loader.h"
 #include "spi/interface.h"
 #include "pin_control/interface.h"
 #include "interrupts/interface.h"
 
 
-
-
-
-#define __STR(x) #x
-#define CUSTOM_DRIVER(driveGroup, name, ext)  __STR(driveGroup/name/name.ext)
-
-
-
 #else
   /* Not using GCC or MSP430 GCC, which they should be */
   #error "You should be using GCC as your compiler!"
-
 #endif
 
 

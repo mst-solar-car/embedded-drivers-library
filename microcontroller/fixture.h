@@ -23,85 +23,85 @@
  * Ports and Pins
  */
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-#undef REGISTER_PINS
-#define REGISTER_PINS(numberOfPins) pin_map_t pin_map[numberOfPins];
+  #undef REGISTER_PINS
+  #define REGISTER_PINS(numberOfPins) pin_map_t pin_map[numberOfPins];
 #else
-#undef REGISTER_PINS
-#define REGISTER_PINS(numberOfPins) enum { \
+  #undef REGISTER_PINS
+  #define REGISTER_PINS(numberOfPins) enum { \
                                       _C(_LIST_PINS_, numberOfPins)() \
                                     };
 #endif
 
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-#undef REGISTER_PORTS
-#define REGISTER_PORTS(...) vuint16_t* dir_registers[NUM_ARGS(__VA_ARGS__)]; \
-                            vuint16_t* out_registers[NUM_ARGS(__VA_ARGS__)]; \
-                            vuint16_t* in_registers[NUM_ARGS(__VA_ARGS__)]; \
-                            vuint16_t* sel_registers[NUM_ARGS(__VA_ARGS__)]; \
-                            vuint16_t* ies_registers[NUM_ARGS(__VA_ARGS__)]; \
-                            vuint16_t* ie_registers[NUM_ARGS(__VA_ARGS__)]; \
-                            vuint16_t* ifg_registers[NUM_ARGS(__VA_ARGS__)];
+  #undef REGISTER_PORTS
+  #define REGISTER_PORTS(...) vuint16_t* dir_registers[NUM_ARGS(__VA_ARGS__)]; \
+                              vuint16_t* out_registers[NUM_ARGS(__VA_ARGS__)]; \
+                              vuint16_t* in_registers[NUM_ARGS(__VA_ARGS__)]; \
+                              vuint16_t* sel_registers[NUM_ARGS(__VA_ARGS__)]; \
+                              vuint16_t* ies_registers[NUM_ARGS(__VA_ARGS__)]; \
+                              vuint16_t* ie_registers[NUM_ARGS(__VA_ARGS__)]; \
+                              vuint16_t* ifg_registers[NUM_ARGS(__VA_ARGS__)];
 #else
-#undef REGISTER_PORTS
-#define REGISTER_PORTS(...) enum { \
-                              _C(_LIST_PORTS_, NUM_ARGS(__VA_ARGS__))(__VA_ARGS__) \
-                            };
+  #undef REGISTER_PORTS
+  #define REGISTER_PORTS(...) enum { \
+                                _C(_LIST_PORTS_, NUM_ARGS(__VA_ARGS__))(__VA_ARGS__) \
+                              };
 #endif
 
 /* Set port bits to pins in bulk */
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-#undef REGISTER_PINS_FOR_PORT
-#define REGISTER_PINS_FOR_PORT(port, ...)   void __attribute__((constructor)) __PORT##port##_SETUP(void) { \
-                                              _C(_SETUP_PIN_MAP_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__) \
-                                            };
+  #undef REGISTER_PINS_FOR_PORT
+  #define REGISTER_PINS_FOR_PORT(port, ...)   void __attribute__((constructor)) __PORT##port##_SETUP(void) { \
+                                                _C(_SETUP_PIN_MAP_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__) \
+                                              };
 #else
-#undef REGISTER_PINS_FOR_PORT
-#define REGISTER_PINS_FOR_PORT(port, ...)   enum { \
-                                              _C(_PORT_BITS_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__) \
-                                            };
+  #undef REGISTER_PINS_FOR_PORT
+  #define REGISTER_PINS_FOR_PORT(port, ...)   enum { \
+                                                _C(_PORT_BITS_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__) \
+                                              };
 #endif
 
 /* Set individually */
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-#undef REGISTER_PIN_FOR_PORT_BIT
-#define REGISTER_PIN_FOR_PORT_BIT(port, bit, pin)   void __attribute__((constructor)) __PORT##port##_B##bit##_SETUP(void) { \
-                                                      pin_map[pin].port = port; \
-                                                      pin_map[pin].bit = bit; \
-                                                    }
+  #undef REGISTER_PIN_FOR_PORT_BIT
+  #define REGISTER_PIN_FOR_PORT_BIT(port, bit, pin)   void __attribute__((constructor)) __PORT##port##_B##bit##_SETUP(void) { \
+                                                        pin_map[pin].port = port; \
+                                                        pin_map[pin].bit = bit; \
+                                                      }
 #else
-#undef REGISTER_PIN_FOR_PORT_BIT
-#define REGISTER_PIN_FOR_PORT_BIT(port, bit, pin)   enum { \
-                                                      PORTB_NAME(port, bit) = pin, \
-                                                    };
+  #undef REGISTER_PIN_FOR_PORT_BIT
+  #define REGISTER_PIN_FOR_PORT_BIT(port, bit, pin)   enum { \
+                                                        PORTB_NAME(port, bit) = pin, \
+                                                      };
 #endif
 
 /* Add ability to register pin aliases (other functions, etc..) */
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-#undef REGISTER_PIN_ALIAS
-#define REGISTER_PIN_ALIAS(alias, pin)
+  #undef REGISTER_PIN_ALIAS
+  #define REGISTER_PIN_ALIAS(alias, pin)
 #else
-#undef REGISTER_PIN_ALIAS
-#define REGISTER_PIN_ALIAS(alias, pin)  enum { \
-                                          alias = pin, \
-                                        };
+  #undef REGISTER_PIN_ALIAS
+  #define REGISTER_PIN_ALIAS(alias, pin)  enum { \
+                                            alias = pin, \
+                                          };
 #endif
 
 /* Setup Registers for the Ports */
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-#undef SET_PORT_REGISTERS
-#define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)  \
-                                      void __attribute__((constructor)) PORT##port##_REGISTER_SETUP(void) { \
-                                        dir_registers[PORT_NAME(port)] = REG(dir); \
-                                        out_registers[PORT_NAME(port)] = REG(out); \
-                                        in_registers[PORT_NAME(port)] = REG(in); \
-                                        sel_registers[PORT_NAME(port)] = REG(sel); \
-                                        ies_registers[PORT_NAME(port)] = REG(ies); \
-                                        ie_registers[PORT_NAME(port)] = REG(ie); \
-                                        ifg_registers[PORT_NAME(port)] = REG(ifg); \
-                                      }
+  #undef SET_PORT_REGISTERS
+  #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)  \
+                                        void __attribute__((constructor)) PORT##port##_REGISTER_SETUP(void) { \
+                                          dir_registers[PORT_NAME(port)] = REG(dir); \
+                                          out_registers[PORT_NAME(port)] = REG(out); \
+                                          in_registers[PORT_NAME(port)] = REG(in); \
+                                          sel_registers[PORT_NAME(port)] = REG(sel); \
+                                          ies_registers[PORT_NAME(port)] = REG(ies); \
+                                          ie_registers[PORT_NAME(port)] = REG(ie); \
+                                          ifg_registers[PORT_NAME(port)] = REG(ifg); \
+                                        }
 #else
-#undef SET_PORT_REGISTERS
-#define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)
+  #undef SET_PORT_REGISTERS
+  #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)
 #endif
 
 
@@ -109,25 +109,25 @@
  * Interrupts
  */
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-#undef REGISTER_NONPIN_INTERRUPT
-#define REGISTER_NONPIN_INTERRUPT(vector, ...)  void __attribute__((interrupt(vector))) __##vector##_ISR(void)\
-                                                { \
+  #undef REGISTER_NONPIN_INTERRUPT
+  #define REGISTER_NONPIN_INTERRUPT(vector, ...)  void __attribute__((interrupt(vector))) __##vector##_ISR(void)\
                                                   { \
-                                                    __VA_ARGS__ \
-                                                  } \
-                                                };
+                                                    { \
+                                                      __VA_ARGS__ \
+                                                    } \
+                                                  };
 #else
-#undef REGISTER_NONPIN_INTERRUPT
-#define REGISTER_NONPIN_INTERRUPT(vector, ...)
+  #undef REGISTER_NONPIN_INTERRUPT
+  #define REGISTER_NONPIN_INTERRUPT(vector, ...)
 #endif
 
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-#undef REGISTER_PIN_INTERRUPT
-#define REGISTER_PIN_INTERRUPT(vector, port)    REGISTER_NONPIN_INTERRUPT(vector, { \
-                                                });
+  #undef REGISTER_PIN_INTERRUPT
+  #define REGISTER_PIN_INTERRUPT(vector, port)    REGISTER_NONPIN_INTERRUPT(vector, { \
+                                                  });
 #else
-#undef REGISTER_PIN_INTERRUPT
-#define REGISTER_PIN_INTERRUPT(vector, port)
+  #undef REGISTER_PIN_INTERRUPT
+  #define REGISTER_PIN_INTERRUPT(vector, port)
 #endif
 
 
@@ -357,7 +357,7 @@
 #ifndef __MICROCONTROLLER_FIXTURE2__
 #define __MICROCONTROLLER_FIXTURE2__
 
-
+/* Used For Getting Pin Information/Registers */
 
 
 

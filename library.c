@@ -14,48 +14,27 @@
 
 
 
-
-
-
-
-
-
 /**
  * Include driver implementations
  */
 #define RUN_SPEC_FILE_LIKE_C_FILE
+#define LOAD_CUSTOM_DRIVER_CODE
+
 
 /* Custom driver implementation of the Microcontroller */
-#ifdef MICROCONTROLLER
-  #include CUSTOM_DRIVER(microcontroller, MICROCONTROLLER, spec)
-  #include CUSTOM_DRIVER(microcontroller, MICROCONTROLLER, driver)
-#else
-  #error "Unkown microcontroller!"
-#endif
+#include "microcontroller/loader.h"
 
 /* Custom Driver implementation of the CAN Controller */
-#ifdef CAN_CONTROLLER
-  #include CUSTOM_DRIVER(can_controller, CAN_CONTROLLER, driver)
-#else
-  #warning "Unkown CAN Controller!"
-#endif
+#include "can_controller/loader.h"
 
-/* No custom implementation of SPI */
 #include "spi/spi.driver"
-
-/* No custom implementation of CAN */
 #include "can/can.driver"
-
-/* No custom implementation of pin_control */
 #include "pin_control/pin_control.driver"
-
-/* No custom implentation of interrupts */
 #include "interrupts/interrupts.driver"
-
-/* No custom implementation of utilities */
 #include "utils/utils.driver"
 
 
+#undef LOAD_CUSTOM_DRIVER_CODE
 #undef RUN_SPEC_FILE_LIKE_C_FILE
 
 
