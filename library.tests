@@ -15,7 +15,6 @@ __attribute__((weak)) CUSTOM_TESTS() { }
 
 int main(void)
 {
-  printf("%i\n", P1_4);
   /* Run the groups of unit tests */
   RUN_GROUP(CAN);
   RUN_GROUP(SPI);

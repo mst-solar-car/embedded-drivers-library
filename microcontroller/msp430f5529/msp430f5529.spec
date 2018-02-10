@@ -4,7 +4,6 @@
  * Authors: Michael Rouse
  */
 #include "../fixture.h"
-
 #include "msp430f5529_registers.h"
 
 /* Register Pins and Ports */
