@@ -30,11 +30,6 @@ uint8_t __microcontroller_spi_transmit(spi_bus bus, void* data, uint8_t size);
 
 
 
-/* Determines what bit on the port an interrupt happened on */
-uint8_t __microcontroller_get_interrupt_port_bit(uint8_t port);
-
-
-
 /* This function is for initializing the Microcontroller drivers, it should be */
 /* implemented with every driver for each microcontroller. It should do basic generic */
 /* initialization such as pins and clocks. */

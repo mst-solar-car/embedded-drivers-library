@@ -12,10 +12,6 @@ CREATE_GROUP(Interrupts);
 
 
 /* Mock Functions Needed */
-uint8_t MOCK_FUNC(get_interrupt_port_bit, (uint8_t port), {
-  return 4;
-});
-
 void MOCK_FUNC(sample_isr, (void), {
 
 });
@@ -32,7 +28,6 @@ TEST(Interrupts, AttachAndDispatchInterrupt)
   __interrupt_dispatch(PORT2);
 
   // Assert
-  TEST_ASSERT_MOCK_CALLED(get_interrupt_port_bit);
   TEST_ASSERT_MOCK_CALLED(sample_isr);
 }
 
@@ -49,10 +44,8 @@ GROUP_RUNNER(Interrupts)
 /* Runs before every test in the Interrupts Group */
 GROUP_TEST_SETUP(Interrupts)
 {
-  RESET_MOCK(get_interrupt_port_bit);
+  RESET_MOCK(sample_isr);
 
-  /* Initialize the Interrupts Drivers */
-  interrupts_initialization(MOCK(get_interrupt_port_bit));
 }
 
 /* Runs after every test */

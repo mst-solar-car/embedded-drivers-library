@@ -3,9 +3,9 @@
  *
  * Authors: Michael Rouse
  */
-
+#ifndef UNIT_TEST
 #include <msp430f5529.h>
-
+#endif
 #include "../fixture.h"
 #include "../interface.h"
 #include "../../datatypes.h"
@@ -143,40 +143,6 @@ uint8_t __microcontroller_spi_transmit(spi_bus bus, void* data, uint8_t size)
   }
 #endif
   return 0;
-}
-
-
-
-
-/* Determines what bit on the port an interrupt happened on */
-uint8_t __microcontroller_get_interrupt_port_bit(uint8_t port)
-{
-  vuint16_t* reg = ifg_registers[port];
-  if (reg == NO_REGISTER)
-    return NO_BIT;
-
-  uint8_t bit = NO_BIT;
-
-  if (*reg & BIT6)
-    bit = 6;
-  else if (*reg & BIT5)
-    bit = 5;
-  else if (*reg & BIT4)
-    bit = 4;
-  else if (*reg & BIT3)
-    bit = 3;
-  else if (*reg & BIT2)
-    bit = 2;
-  else if (*reg & BIT1)
-    bit = 1;
-  else if (*reg & BIT0)
-    bit = 0;
-
-  /* Clear the bit in the register */
-  if (bit != NO_BIT)
-    *reg &= ~bit;
-
-  return bit;
 }
 
 

@@ -17,9 +17,5 @@ void __interrupt_dispatch(uint8_t port);
 
 
 
-/* Initialize the Interrupt Drivers */
-void interrupts_initialization(
-  uint8_t mc_get_interrupt_port_bit(uint8_t)
-);
 
 #endif

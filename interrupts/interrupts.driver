@@ -6,16 +6,8 @@
 #include "interface.h"
 
 
-#include <stdio.h>
-
-
-
-/* Function Pointers (for unit testing and dependency inversion) */
-static uint8_t(*_mc_get_interrupt_port_bit)(uint8_t) = NULL;
-
-
 /* Array to hold all registered interrupts */
-static voidFuncPtr _pinInterrupts[MC_NUMBER_OF_PORTS][8];
+static voidFuncPtr _pinInterrupts[MC_NUMBER_OF_PORTS][17];
 
 
 
@@ -24,28 +16,16 @@ static voidFuncPtr _pinInterrupts[MC_NUMBER_OF_PORTS][8];
 /* Registers an event with on a pin */
 void interrupt_attach(io_pin pin, void(*func)(void))
 {
-  if (func == NULL || _mc_get_interrupt_port_bit == NULL)
+  if (func == NULL)
     return;
 
   pin_info_t _pin = GetPinInfo(pin);
   if (!IsValidPinInfo(_pin) || _pin.ifg_reg == NO_REGISTER || _pin.ie_reg == NO_REGISTER)
     return;
 
-  uint8_t bit = NO_BIT;
-  if (_pin.bit == BIT0)
-    bit = 0;
-  else if (_pin.bit == BIT1)
-    bit = 1;
-  else if (_pin.bit == BIT2)
-    bit = 2;
-  else if (_pin.bit == BIT3)
-    bit = 3;
-  else if (_pin.bit == BIT4)
-    bit = 4;
-  else if (_pin.bit == BIT5)
-    bit = 5;
-  else if (_pin.bit == BIT6)
-    bit = 6;
+  uint8_t bit = GetBitIndex(_pin.bit);
+  if (bit == NO_BIT)
+    return;
 
   _pinInterrupts[_pin.port][bit] = func;
 }
@@ -55,24 +35,38 @@ void interrupt_attach(io_pin pin, void(*func)(void))
 /* Dispatches an interrupt to the appropriate function if it exists */
 void __interrupt_dispatch(uint8_t port)
 {
-  if (_mc_get_interrupt_port_bit == NULL)
+  if (port == NO_PORT)
     return;
 
-  uint8_t bit = _mc_get_interrupt_port_bit(port);
+  port_info_t _port = GetPortInfo(port);
+  if (!IsValidPortInfo(_port) || _port.ifg_reg == NO_REGISTER)
+    return;
+
+  /* Determine what bit the interrupt occured on */
+  uint8_t bit = NO_BIT;
+  if (*_port.ifg_reg & BIT6)
+    bit = GetBitIndex(BIT6);
+  else if (*_port.ifg_reg & BIT5)
+    bit = GetBitIndex(BIT5);
+  else if (*_port.ifg_reg & BIT4)
+    bit = GetBitIndex(BIT4);
+  else if (*_port.ifg_reg & BIT3)
+    bit = GetBitIndex(BIT3);
+  else if (*_port.ifg_reg & BIT2)
+    bit = GetBitIndex(BIT2);
+  else if (*_port.ifg_reg & BIT1)
+    bit = GetBitIndex(BIT1);
+  else if (*_port.ifg_reg & BIT0)
+    bit = GetBitIndex(BIT0);
+
   if (bit == NO_BIT)
     return;
 
   if (_pinInterrupts[port][bit] != NULL)
     _pinInterrupts[port][bit]();
+
+  /* Clear the interrupt flags */
+  *_port.ifg_reg &= ~(GetBitFromIndex(bit));
 }
 
 
-
-
-/* Initialize the Interrupt Drivers */
-void interrupts_initialization(
-  uint8_t(*mc_get_interrupt_port_bit)(uint8_t)
-)
-{
-  _mc_get_interrupt_port_bit = mc_get_interrupt_port_bit;
-}

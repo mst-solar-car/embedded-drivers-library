@@ -153,7 +153,7 @@
 
   #define _REGISTER_INTERRUPTABLE_PORT(p,v)                           \
     void __attribute__((interrupt(v))) __##p##_ISR(void) {            \
-      __interrupt_dispatch(p);                                        \
+      __interrupt_dispatch(p);                           \
     };
 
 #else
@@ -183,27 +183,6 @@
 
 #define PORT(n)           PORT##n
 #define PORT_NAME(n)      PORT##n
-
-
-/**
- * This Helpers Fixture contains directives that can be used inside the
- * Microcontroller drivers to do things easily
- */
-/* Used For Getting Pin Information/Registers */
-#define GetPinInfo(pin)                                                   \
-  (pin_info_t){                                                           \
-    pin_map[pin].port,                                                    \
-    pin_map[pin].bit,                                                     \
-    (vuint8_t*)dir_registers[pin_map[pin].port],                          \
-    (vuint8_t*)out_registers[pin_map[pin].port],                          \
-    (vuint8_t*)in_registers[pin_map[pin].port],                           \
-    (vuint8_t*)sel_registers[pin_map[pin].port],                          \
-    (vuint8_t*)ies_registers[pin_map[pin].port],                          \
-    (vuint8_t*)ie_registers[pin_map[pin].port],                           \
-    (vuint8_t*)ifg_registers[pin_map[pin].port]                           \
-  };
-
-#define IsValidPinInfo(pi)    (pi.port != NO_PORT && pi.bit != NO_BIT)
 
 
 

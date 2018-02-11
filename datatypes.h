@@ -232,30 +232,8 @@ typedef struct can_message_t {
 } can_message;
 
 
-/* Something for the internal workings of the microcontroller driver (i.e., DON'T WORRY ABOUT IT) */
-typedef struct _pin_map_t {
-  uint8_t port;
-  uint8_t bit;
-} pin_map_t;
-
-/* Also for the internal workings of this driver */
-typedef struct pin_info_t {
-  uint8_t port;
-  uint8_t bit;
-  vuint8_t* dir_reg;
-  vuint8_t* out_reg;
-  vuint8_t* in_reg;
-  vuint8_t* sel_reg;
-  vuint8_t* ies_reg;
-  vuint8_t* ie_reg;
-  vuint8_t* ifg_reg;
-} pin_info_t;
-
-
-
-
-
-
-
 
 #endif
+
+/* Include internals */
+#include "internals.h"
