@@ -11,6 +11,7 @@ user_config.h
 .cproject
 .project
 Debug/
+Release/
 .settings/
 .launches/
 targetConfigs/
