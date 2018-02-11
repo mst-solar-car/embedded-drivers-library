@@ -67,9 +67,9 @@
 /* Add ability to register pin aliases (other functions, etc..) */
 #undef REGISTER_PIN_ALIAS
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #define REGISTER_PIN_ALIAS(alias, pin)
+  #define REGISTER_PIN_ALIAS(pin, alias)
 #else
-  #define REGISTER_PIN_ALIAS(alias, pin)  enum { \
+  #define REGISTER_PIN_ALIAS(pin, alias)  enum { \
                                             alias = pin, \
                                           };
 #endif
@@ -100,7 +100,7 @@
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   #define REGISTER_SPI_BUSES(n)
 #else
-  #define _REGISTER_SPI_BUS(n)    SPI_BUS_##n = n
+  #define _REGISTER_SPI_BUS(n)    SPI_BUS_##n = n,
   #define REGISTER_SPI_BUSES(n)   enum { \
                                     EVAL(MAP_COUNTING(_REGISTER_SPI_BUS, n)) \
                                     MC_NUMBER_OF_SPI_BUSES = n, \
