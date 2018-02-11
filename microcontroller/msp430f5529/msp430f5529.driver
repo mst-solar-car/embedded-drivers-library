@@ -152,8 +152,6 @@ uint8_t __microcontroller_spi_transmit(spi_bus bus, void* data, uint8_t size)
 
 
 
-
-
 /* Microcontroller Initialization */
 void microcontroller_initialization(void)
 {

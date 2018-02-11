@@ -23,6 +23,7 @@
 
 /* Include driver interfaces that are apart of this library */
 #undef LOAD_CUSTOM_DRIVER_CODE
+#undef RUN_SPEC_FILE_LIKE_C_FILE
 
 #include "can/interface.h"
 #include "microcontroller/interface.h"
