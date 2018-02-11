@@ -11,48 +11,6 @@
 #include "../../datatypes.h"
 
 
-/* Used by the Pin Control Driver for controlling pins */
-void __microcontroller_set_pin_mode(io_pin pin, pin_mode mode)
-{
-  pin_info_t _pin = GetPinInfo(pin);
-
-  /* Can't configure something that is invalid */
-  if (!IsValidPinInfo(_pin) || _pin.dir_reg == NO_REGISTER)
-    return;
-
-  if (mode == Input)
-    *(_pin.dir_reg) &= ~(_pin.bit);
-  else
-    *(_pin.dir_reg) |= _pin.bit;
-}
-
-
-/* Used by the Pin Control Driver for controlling pins */
-void __microcontroller_set_pin_level(io_pin pin, pin_level level)
-{
-  pin_info_t _pin = GetPinInfo(pin);
-
-  if (!IsValidPinInfo(_pin) || _pin.out_reg == NO_REGISTER)
-    return;
-
-  if (level == Low)
-    *(_pin.out_reg) &= ~(_pin.bit);
-  else
-    *(_pin.out_reg) |= _pin.bit;
-}
-
-
-/* Used by the Pin Control Driver for controlling pins */
-pin_level __microcontroller_read_pin(io_pin pin)
-{
-  pin_info_t _pin = GetPinInfo(pin);
-
-  if (!IsValidPinInfo(_pin) || _pin.in_reg == NO_REGISTER)
-    return Low;
-
-  return (*(_pin.in_reg) & _pin.bit);
-}
-
 
 /* Configures a SPI Bus */
 void __microcontroller_spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck)
@@ -155,6 +113,7 @@ uint8_t __microcontroller_spi_transmit(spi_bus bus, void* data, uint8_t size)
 /* Microcontroller Initialization */
 void microcontroller_initialization(void)
 {
+    WDTCTL = WDTPW + WDTHOLD;
   /* Set all GPIO ports to Output and Low */
   *(dir_registers[PORT1]) = Output; *(out_registers[PORT1]) = Low;
   *(dir_registers[PORT2]) = Output; *(out_registers[PORT2]) = Low;

@@ -5,16 +5,18 @@
  */
 #include "../datatypes.h"
 #include "interface.h"
+#include <msp430f5529.h>
 
 
-/**
- * "Private" Variables
- */
-static void(*_mc_set_pin_mode_func)(io_pin, pin_mode);
-static void(*_mc_set_pin_level_func)(io_pin, pin_level);
-static pin_level(*_mc_read_pin_func)(io_pin);
-
-
+/* Allows for access to registers defined in the microcontrollers driver */
+extern pin_map_t pin_map[];
+extern vuint8_t* out_registers[];
+extern vuint8_t* in_registers[];
+extern vuint8_t* dir_registers[];
+extern vuint8_t* sel_registers[];
+extern vuint8_t* ies_registers[];
+extern vuint8_t* ie_registers[];
+extern vuint8_t* ifg_registers[];
 
 
 /**
@@ -24,44 +26,55 @@ static pin_level(*_mc_read_pin_func)(io_pin);
 /* Sets a pin to a certain mode (e.g., Input or Output) */
 void pin_set_mode(io_pin pin, pin_mode mode)
 {
-  return _mc_set_pin_mode_func(pin, mode);
+  pin_info_t _pin = GetPinInfo(pin);
+  if (!IsValidPinInfo(_pin) || _pin.dir_reg == NO_REGISTER)
+    return;
+
+  if (mode == Input)
+    *(_pin.dir_reg) |= _pin.bit;
+  else
+    *(_pin.dir_reg) &= ~(_pin.bit);
 }
 
 
 /* Sets a pin to a level (e.g., High or Low) */
 void pin_set_level(io_pin pin, pin_level level)
 {
-  return _mc_set_pin_level_func(pin, level);
+  pin_info_t _pin = GetPinInfo(pin);
+  if (!IsValidPinInfo(_pin) || _pin.out_reg == NO_REGISTER)
+    return;
+
+  if (level == High)
+    *(_pin.out_reg) |= _pin.bit;
+  else
+    *(_pin.out_reg) &= ~(_pin.bit);
 }
 
 
 /* Toggles a pin, sets it High if it is Low, and Low if it is High */
 void pin_toggle(io_pin pin)
 {
-  pin_level level = pin_read(pin);
+  pin_info_t _pin = GetPinInfo(pin);
+  if (!IsValidPinInfo(_pin) || _pin.out_reg == NO_REGISTER)
+    return;
 
-  if (level == High)
-    return _mc_set_pin_level_func(pin, Low);
+  if (*(_pin.out_reg) & _pin.bit)
+    *(_pin.out_reg) &= ~(_pin.bit);
   else
-    return _mc_set_pin_level_func(pin, High);
+    *(_pin.out_reg) |= _pin.bit;
 }
 
 
 /* Returns the level of a pin (e.g., High or Low) */
 pin_level pin_read(io_pin pin)
 {
-  return _mc_read_pin_func(pin);
+  pin_info_t _pin = GetPinInfo(pin);
+  if (!IsValidPinInfo(_pin) || _pin.in_reg == NO_REGISTER)
+    return Low;
+
+  if (*(_pin.in_reg) & _pin.bit)
+    return High;
+  else
+    return Low;
 }
 
-
-/* Initialization that should not be called by the user unless unit testing */
-void pin_control_initialization(
-  void(*mc_set_pin_mode_func)(io_pin, pin_mode),
-  void(*mc_set_pin_level_func)(io_pin, pin_level),
-  pin_level(*mc_read_pin_func)(io_pin)
-)
-{
-  _mc_set_pin_mode_func = mc_set_pin_mode_func;
-  _mc_set_pin_level_func = mc_set_pin_level_func;
-  _mc_read_pin_func = mc_read_pin_func;
-}

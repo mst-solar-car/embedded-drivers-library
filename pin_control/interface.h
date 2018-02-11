@@ -22,12 +22,4 @@ pin_level pin_read(io_pin pin);
 
 
 
-
-/* Initialization that should not be called by the user unless unit testing */
-void pin_control_initialization(
-  void(*mc_set_pin_mode_func)(io_pin, pin_mode),
-  void(*mc_set_pin_level_func)(io_pin, pin_level),
-  pin_level(*mc_read_pin_func)(io_pin)
-);
-
 #endif

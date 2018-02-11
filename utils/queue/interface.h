@@ -13,9 +13,18 @@
 #define QUEUE_SIZE 32
 #endif
 
+/* This struct will hold data for each item--most important thing is the read flag */
+typedef struct data_wrapper_t {
+  bool read;
+  void* data;
+} data_wrapper;
 
 /* Incomplete struct since this is a multiple instance module */
-typedef struct Queue Queue;
+typedef struct Queue {
+  data_wrapper buffer[QUEUE_SIZE];
+  uint8_t head;
+  uint8_t tail;
+} Queue;
 
 /* Use these directives to interact with the queue */
 #define Queue_New(type)         __Queue_New(sizeof(type));

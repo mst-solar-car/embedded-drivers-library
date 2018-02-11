@@ -47,13 +47,13 @@
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   /* C File */
   #define REGISTER_PORTS(...)                             \
-    vuint16_t* dir_registers[NUM_ARGS(1, __VA_ARGS__)];   \
-    vuint16_t* out_registers[NUM_ARGS(1, __VA_ARGS__)];   \
-    vuint16_t*  in_registers[NUM_ARGS(1, __VA_ARGS__)];   \
-    vuint16_t* sel_registers[NUM_ARGS(1, __VA_ARGS__)];   \
-    vuint16_t* ies_registers[NUM_ARGS(1, __VA_ARGS__)];   \
-    vuint16_t*  ie_registers[NUM_ARGS(1, __VA_ARGS__)];   \
-    vuint16_t* ifg_registers[NUM_ARGS(1, __VA_ARGS__)];
+    vuint8_t* dir_registers[NUM_ARGS(1, __VA_ARGS__)];   \
+    vuint8_t* out_registers[NUM_ARGS(1, __VA_ARGS__)];   \
+    vuint8_t*  in_registers[NUM_ARGS(1, __VA_ARGS__)];   \
+    vuint8_t* sel_registers[NUM_ARGS(1, __VA_ARGS__)];   \
+    vuint8_t* ies_registers[NUM_ARGS(1, __VA_ARGS__)];   \
+    vuint8_t*  ie_registers[NUM_ARGS(1, __VA_ARGS__)];   \
+    vuint8_t* ifg_registers[NUM_ARGS(1, __VA_ARGS__)];
 
 #else
   /* Header File */
@@ -107,13 +107,9 @@
   /* C File */
   #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)           \
     void __attribute__((constructor(300))) __PORT##port##_REGISTER_SETUP(void) {   \
-      dir_registers[PORT_NAME(port)] = REG(dir);                              \
-      out_registers[PORT_NAME(port)] = REG(out);                              \
-      in_registers[PORT_NAME(port)]  = REG(in);                               \
-      sel_registers[PORT_NAME(port)] = REG(sel);                              \
-      ies_registers[PORT_NAME(port)] = REG(ies);                              \
-      ie_registers[PORT_NAME(port)]  = REG(ie);                               \
-      ifg_registers[PORT_NAME(port)] = REG(ifg);                              \
+      dir_registers[PORT_NAME(port)] = (dir != NO_REGISTER) ? REG(dir) : REG(NULL);                              \
+      out_registers[PORT_NAME(port)] = (out != NO_REGISTER) ? REG(out) : REG(NULL);                              \
+      in_registers[PORT_NAME(port)]  = (in != NO_REGISTER) ? REG(in)  : REG(NULL);                              \
     };
 
 #else
@@ -190,9 +186,9 @@
         EVAL256(MAP_PAIR_PARAMETERS(_MAKE_REGISTER_DESTROY, __VA_ARGS__))                                                 \
       }
 
-    #define _MAKE_REGISTER(name, addr)          vuint16_t* name;
-    #define _MAKE_REGISTER_INIT(name, addr)     name = (vuint16_t*)malloc(sizeof(vuint16_t));
-    #define _MAKE_REGISTER_DESTROY(name, addr)  if (name != (void*)0x000) { free((uint16_t*)name); name = (void*)0x000; }
+    #define _MAKE_REGISTER(name, addr)          vuint8_t* name;
+    #define _MAKE_REGISTER_INIT(name, addr)     name = (vuint8_t*)malloc(sizeof(vuint8_t));
+    #define _MAKE_REGISTER_DESTROY(name, addr)  if (name != (void*)0x000) { free((uint8_t*)name); name = (void*)0x000; }
   #endif
 
 #else
@@ -207,7 +203,7 @@
     /* Unit Testing in Header File */
     #define MAKE_REGISTERS(...)         EVAL256(MAP_PAIR_PARAMETERS(_MAKE_REGISTER, __VA_ARGS__))
 
-    #define _MAKE_REGISTER(name, addr)   extern vuint16_t* name;
+    #define _MAKE_REGISTER(name, addr)   extern vuint8_t* name;
   #endif
 #endif
 
@@ -220,7 +216,7 @@
 #ifndef __MICROCONTROLLER_FIXTURE__
 #define __MICROCONTROLLER_FIXTURE__
 
-#define REG(name)         (vuint16_t*)name
+#define REG(name)         (vuint8_t*)name
 
 #define PIN(n)            PIN##n
 #define PIN_NAME(n)       PIN##n

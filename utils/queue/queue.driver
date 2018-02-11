@@ -8,19 +8,7 @@
 #include "interface.h"
 #include "../../datatypes.h"
 
-/* This struct will hold data for each item--most important thing is the read flag */
-typedef struct data_wrapper_t {
-  bool read;
-  void* data;
-} data_wrapper;
 
-
-/* Complete the struct so the internals are hidden from the user */
-struct Queue {
-  data_wrapper buffer[QUEUE_SIZE];
-  uint8_t head;
-  uint8_t tail;
-};
 
 
 #define getHead(q) q->buffer[q->head]
