@@ -6,6 +6,10 @@
 #ifndef __MSP430F5529_REGISTERS__
 #define __MSP430F5529_REGISTERS__
 
+#ifndef UNIT_TEST
+#include <msp430f5529.h>
+#endif
+
 // Registers for PORT1
 enum {
   P1IN_REG  = 0x0200,

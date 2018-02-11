@@ -13,7 +13,7 @@
 
 #include "datatypes.h"
 
-/* Include Utilitiy Interfaces */
+/* Include Utility Interfaces */
 #include "utils/interface.h"
 
 

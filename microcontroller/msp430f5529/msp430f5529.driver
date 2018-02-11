@@ -3,9 +3,9 @@
  *
  * Authors: Michael Rouse
  */
-#ifndef UNIT_TEST
+
 #include <msp430f5529.h>
-#endif
+
 #include "../fixture.h"
 #include "../interface.h"
 #include "../../datatypes.h"

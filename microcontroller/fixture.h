@@ -21,27 +21,32 @@
  * Ports and Pins
  */
 #undef REGISTER_PINS
+#undef _REGISTER_PIN
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   #define REGISTER_PINS(numberOfPins) pin_map_t pin_map[numberOfPins];
 #else
+  #define _REGISTER_PIN(n)    PIN_NAME(n) = n,
   #define REGISTER_PINS(numberOfPins) enum { \
-                                      _C(_LIST_PINS_, numberOfPins)() \
+                                      EVAL(MAP_COUNTING(_REGISTER_PIN, numberOfPins)) \
                                       MC_NUMBER_OF_PINS = numberOfPins, \
                                     };
 #endif
 
 #undef REGISTER_PORTS
+#undef _REGISTER_PORT
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #define REGISTER_PORTS(...) vuint16_t* dir_registers[NUM_ARGS(__VA_ARGS__)]; \
-                              vuint16_t* out_registers[NUM_ARGS(__VA_ARGS__)]; \
-                              vuint16_t* in_registers[NUM_ARGS(__VA_ARGS__)]; \
-                              vuint16_t* sel_registers[NUM_ARGS(__VA_ARGS__)]; \
-                              vuint16_t* ies_registers[NUM_ARGS(__VA_ARGS__)]; \
-                              vuint16_t* ie_registers[NUM_ARGS(__VA_ARGS__)]; \
-                              vuint16_t* ifg_registers[NUM_ARGS(__VA_ARGS__)];
+  #define REGISTER_PORTS(...) vuint16_t* dir_registers[NUM_ARGS(__VA_ARGS__)+1]; \
+                              vuint16_t* out_registers[NUM_ARGS(__VA_ARGS__)+1]; \
+                              vuint16_t* in_registers[NUM_ARGS(__VA_ARGS__)+1]; \
+                              vuint16_t* sel_registers[NUM_ARGS(__VA_ARGS__)+1]; \
+                              vuint16_t* ies_registers[NUM_ARGS(__VA_ARGS__)+1]; \
+                              vuint16_t*  ie_registers[NUM_ARGS(__VA_ARGS__)+1]; \
+                              vuint16_t* ifg_registers[NUM_ARGS(__VA_ARGS__)+1];
 #else
+  #define _REGISTER_PORT(p)    PORT_NAME(p),
   #define REGISTER_PORTS(...) enum { \
-                                _C(_LIST_PORTS_, NUM_ARGS(__VA_ARGS__))(__VA_ARGS__) \
+                                __IGNORE_THIS_##__LINE__ = 0, \
+                                EVAL(MAP(_REGISTER_PORT, __VA_ARGS__)) \
                                 MC_NUMBER_OF_PORTS = NUM_ARGS(__VA_ARGS__), \
                               };
 #endif
@@ -50,11 +55,11 @@
 #undef REGISTER_PINS_FOR_PORT
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   #define REGISTER_PINS_FOR_PORT(port, ...)   void __attribute__((constructor)) __PORT##port##_SETUP(void) { \
-                                                _C(_SETUP_PIN_MAP_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__) \
+                                                CAT(_SETUP_PIN_MAP_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__) \
                                               };
 #else
   #define REGISTER_PINS_FOR_PORT(port, ...)   enum { \
-                                                _C(_PORT_BITS_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__) \
+                                                CAT(_PORT_BITS_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__) \
                                               };
 #endif
 
@@ -91,11 +96,13 @@
  * SPI Buses
  */
 #undef REGISTER_SPI_BUSES
+#undef _REGISTER_SPI_BUS
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   #define REGISTER_SPI_BUSES(n)
 #else
+  #define _REGISTER_SPI_BUS(n)    SPI_BUS_##n = n
   #define REGISTER_SPI_BUSES(n)   enum { \
-                                    _LIST_SPI_BUSES_##n() \
+                                    EVAL(MAP_COUNTING(_REGISTER_SPI_BUS, n)) \
                                     MC_NUMBER_OF_SPI_BUSES = n, \
                                   };
 #endif
@@ -106,10 +113,12 @@
  */
 #undef REGISTER_INTERRUPTABLE_PORTS
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #define REGISTER_INTERRUPTABLE_PORTS(...)       EVAL(_C(_LIST_INTERRUPTABLE_PORTS_, NUM_ARGS(__VA_ARGS__))(__VA_ARGS__));
+  #define REGISTER_INTERRUPTABLE_PORTS(p,v) void __attribute__((interrupt(v))) PORT_##__COUNTER__##_ISR(void) { \
+                                                    __interrupt_dispatch(p);                                      \
+                                                  }
 #else
-  #define REGISTER_INTERRUPTABLE_PORTS(...)       enum { \
-                                                    MC_NUMBER_OF_INTERRUPTABLE_PORTS = NUM_ARGS(__VA_ARGS__), \
+  #define REGISTER_INTERRUPTABLE_PORTS(...)       enum {                                                          \
+                                                    MC_NUMBER_OF_INTERRUPTABLE_PORTS = NUM_ARGS(__VA_ARGS__),     \
                                                   };
 #endif
 
@@ -130,16 +139,27 @@
 #define PORTB_NAME(n, b)  P##n##_##b
 #define PORT_NAME(n)      PORT##n
 
-#define _C(a, ...)	_PRIMITIVE_CAT(a, __VA_ARGS__)
-#define _PRIMITIVE_CAT(a, ...) 	a ## __VA_ARGS__
 
-#ifndef _NUM_ARGS
-#define _NUM_ARGS(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, Pn, ...) Pn
-#endif
 
-#ifndef NUM_ARGS
-#define NUM_ARGS(...) _NUM_ARGS(-1, ##__VA_ARGS__, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
-#endif
+
+/**
+ * This Helpers Fixture contains directives that can be used inside the
+ * Microcontroller drivers to do things easily
+ */
+/* Used For Getting Pin Information/Registers */
+#define GetPinInfo(pin)   (pin_info_t){ \
+                            pin_map[pin].port, \
+                            pin_map[pin].bit, \
+                            (vuint8_t*)dir_registers[pin_map[pin].port], \
+                            (vuint8_t*)out_registers[pin_map[pin].port], \
+                            (vuint8_t*)in_registers[pin_map[pin].port], \
+                            (vuint8_t*)sel_registers[pin_map[pin].port], \
+                            (vuint8_t*)ies_registers[pin_map[pin].port], \
+                            (vuint8_t*)ie_registers[pin_map[pin].port], \
+                            (vuint8_t*)ifg_registers[pin_map[pin].port] \
+                          };
+
+#define IsValidPinInfo(pi) (pi.port != NO_PORT && pi.bit != NO_BIT)
 
 
 
@@ -185,21 +205,6 @@
  * If something is broken--I'm sorry.
  * If you're curious--I'm still sorry.
  */
-#define _LIST_PORT(p)                                                 PORT_NAME(p),
-#define _LIST_PORTS_0()                                               ____IGNORE_THIS_##__LINE__,
-#define _LIST_PORTS_1(p1)                                             _LIST_PORTS_0() _LIST_PORT(p1)
-#define _LIST_PORTS_2(p1, p2)                                         _LIST_PORTS_1(p1) _LIST_PORT(p2)
-#define _LIST_PORTS_3(p1, p2, p3)                                     _LIST_PORTS_2(p1, p2) _LIST_PORT(p3)
-#define _LIST_PORTS_4(p1, p2, p3, p4)                                 _LIST_PORTS_3(p1, p2, p3) _LIST_PORT(p4)
-#define _LIST_PORTS_5(p1, p2, p3, p4, p5)                             _LIST_PORTS_4(p1, p2, p3, p4) _LIST_PORT(p5)
-#define _LIST_PORTS_6(p1, p2, p3, p4, p5, p6)                         _LIST_PORTS_5(p1, p2, p3, p4, p5) _LIST_PORT(p6)
-#define _LIST_PORTS_7(p1, p2, p3, p4, p5, p6, p7)                     _LIST_PORTS_6(p1, p2, p3, p4, p5, p6) _LIST_PORT(p7)
-#define _LIST_PORTS_8(p1, p2, p3, p4, p5, p6, p7, p8)                 _LIST_PORTS_7(p1, p2, p3, p4, p5, p6, p7) _LIST_PORT(p8)
-#define _LIST_PORTS_9(p1, p2, p3, p4, p5, p6, p7, p8, p9)             _LIST_PORTS_8(p1, p2, p3, p4, p5, p6, p7, p8) _LIST_PORT(p9)
-#define _LIST_PORTS_10(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10)       _LIST_PORTS_9(p1, p2, p3, p4, p5, p6, p7, p8, p9) _LIST_PORT(p10)
-#define _LIST_PORTS_11(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11)  _LIST_PORTS_10(p1, p2, p3, p4, p5, p6, p7, p8, p9, p10) _LIST_PORT(p11)
-
-
 #define BTP(n,b,p)                                  PORTB_NAME(n,b) = PIN_NAME(p),
 #define _PORT_BITS_1(n, p1)                         BTP(n,0,p1)
 #define _PORT_BITS_2(n, p1, p2)                     _PORT_BITS_1(n, p1) BTP(n,1,p2)
@@ -224,142 +229,34 @@
 #define _SETUP_PIN_MAP_9(n,p1,p2,p3,p4,p5,p6,p7,p8,p9)  _SETUP_PIN_MAP_8(n,p1,p2,p3,p4,p5,p6,p7,p8) _SETUP_PIN_MAP(n,8,p9)
 
 
-#define _LIST_SPI_BUS(n)      SPI_BUS_##n = n,
-#define _LIST_SPI_BUSES_0()
-#define _LIST_SPI_BUSES_1()   _LIST_SPI_BUSES_0() _LIST_SPI_BUS(1)
-#define _LIST_SPI_BUSES_2()   _LIST_SPI_BUSES_1() _LIST_SPI_BUS(2)
-#define _LIST_SPI_BUSES_3()   _LIST_SPI_BUSES_2() _LIST_SPI_BUS(3)
-#define _LIST_SPI_BUSES_4()   _LIST_SPI_BUSES_3() _LIST_SPI_BUS(4)
-#define _LIST_SPI_BUSES_5()   _LIST_SPI_BUSES_4() _LIST_SPI_BUS(5)
-#define _LIST_SPI_BUSES_6()   _LIST_SPI_BUSES_5() _LIST_SPI_BUS(6)
-#define _LIST_SPI_BUSES_7()   _LIST_SPI_BUSES_6() _LIST_SPI_BUS(7)
-#define _LIST_SPI_BUSES_8()   _LIST_SPI_BUSES_7() _LIST_SPI_BUS(7)
-#define _LIST_SPI_BUSES_9()   _LIST_SPI_BUSES_8() _LIST_SPI_BUS(7)
-#define _LIST_SPI_BUSES_10()  _LIST_SPI_BUSES_9() _LIST_SPI_BUS(10)
 
 
-/* Currently only supports up to 7 interruptable ports */
-#define _LIST_INTERRUPTABLE_PORT(p,v)                     void __attribute__((interrupt(v))) __##v##__##p##_ISR(void) { \
-                                                            __interrupt_dispatch(p); \
-                                                          };
-#define _LIST_INTERRUPTABLE_PORTS_1(p1)                   DEFER(_LIST_INTERRUPTABLE_PORT)p1
-#define _LIST_INTERRUPTABLE_PORTS_2(p1,p2)                _LIST_INTERRUPTABLE_PORTS_1(p1) DEFER(_LIST_INTERRUPTABLE_PORT)p2
-#define _LIST_INTERRUPTABLE_PORTS_3(p1,p2,p3)             _LIST_INTERRUPTABLE_PORTS_2(p1,p2) DEFER(_LIST_INTERRUPTABLE_PORT)p3
-#define _LIST_INTERRUPTABLE_PORTS_4(p1,p2,p3,p4)          _LIST_INTERRUPTABLE_PORTS_3(p1,p2,p3) DEFER(_LIST_INTERRUPTABLE_PORT)p4
-#define _LIST_INTERRUPTABLE_PORTS_5(p1,p2,p3,p4,p5)       _LIST_INTERRUPTABLE_PORTS_4(p1,p2,p3,p4) DEFER(_LIST_INTERRUPTABLE_PORT)p5
-#define _LIST_INTERRUPTABLE_PORTS_6(p1,p2,p3,p4,p5,p6)    _LIST_INTERRUPTABLE_PORTS_5(p1,p2,p3,p4,p5) DEFER(_LIST_INTERRUPTABLE_PORT)p6
-#define _LIST_INTERRUPTABLE_PORTS_7(p1,p2,p3,p4,p5,p6,p7) _LIST_INTERRUPTABLE_PORTS_6(p1,p2,p3,p4,p5,p6) DEFER(_LIST_INTERRUPTABLE_PORT)p7
+#ifndef _NUM_ARGS
+#define _NUM_ARGS(P1, P2, P3, P4, P5, P6, P7, P8, P9, P10, P11, P12, P13, P14, P15, Pn, ...) Pn
+#endif
+
+#ifndef NUM_ARGS
+#define NUM_ARGS(...) _NUM_ARGS(-1, ##__VA_ARGS__, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0)
+#endif
 
 
-#define _LIST_PIN(n)    PIN_NAME(n) = n,
-#define _LIST_PINS_1()  _LIST_PIN(1)
-#define _LIST_PINS_2()  _LIST_PINS_1()  _LIST_PIN(2)
-#define _LIST_PINS_3()  _LIST_PINS_2()  _LIST_PIN(3)
-#define _LIST_PINS_4()  _LIST_PINS_3()  _LIST_PIN(4)
-#define _LIST_PINS_5()  _LIST_PINS_4()  _LIST_PIN(5)
-#define _LIST_PINS_6()  _LIST_PINS_5()  _LIST_PIN(6)
-#define _LIST_PINS_7()  _LIST_PINS_6()  _LIST_PIN(7)
-#define _LIST_PINS_8()  _LIST_PINS_7()  _LIST_PIN(8)
-#define _LIST_PINS_9()  _LIST_PINS_8()  _LIST_PIN(9)
-#define _LIST_PINS_10() _LIST_PINS_9()  _LIST_PIN(10)
-#define _LIST_PINS_11() _LIST_PINS_10() _LIST_PIN(11)
-#define _LIST_PINS_12() _LIST_PINS_11() _LIST_PIN(12)
-#define _LIST_PINS_13() _LIST_PINS_12() _LIST_PIN(13)
-#define _LIST_PINS_14() _LIST_PINS_13() _LIST_PIN(14)
-#define _LIST_PINS_15() _LIST_PINS_14() _LIST_PIN(16)
-#define _LIST_PINS_16() _LIST_PINS_15() _LIST_PIN(15)
-#define _LIST_PINS_17() _LIST_PINS_16() _LIST_PIN(18)
-#define _LIST_PINS_18() _LIST_PINS_17() _LIST_PIN(17)
-#define _LIST_PINS_19() _LIST_PINS_18() _LIST_PIN(19)
-#define _LIST_PINS_20() _LIST_PINS_19() _LIST_PIN(20)
-#define _LIST_PINS_21() _LIST_PINS_20() _LIST_PIN(22)
-#define _LIST_PINS_22() _LIST_PINS_21() _LIST_PIN(21)
-#define _LIST_PINS_23() _LIST_PINS_22() _LIST_PIN(23)
-#define _LIST_PINS_24() _LIST_PINS_23() _LIST_PIN(24)
-#define _LIST_PINS_25() _LIST_PINS_24() _LIST_PIN(25)
-#define _LIST_PINS_26() _LIST_PINS_25() _LIST_PIN(26)
-#define _LIST_PINS_27() _LIST_PINS_26() _LIST_PIN(28)
-#define _LIST_PINS_28() _LIST_PINS_27() _LIST_PIN(27)
-#define _LIST_PINS_29() _LIST_PINS_28() _LIST_PIN(29)
-#define _LIST_PINS_30() _LIST_PINS_29() _LIST_PIN(30)
-#define _LIST_PINS_31() _LIST_PINS_30() _LIST_PIN(31)
-#define _LIST_PINS_32() _LIST_PINS_31() _LIST_PIN(32)
-#define _LIST_PINS_33() _LIST_PINS_32() _LIST_PIN(33)
-#define _LIST_PINS_34() _LIST_PINS_33() _LIST_PIN(34)
-#define _LIST_PINS_35() _LIST_PINS_34() _LIST_PIN(36)
-#define _LIST_PINS_36() _LIST_PINS_35() _LIST_PIN(35)
-#define _LIST_PINS_37() _LIST_PINS_36() _LIST_PIN(37)
-#define _LIST_PINS_38() _LIST_PINS_37() _LIST_PIN(38)
-#define _LIST_PINS_39() _LIST_PINS_38() _LIST_PIN(39)
-#define _LIST_PINS_40() _LIST_PINS_39() _LIST_PIN(40)
-#define _LIST_PINS_41() _LIST_PINS_40() _LIST_PIN(41)
-#define _LIST_PINS_42() _LIST_PINS_41() _LIST_PIN(42)
-#define _LIST_PINS_43() _LIST_PINS_42() _LIST_PIN(43)
-#define _LIST_PINS_44() _LIST_PINS_43() _LIST_PIN(44)
-#define _LIST_PINS_45() _LIST_PINS_44() _LIST_PIN(45)
-#define _LIST_PINS_46() _LIST_PINS_45() _LIST_PIN(46)
-#define _LIST_PINS_47() _LIST_PINS_46() _LIST_PIN(47)
-#define _LIST_PINS_48() _LIST_PINS_47() _LIST_PIN(48)
-#define _LIST_PINS_49() _LIST_PINS_48() _LIST_PIN(50)
-#define _LIST_PINS_50() _LIST_PINS_49() _LIST_PIN(49)
-#define _LIST_PINS_51() _LIST_PINS_50() _LIST_PIN(51)
-#define _LIST_PINS_52() _LIST_PINS_51() _LIST_PIN(52)
-#define _LIST_PINS_53() _LIST_PINS_52() _LIST_PIN(53)
-#define _LIST_PINS_54() _LIST_PINS_53() _LIST_PIN(54)
-#define _LIST_PINS_55() _LIST_PINS_54() _LIST_PIN(55)
-#define _LIST_PINS_56() _LIST_PINS_55() _LIST_PIN(56)
-#define _LIST_PINS_57() _LIST_PINS_56() _LIST_PIN(57)
-#define _LIST_PINS_58() _LIST_PINS_57() _LIST_PIN(58)
-#define _LIST_PINS_59() _LIST_PINS_58() _LIST_PIN(59)
-#define _LIST_PINS_60() _LIST_PINS_59() _LIST_PIN(60)
-#define _LIST_PINS_61() _LIST_PINS_60() _LIST_PIN(61)
-#define _LIST_PINS_62() _LIST_PINS_61() _LIST_PIN(62)
-#define _LIST_PINS_63() _LIST_PINS_62() _LIST_PIN(63)
-#define _LIST_PINS_64() _LIST_PINS_63() _LIST_PIN(65)
-#define _LIST_PINS_65() _LIST_PINS_64() _LIST_PIN(64)
-#define _LIST_PINS_66() _LIST_PINS_65() _LIST_PIN(67)
-#define _LIST_PINS_67() _LIST_PINS_66() _LIST_PIN(66)
-#define _LIST_PINS_68() _LIST_PINS_67() _LIST_PIN(68)
-#define _LIST_PINS_69() _LIST_PINS_68() _LIST_PIN(69)
-#define _LIST_PINS_70() _LIST_PINS_69() _LIST_PIN(71)
-#define _LIST_PINS_71() _LIST_PINS_70() _LIST_PIN(70)
-#define _LIST_PINS_72() _LIST_PINS_71() _LIST_PIN(72)
-#define _LIST_PINS_73() _LIST_PINS_72() _LIST_PIN(73)
-#define _LIST_PINS_74() _LIST_PINS_73() _LIST_PIN(74)
-#define _LIST_PINS_75() _LIST_PINS_74() _LIST_PIN(75)
-#define _LIST_PINS_76() _LIST_PINS_75() _LIST_PIN(77)
-#define _LIST_PINS_77() _LIST_PINS_76() _LIST_PIN(76)
-#define _LIST_PINS_78() _LIST_PINS_77() _LIST_PIN(78)
-#define _LIST_PINS_79() _LIST_PINS_78() _LIST_PIN(79)
-#define _LIST_PINS_80() _LIST_PINS_79() _LIST_PIN(80)
-#define _LIST_PINS_81() _LIST_PINS_80() _LIST_PIN(81)
-#define _LIST_PINS_82() _LIST_PINS_81() _LIST_PIN(82)
-#define _LIST_PINS_83() _LIST_PINS_82() _LIST_PIN(83)
-#define _LIST_PINS_84() _LIST_PINS_83() _LIST_PIN(85)
-#define _LIST_PINS_85() _LIST_PINS_84() _LIST_PIN(84)
-#define _LIST_PINS_86() _LIST_PINS_85() _LIST_PIN(86)
-#define _LIST_PINS_87() _LIST_PINS_86() _LIST_PIN(87)
-#define _LIST_PINS_88() _LIST_PINS_87() _LIST_PIN(88)
-#define _LIST_PINS_89() _LIST_PINS_88() _LIST_PIN(89)
-#define _LIST_PINS_90() _LIST_PINS_89() _LIST_PIN(90)
-#define _LIST_PINS_91() _LIST_PINS_90() _LIST_PIN(91)
-#define _LIST_PINS_92() _LIST_PINS_91() _LIST_PIN(92)
-#define _LIST_PINS_93() _LIST_PINS_92() _LIST_PIN(93)
-#define _LIST_PINS_94() _LIST_PINS_93() _LIST_PIN(94)
-#define _LIST_PINS_95() _LIST_PINS_94() _LIST_PIN(95)
-#define _LIST_PINS_96() _LIST_PINS_95() _LIST_PIN(96)
-#define _LIST_PINS_97() _LIST_PINS_96() _LIST_PIN(97)
-#define _LIST_PINS_98() _LIST_PINS_97() _LIST_PIN(98)
-#define _LIST_PINS_99() _LIST_PINS_98() _LIST_PIN(99)
-#define _LIST_PINS_100() _LIST_PINS_99() _LIST_PIN(100)
-
-/* If you have over 100 pins then good luck */
-
-
-
-
-
-/* These EVALs and DEFERs force macros to be expanded more and more (simulating some type of recursion thing) */
+/* These definitions are for doing complex things with the preprocessor
+ * They come from: http://jhnet.co.uk/articles/cpp_magic
+ */
+#define IF_ELSE(condition) _IF_ELSE(BOOL(condition))
+#define _IF_ELSE(condition) CAT(_IF_, condition)
+#define _IF_1(...) __VA_ARGS__ _IF_1_ELSE
+#define _IF_0(...)             _IF_0_ELSE
+#define _IF_1_ELSE(...)
+#define _IF_0_ELSE(...) __VA_ARGS__
+#define NOT(x) IS_PROBE(CAT(_NOT_, x))
+#define _NOT_0 PROBE()
+#define IS_PROBE(...) SECOND(__VA_ARGS__, 0)
+#define PROBE() ~, 1
+#define CAT(a,b) a ## b
+#define BOOL(x) NOT(NOT(x))
+#define FIRST(a, ...) a
+#define SECOND(a, b, ...) b
 #define EVAL(...) EVAL1024(__VA_ARGS__)
 #define EVAL1024(...) EVAL512(EVAL512(__VA_ARGS__))
 #define EVAL512(...) EVAL256(EVAL256(__VA_ARGS__))
@@ -374,36 +271,450 @@
 #define EVAL1(...) __VA_ARGS__
 
 #define EMPTY()
-#define DEFER(m) m EMPTY()
+#define DEFER1(m) m EMPTY()
 #define DEFER2(m) m EMPTY EMPTY()()
 #define DEFER3(m) m EMPTY EMPTY EMPTY()()()
 #define DEFER4(m) m EMPTY EMPTY EMPTY EMPTY()()()()
+
+
+/* Paired Map */
+#define MAP_PAIR_PARAMETERS(f, p1, ...)            \
+  DEFER2(f)p1                                       \
+  IF_ELSE(NUM_ARGS(__VA_ARGS__))(                   \
+    DEFER2(_MAP_PAIR_PARAMETERS)()(f, __VA_ARGS__)  \
+  )()
+#define _MAP_PAIR_PARAMETERS()  MAP_PAIR_PARAMETERS
+
+/* Counting Map */
+#define MAP_COUNTING(f, i)                        \
+  IF_ELSE(i)(                                     \
+    DEFER2(_MAP_COUNTING)()(f, DEC(i))            \
+    f(i)                                          \
+  )()
+#define _MAP_COUNTING() MAP_COUNTING
+
+
+
+/* Standard Map */
+#define MAP(m, first, ...)           \
+  m(first)                 \
+  IF_ELSE(NUM_ARGS(__VA_ARGS__))(    \
+    DEFER2(_MAP)()(m, __VA_ARGS__)   \
+  )()
+#define _MAP() MAP
+
+
+
+
+
+/* Counting */
+#define INC(n)     INC_##n ()
+#define INC_0()    1
+#define INC_1()    2
+#define INC_2()    3
+#define INC_3()    4
+#define INC_4()    5
+#define INC_5()    6
+#define INC_6()    7
+#define INC_7()    8
+#define INC_8()    9
+#define INC_9()    10
+#define INC_10()   11
+#define INC_11()   12
+#define INC_12()   13
+#define INC_13()   14
+#define INC_14()   15
+#define INC_15()   16
+#define INC_16()   17
+#define INC_17()   18
+#define INC_18()   19
+#define INC_19()   20
+#define INC_20()   21
+#define INC_21()   22
+#define INC_22()   23
+#define INC_23()   24
+#define INC_24()   25
+#define INC_25()   26
+#define INC_26()   27
+#define INC_27()   28
+#define INC_28()   29
+#define INC_29()   30
+#define INC_30()   31
+#define INC_31()   32
+#define INC_32()   33
+#define INC_33()   34
+#define INC_34()   35
+#define INC_35()   36
+#define INC_36()   37
+#define INC_37()   38
+#define INC_38()   39
+#define INC_39()   40
+#define INC_40()   41
+#define INC_41()   42
+#define INC_42()   43
+#define INC_43()   44
+#define INC_44()   45
+#define INC_45()   46
+#define INC_46()   47
+#define INC_47()   48
+#define INC_48()   49
+#define INC_49()   50
+#define INC_50()   51
+#define INC_51()   52
+#define INC_52()   53
+#define INC_53()   54
+#define INC_54()   55
+#define INC_55()   56
+#define INC_56()   57
+#define INC_57()   58
+#define INC_58()   59
+#define INC_59()   60
+#define INC_60()   61
+#define INC_61()   62
+#define INC_62()   63
+#define INC_63()   64
+#define INC_64()   65
+#define INC_65()   66
+#define INC_66()   67
+#define INC_67()   68
+#define INC_68()   69
+#define INC_69()   70
+#define INC_70()   71
+#define INC_71()   72
+#define INC_72()   73
+#define INC_73()   74
+#define INC_74()   75
+#define INC_75()   76
+#define INC_76()   77
+#define INC_77()   78
+#define INC_78()   79
+#define INC_79()   80
+#define INC_80()   81
+#define INC_81()   82
+#define INC_82()   83
+#define INC_83()   84
+#define INC_84()   85
+#define INC_85()   86
+#define INC_86()   87
+#define INC_87()   88
+#define INC_88()   89
+#define INC_89()   90
+#define INC_90()   91
+#define INC_91()   92
+#define INC_92()   93
+#define INC_93()   94
+#define INC_94()   95
+#define INC_95()   96
+#define INC_96()   97
+#define INC_97()   98
+#define INC_98()   99
+#define INC_99()   100
+#define INC_100()    101
+#define INC_101()    102
+#define INC_102()    103
+#define INC_103()    104
+#define INC_104()    105
+#define INC_105()    106
+#define INC_106()    107
+#define INC_107()    108
+#define INC_108()    109
+#define INC_109()    110
+#define INC_110()   111
+#define INC_111()   112
+#define INC_112()   113
+#define INC_113()   114
+#define INC_114()   115
+#define INC_115()   116
+#define INC_116()   117
+#define INC_117()   118
+#define INC_118()   119
+#define INC_119()   120
+#define INC_120()   121
+#define INC_121()   122
+#define INC_122()   123
+#define INC_123()   124
+#define INC_124()   125
+#define INC_125()   126
+#define INC_126()   127
+#define INC_127()   128
+#define INC_128()   129
+#define INC_129()   130
+#define INC_130()   131
+#define INC_131()   132
+#define INC_132()   133
+#define INC_133()   134
+#define INC_134()   135
+#define INC_135()   136
+#define INC_136()   137
+#define INC_137()   138
+#define INC_138()   139
+#define INC_139()   140
+#define INC_140()   141
+#define INC_141()   142
+#define INC_142()   143
+#define INC_143()   144
+#define INC_144()   145
+#define INC_145()   146
+#define INC_146()   147
+#define INC_147()   148
+#define INC_148()   149
+#define INC_149()   150
+#define INC_150()   151
+#define INC_151()   152
+#define INC_152()   153
+#define INC_153()   154
+#define INC_154()   155
+#define INC_155()   156
+#define INC_156()   157
+#define INC_157()   158
+#define INC_158()   159
+#define INC_159()   160
+#define INC_160()   161
+#define INC_161()   162
+#define INC_162()   163
+#define INC_163()   164
+#define INC_164()   165
+#define INC_165()   166
+#define INC_166()   167
+#define INC_167()   168
+#define INC_168()   169
+#define INC_169()   170
+#define INC_170()   171
+#define INC_171()   172
+#define INC_172()   173
+#define INC_173()   174
+#define INC_174()   175
+#define INC_175()   176
+#define INC_176()   177
+#define INC_177()   178
+#define INC_178()   179
+#define INC_179()   180
+#define INC_180()   181
+#define INC_181()   182
+#define INC_182()   183
+#define INC_183()   184
+#define INC_184()   185
+#define INC_185()   186
+#define INC_186()   187
+#define INC_187()   188
+#define INC_188()   189
+#define INC_189()   190
+#define INC_190()   191
+#define INC_191()   192
+#define INC_192()   193
+#define INC_193()   194
+#define INC_194()   195
+#define INC_195()   196
+#define INC_196()   197
+#define INC_197()   198
+#define INC_198()   199
+#define INC_199()   200
+
+
+#define DEC(n)      DEC_##n ()
+#define DEC_200()   199
+#define DEC_199()   198
+#define DEC_198()   197
+#define DEC_197()   196
+#define DEC_196()   195
+#define DEC_195()   194
+#define DEC_194()   193
+#define DEC_193()   192
+#define DEC_192()   191
+#define DEC_191()   190
+#define DEC_190()   189
+#define DEC_189()   188
+#define DEC_188()   187
+#define DEC_187()   186
+#define DEC_186()   185
+#define DEC_185()   184
+#define DEC_184()   183
+#define DEC_183()   182
+#define DEC_182()   181
+#define DEC_181()   180
+#define DEC_180()   179
+#define DEC_179()   178
+#define DEC_178()   177
+#define DEC_177()   176
+#define DEC_176()   175
+#define DEC_175()   174
+#define DEC_174()   173
+#define DEC_173()   172
+#define DEC_172()   171
+#define DEC_171()   170
+#define DEC_170()   169
+#define DEC_169()   168
+#define DEC_168()   167
+#define DEC_167()   166
+#define DEC_166()   165
+#define DEC_165()   164
+#define DEC_164()   163
+#define DEC_163()   162
+#define DEC_162()   161
+#define DEC_161()   160
+#define DEC_160()   159
+#define DEC_159()   158
+#define DEC_158()   157
+#define DEC_157()   156
+#define DEC_156()   155
+#define DEC_155()   154
+#define DEC_154()   153
+#define DEC_153()   152
+#define DEC_152()   151
+#define DEC_151()   150
+#define DEC_150()   149
+#define DEC_149()   148
+#define DEC_148()   147
+#define DEC_147()   146
+#define DEC_146()   145
+#define DEC_145()   144
+#define DEC_144()   143
+#define DEC_143()   142
+#define DEC_142()   141
+#define DEC_141()   140
+#define DEC_140()   139
+#define DEC_139()   138
+#define DEC_138()   137
+#define DEC_137()   136
+#define DEC_136()   135
+#define DEC_135()   134
+#define DEC_134()   133
+#define DEC_133()   132
+#define DEC_132()   131
+#define DEC_131()   130
+#define DEC_130()   129
+#define DEC_129()   128
+#define DEC_128()   127
+#define DEC_127()   126
+#define DEC_126()   125
+#define DEC_125()   124
+#define DEC_124()   123
+#define DEC_123()   122
+#define DEC_122()   121
+#define DEC_121()   120
+#define DEC_120()   119
+#define DEC_119()   118
+#define DEC_118()   117
+#define DEC_117()   116
+#define DEC_116()   115
+#define DEC_115()   114
+#define DEC_114()   113
+#define DEC_113()   112
+#define DEC_112()   111
+#define DEC_111()   110
+#define DEC_110()   109
+#define DEC_109()   108
+#define DEC_108()   107
+#define DEC_107()   106
+#define DEC_106()   105
+#define DEC_105()   104
+#define DEC_104()   103
+#define DEC_103()   102
+#define DEC_102()   101
+#define DEC_101()   100
+#define DEC_100()   99
+#define DEC_99()   98
+#define DEC_98()   97
+#define DEC_97()   96
+#define DEC_96()   95
+#define DEC_95()   94
+#define DEC_94()   93
+#define DEC_93()   92
+#define DEC_92()   91
+#define DEC_91()   90
+#define DEC_90()   89
+#define DEC_89()   88
+#define DEC_88()   87
+#define DEC_87()   86
+#define DEC_86()   85
+#define DEC_85()   84
+#define DEC_84()   83
+#define DEC_83()   82
+#define DEC_82()   81
+#define DEC_81()   80
+#define DEC_80()   79
+#define DEC_79()   78
+#define DEC_78()   77
+#define DEC_77()   76
+#define DEC_76()   75
+#define DEC_75()   74
+#define DEC_74()   73
+#define DEC_73()   72
+#define DEC_72()   71
+#define DEC_71()   70
+#define DEC_70()   69
+#define DEC_69()   68
+#define DEC_68()   67
+#define DEC_67()   66
+#define DEC_66()   65
+#define DEC_65()   64
+#define DEC_64()   63
+#define DEC_63()   62
+#define DEC_62()   61
+#define DEC_61()   60
+#define DEC_60()   59
+#define DEC_59()   58
+#define DEC_58()   57
+#define DEC_57()   56
+#define DEC_56()   55
+#define DEC_55()   54
+#define DEC_54()   53
+#define DEC_53()   52
+#define DEC_52()   51
+#define DEC_51()   50
+#define DEC_50()   49
+#define DEC_49()   48
+#define DEC_48()   47
+#define DEC_47()   46
+#define DEC_46()   45
+#define DEC_45()   44
+#define DEC_44()   43
+#define DEC_43()   42
+#define DEC_42()   41
+#define DEC_41()   40
+#define DEC_40()   39
+#define DEC_39()   38
+#define DEC_38()   37
+#define DEC_37()   36
+#define DEC_36()   35
+#define DEC_35()   34
+#define DEC_34()   33
+#define DEC_33()   32
+#define DEC_32()   31
+#define DEC_31()   30
+#define DEC_30()   29
+#define DEC_29()   28
+#define DEC_28()   27
+#define DEC_27()   26
+#define DEC_26()   25
+#define DEC_25()   24
+#define DEC_24()   23
+#define DEC_23()   22
+#define DEC_22()   21
+#define DEC_21()   20
+#define DEC_20()   19
+#define DEC_19()   18
+#define DEC_18()   17
+#define DEC_17()   16
+#define DEC_16()   15
+#define DEC_15()   14
+#define DEC_14()   13
+#define DEC_13()   12
+#define DEC_12()   11
+#define DEC_11()   10
+#define DEC_10()   9
+#define DEC_9()   8
+#define DEC_8()   7
+#define DEC_7()   6
+#define DEC_6()   5
+#define DEC_5()   4
+#define DEC_4()   3
+#define DEC_3()   2
+#define DEC_2()   1
+#define DEC_1()   0
+
 #endif
 
 
 
 
-/**
- * This Helpers Fixture contains directives that can be used inside the
- * Microcontroller drivers to do things easily
- */
-#ifndef __MICROCONTROLLER_FIXTURE_HELPERS__
-#define __MICROCONTROLLER_FIXTURE_HELPERS__
-
-/* Used For Getting Pin Information/Registers */
-#define GetPinInfo(pin)   (pin_info_t){ \
-                            pin_map[pin].port, \
-                            pin_map[pin].bit, \
-                            (vuint8_t*)dir_registers[pin_map[pin].port], \
-                            (vuint8_t*)out_registers[pin_map[pin].port], \
-                            (vuint8_t*)in_registers[pin_map[pin].port], \
-                            (vuint8_t*)sel_registers[pin_map[pin].port], \
-                            (vuint8_t*)ies_registers[pin_map[pin].port], \
-                            (vuint8_t*)ie_registers[pin_map[pin].port], \
-                            (vuint8_t*)ifg_registers[pin_map[pin].port] \
-                          };
-
-#define IsValidPinInfo(pi) (pi.port != NO_PORT && pi.bit != NO_BIT)
-
-
-#endif
