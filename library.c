@@ -54,7 +54,7 @@
  * when the microcontroller initialization tries to access any of the register arrays
  */
 #ifndef UNIT_TEST
-void __attribute__((constructor)) library_initialization(void)
+void __attribute__((constructor(10000))) library_initialization(void)
 {
   /* Setup each driver */
   microcontroller_initialization();

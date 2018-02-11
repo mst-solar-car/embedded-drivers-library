@@ -17,6 +17,7 @@
 #include "../datatypes.h"
 
 
+
 /**
  * Ports and Pins
  */
@@ -72,7 +73,7 @@
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   /* C File */
   #define REGISTER_PINS_FOR_PORT(port, ...)                             \
-    void __attribute__((constructor)) __PORT##port##_SETUP(void) {      \
+    void __attribute__((constructor(800))) __PORT##port##_SETUP(void) {      \
       CAT(_SETUP_PIN_MAP_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__)    \
     };
 
@@ -105,7 +106,7 @@
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   /* C File */
   #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)           \
-    void __attribute__((constructor)) __PORT##port##_REGISTER_SETUP(void) {   \
+    void __attribute__((constructor(300))) __PORT##port##_REGISTER_SETUP(void) {   \
       dir_registers[PORT_NAME(port)] = REG(dir);                              \
       out_registers[PORT_NAME(port)] = REG(out);                              \
       in_registers[PORT_NAME(port)]  = REG(in);                               \
@@ -165,6 +166,48 @@
 #endif
 
 
+/**
+ * Registers
+ */
+#undef MAKE_REGISTERS
+#undef _MAKE_REGISTER
+#undef _MAKE_REGISTERS_INIT
+#ifdef RUN_SPEC_FILE_LIKE_C_FILE
+  /* C File */
+  #ifndef UNIT_TEST
+    /* Non Unit Test in C File */
+    #define MAKE_REGISTERS(...)  /* Nothing */
+
+  #else
+    /* Unit Test in C File (function to malloc space for fake registers) */
+    #define MAKE_REGISTERS(...)                                                                                         \
+      EVAL256(MAP_PAIR_PARAMETERS(_MAKE_REGISTER, __VA_ARGS__))                                                         \
+      void __attribute__((constructor(200))) CAT(CAT(__SETUP_MOCK_REGISTERS_,DEFER1(__COUNTER__)),_REGISTERS)(void) {   \
+        EVAL256(MAP_PAIR_PARAMETERS(_MAKE_REGISTER_INIT, __VA_ARGS__))                                                  \
+      }
+
+    #define _MAKE_REGISTER(name, addr)        vuint16_t* name;
+    #define _MAKE_REGISTER_INIT(name, addr)   name = (vuint16_t*)malloc(sizeof(vuint16_t));
+
+  #endif
+
+#else
+  /* Header File */
+  #ifndef UNIT_TEST
+    /* Non Unit Test in Header File */
+    #define MAKE_REGISTERS(...)         enum { EVAL256(MAP_PAIR_PARAMETERS(_MAKE_REGISTER, __VA_ARGS__)) }
+
+    #define _MAKE_REGISTER(name, addr)  name = addr,
+
+  #else
+    /* Unit Testing in Header File */
+    #define MAKE_REGISTERS(...)         EVAL256(MAP_PAIR_PARAMETERS(_MAKE_REGISTER, __VA_ARGS__))
+
+    #define _MAKE_REGISTER(name, addr)   extern vuint16_t* name;
+  #endif
+#endif
+
+
 
 /**
  * Helper Directives
@@ -183,6 +226,9 @@
 
 #define PORT(n)           PORT##n
 #define PORT_NAME(n)      PORT##n
+
+
+
 
 
 

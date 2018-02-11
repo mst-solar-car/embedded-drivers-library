@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 
+
 /* Helper directives to avoid typing things out multiple times */
 #define MOCK(name)                  MOCK_##name
 #define _MOCK_COUNTER_NAME(name)    NumberTimesMOCK##name##Called
@@ -47,6 +48,7 @@
 
 #define WAS_MOCK_CALLED(name)               (_MOCK_COUNTER_NAME(name) > 0)
 #define WAS_MOCK_CALLED_COUNT(name, n)      (_MOCK_COUNTER_NAME(name) == n)
+
 
 
 

@@ -11,6 +11,10 @@
 #define __LIBRARY__
 #ifdef __GNUC__
 
+#ifdef UNIT_TEST
+#include <stdlib.h>
+#endif
+
 #include "datatypes.h"
 
 /* Include Utility Interfaces */

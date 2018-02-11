@@ -10,6 +10,7 @@
  */
 #ifndef __UNIT_TEST_FRAMEWORK__
 #define __UNIT_TEST_FRAMEWORK__
+#include "../datatypes.h"
 #ifdef UNIT_TEST
 
 #include "unity.h"
@@ -68,6 +69,6 @@
 #define CUSTOM_TESTS()    void UserCustomTests(void)
 
 
+#endif
+#endif
 #include "mock.h"
-#endif
-#endif
