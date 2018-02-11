@@ -57,11 +57,11 @@
 
 #else
   /* Header File */
-  #define REGISTER_PORTS(...)                         \
-    enum {                                            \
-      __IGNORE_THIS_##__LINE__ = 0,                   \
-      EVAL256(MAP(_REGISTER_PORT, __VA_ARGS__))       \
-      MC_NUMBER_OF_PORTS = NUM_ARGS(__VA_ARGS__),     \
+  #define REGISTER_PORTS(...)                             \
+    enum {                                                \
+      __IGNORE_THIS_##__LINE__ = 0,                       \
+      EVAL256(MAP(_REGISTER_PORT, __VA_ARGS__))           \
+      MC_NUMBER_OF_PORTS = NUM_ARGS(__VA_ARGS__),         \
     };
 
   #define _REGISTER_PORT(p)    PORT_NAME(p),
@@ -171,7 +171,8 @@
  */
 #undef MAKE_REGISTERS
 #undef _MAKE_REGISTER
-#undef _MAKE_REGISTERS_INIT
+#undef _MAKE_REGISTER_INIT
+#undef _MAKE_REGISTER_DESTROY
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   /* C File */
   #ifndef UNIT_TEST
@@ -180,15 +181,18 @@
 
   #else
     /* Unit Test in C File (function to malloc space for fake registers) */
-    #define MAKE_REGISTERS(...)                                                                                         \
-      EVAL256(MAP_PAIR_PARAMETERS(_MAKE_REGISTER, __VA_ARGS__))                                                         \
-      void __attribute__((constructor(200))) CAT(CAT(__SETUP_MOCK_REGISTERS_,DEFER1(__COUNTER__)),_REGISTERS)(void) {   \
-        EVAL256(MAP_PAIR_PARAMETERS(_MAKE_REGISTER_INIT, __VA_ARGS__))                                                  \
+    #define MAKE_REGISTERS(...)                                                                                           \
+      EVAL256(MAP_PAIR_PARAMETERS(_MAKE_REGISTER, __VA_ARGS__))                                                           \
+      void __attribute__((constructor(200))) CAT(CAT(__SETUP_MOCK_REGISTERS_,DEFER1(__COUNTER__)),_REGISTERS)(void) {     \
+        EVAL256(MAP_PAIR_PARAMETERS(_MAKE_REGISTER_INIT, __VA_ARGS__))                                                    \
+      }                                                                                                                   \
+      void __attribute__((destructor(200))) CAT(CAT(__DESTROY_MOCK_REGISTERS_,DEFER1(__COUNTER__)),_REGISTERS)(void) {    \
+        EVAL256(MAP_PAIR_PARAMETERS(_MAKE_REGISTER_DESTROY, __VA_ARGS__))                                                 \
       }
 
-    #define _MAKE_REGISTER(name, addr)        vuint16_t* name;
-    #define _MAKE_REGISTER_INIT(name, addr)   name = (vuint16_t*)malloc(sizeof(vuint16_t));
-
+    #define _MAKE_REGISTER(name, addr)          vuint16_t* name;
+    #define _MAKE_REGISTER_INIT(name, addr)     name = (vuint16_t*)malloc(sizeof(vuint16_t));
+    #define _MAKE_REGISTER_DESTROY(name, addr)  if (name != (void*)0x000) { free((uint16_t*)name); name = (void*)0x000; }
   #endif
 
 #else

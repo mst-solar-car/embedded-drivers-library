@@ -45,6 +45,7 @@
 /* Used to check if a mock function was called */
 #define TEST_ASSERT_MOCK_CALLED(name)               TEST_ASSERT_TRUE_MESSAGE(WAS_MOCK_CALLED(name), "Mock Function '" #name "' not called")
 #define TEST_ASSERT_MOCK_CALLED_COUNT(name, n)      TEST_ASSERT_TRUE_MESSAGE(WAS_MOCK_CALLED_COUNT(name, n), "Mock Function '" #name "' not called " #n " times")
+#define TEST_ASSERT_MOCK_NOT_CALLED(name)           TEST_ASSERT_MOCK_CALLED_COUNT(name, 0)
 
 #define WAS_MOCK_CALLED(name)               (_MOCK_COUNTER_NAME(name) > 0)
 #define WAS_MOCK_CALLED_COUNT(name, n)      (_MOCK_COUNTER_NAME(name) == n)

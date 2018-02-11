@@ -8,13 +8,15 @@
 #include "interface.h"
 #include "../testing/framework.h"
 
+
 CREATE_GROUP(Interrupts);
 
 
-/* Mock Functions Needed */
-void MOCK_FUNC(sample_isr, (void), {
+extern vuint16_t* ifg_registers[]; // Spy on the IFG register of the Interrupt Drivers
 
-});
+/* Mock Functions Needed */
+void MOCK_FUNC(sample_isr, (void));
+void MOCK_FUNC(sample_isr2, (void));
 
 
 
@@ -24,12 +26,26 @@ TEST(Interrupts, AttachAndDispatchInterrupt)
   // Arrange
   interrupt_attach(P2_4, MOCK(sample_isr));
 
+  /* These ISRs should not get called */
+  interrupt_attach(P2_0, MOCK(sample_isr2));
+  interrupt_attach(P2_1, MOCK(sample_isr2));
+  interrupt_attach(P2_2, MOCK(sample_isr2));
+  interrupt_attach(P2_3, MOCK(sample_isr2));
+  interrupt_attach(P2_5, MOCK(sample_isr2));
+  interrupt_attach(P2_6, MOCK(sample_isr2));
+  interrupt_attach(P2_7, MOCK(sample_isr2));
+
   // Act
+  *ifg_registers[PORT2] |= BIT4; /* Fake an interrupt */
   __interrupt_dispatch(PORT2);
 
   // Assert
   TEST_ASSERT_MOCK_CALLED(sample_isr);
+  TEST_ASSERT_EQUAL(0x00, *ifg_registers[PORT2]);
+
+  TEST_ASSERT_MOCK_NOT_CALLED(sample_isr2);
 }
+
 
 
 
@@ -45,7 +61,9 @@ GROUP_RUNNER(Interrupts)
 GROUP_TEST_SETUP(Interrupts)
 {
   RESET_MOCK(sample_isr);
+  RESET_MOCK(sample_isr2);
 
+  *ifg_registers[PORT2] = 0x00;
 }
 
 /* Runs after every test */
