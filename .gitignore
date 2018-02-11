@@ -1,4 +1,17 @@
-*.out
 user_config.h
+*.out
 *.o
+*.d
+*.a
+*.ld
 *.exe
+
+# Code Composer Studio
+.ccsproject
+.cproject
+.project
+Debug/
+.settings/
+.launches/
+targetConfigs/
+main.c

@@ -18,8 +18,8 @@
 #define __TRUE__    1
 #define __FALSE__   0
 
-#define __HIGH__  0x01
-#define __LOW__   0x00
+#define __HIGH__    0x01
+#define __LOW__     0x00
 
 #define __OUTPUT__  0xFF
 #define __INPUT__   0x00
@@ -73,9 +73,9 @@ typedef __VUINT8_TYPE__   vuint8_t;
 typedef __VUINT16_TYPE__  vuint16_t;
 
 /* Aliases for types that are used often */
-typedef uint8_t   io_pin;         /* Custom type to represent a pin */
-typedef uint16_t  register_addr;  /* Represents a registry address */
-typedef uint8_t   spi_bus;
+typedef uint8_t           io_pin;         /* Custom type to represent a pin */
+typedef uint16_t          register_addr;  /* Represents a registry address */
+typedef uint8_t           spi_bus;
 
 typedef void(*voidFuncPtr)(void);
 
@@ -102,20 +102,20 @@ typedef enum bool_t {
 
 /* Enum for pin direction */
 typedef enum pin_mode_t {
-  INPUT = __INPUT__,
-  Input = __INPUT__,
+  INPUT   = __INPUT__,
+  Input   = __INPUT__,
 
-  OUTPUT = __OUTPUT__,
-  Output = __OUTPUT__
+  OUTPUT  = __OUTPUT__,
+  Output  = __OUTPUT__,
 } pin_mode;
 
 /* Enum for pin level */
 typedef enum pin_level_t {
-  LOW = __LOW__,
-  Low = __LOW__,
+  LOW   = __LOW__,
+  Low   = __LOW__,
 
-  HIGH = __HIGH__,
-  High = __HIGH__
+  HIGH  = __HIGH__,
+  High  = __HIGH__
 } pin_level;
 
 

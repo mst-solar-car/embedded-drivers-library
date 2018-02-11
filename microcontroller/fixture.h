@@ -11,7 +11,7 @@
  * is #include in a header file or a code file... :)
  * So sorry.
  *
- * Authors: Michael Rouse
+ * Authors: Michael Rouse and people on the internet
  */
 #include "interface.h"
 #include "../datatypes.h"
@@ -20,75 +20,104 @@
 /**
  * Ports and Pins
  */
+
+/* Create list of pins */
 #undef REGISTER_PINS
 #undef _REGISTER_PIN
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #define REGISTER_PINS(numberOfPins) pin_map_t pin_map[numberOfPins];
+  /* C File */
+  #define REGISTER_PINS(numberOfPins)   pin_map_t pin_map[numberOfPins+1];
+
 #else
+  /* Header File */
+  #define REGISTER_PINS(numberOfPins)                       \
+    enum {                                                  \
+      EVAL256(MAP_COUNTING(_REGISTER_PIN, numberOfPins))    \
+      MC_NUMBER_OF_PINS = numberOfPins,                     \
+    };
+
   #define _REGISTER_PIN(n)    PIN_NAME(n) = n,
-  #define REGISTER_PINS(numberOfPins) enum { \
-                                      EVAL(MAP_COUNTING(_REGISTER_PIN, numberOfPins)) \
-                                      MC_NUMBER_OF_PINS = numberOfPins, \
-                                    };
 #endif
 
+
+/* Create list of ports */
 #undef REGISTER_PORTS
 #undef _REGISTER_PORT
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #define REGISTER_PORTS(...) vuint16_t* dir_registers[NUM_ARGS(__VA_ARGS__)+1]; \
-                              vuint16_t* out_registers[NUM_ARGS(__VA_ARGS__)+1]; \
-                              vuint16_t* in_registers[NUM_ARGS(__VA_ARGS__)+1]; \
-                              vuint16_t* sel_registers[NUM_ARGS(__VA_ARGS__)+1]; \
-                              vuint16_t* ies_registers[NUM_ARGS(__VA_ARGS__)+1]; \
-                              vuint16_t*  ie_registers[NUM_ARGS(__VA_ARGS__)+1]; \
-                              vuint16_t* ifg_registers[NUM_ARGS(__VA_ARGS__)+1];
+  /* C File */
+  #define REGISTER_PORTS(...)                             \
+    vuint16_t* dir_registers[NUM_ARGS(1, __VA_ARGS__)];   \
+    vuint16_t* out_registers[NUM_ARGS(1, __VA_ARGS__)];   \
+    vuint16_t*  in_registers[NUM_ARGS(1, __VA_ARGS__)];   \
+    vuint16_t* sel_registers[NUM_ARGS(1, __VA_ARGS__)];   \
+    vuint16_t* ies_registers[NUM_ARGS(1, __VA_ARGS__)];   \
+    vuint16_t*  ie_registers[NUM_ARGS(1, __VA_ARGS__)];   \
+    vuint16_t* ifg_registers[NUM_ARGS(1, __VA_ARGS__)];
+
 #else
+  /* Header File */
+  #define REGISTER_PORTS(...)                         \
+    enum {                                            \
+      __IGNORE_THIS_##__LINE__ = 0,                   \
+      EVAL256(MAP(_REGISTER_PORT, __VA_ARGS__))       \
+      MC_NUMBER_OF_PORTS = NUM_ARGS(__VA_ARGS__),     \
+    };
+
   #define _REGISTER_PORT(p)    PORT_NAME(p),
-  #define REGISTER_PORTS(...) enum { \
-                                __IGNORE_THIS_##__LINE__ = 0, \
-                                EVAL(MAP(_REGISTER_PORT, __VA_ARGS__)) \
-                                MC_NUMBER_OF_PORTS = NUM_ARGS(__VA_ARGS__), \
-                              };
 #endif
+
 
 /* Set port bits to pins in bulk */
 #undef REGISTER_PINS_FOR_PORT
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #define REGISTER_PINS_FOR_PORT(port, ...)   void __attribute__((constructor)) __PORT##port##_SETUP(void) { \
-                                                CAT(_SETUP_PIN_MAP_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__) \
-                                              };
+  /* C File */
+  #define REGISTER_PINS_FOR_PORT(port, ...)                             \
+    void __attribute__((constructor)) __PORT##port##_SETUP(void) {      \
+      CAT(_SETUP_PIN_MAP_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__)    \
+    };
+
 #else
-  #define REGISTER_PINS_FOR_PORT(port, ...)   enum { \
-                                                CAT(_PORT_BITS_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__) \
-                                              };
+  /* Header File */
+  #define REGISTER_PINS_FOR_PORT(port, ...)                                   \
+    enum {                                                                    \
+      EVAL256(CAT(_PORT_BITS_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__))     \
+      MC_NUMBER_OF_BITS_ON_PORT##port = NUM_ARGS(__VA_ARGS__),               \
+    };
 #endif
 
 
-/* Add ability to register pin aliases (other functions, etc..) */
+/* Register Pin Aliases (other functions, etc..) */
 #undef REGISTER_PIN_ALIAS
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #define REGISTER_PIN_ALIAS(pin, alias)
+  /* C File */
+  #define REGISTER_PIN_ALIAS(pin, alias)  /* Nothing */
+
 #else
-  #define REGISTER_PIN_ALIAS(pin, alias)  enum { \
-                                            alias = pin, \
-                                          };
+  /* Header File */
+  #define REGISTER_PIN_ALIAS(pin, alias)      \
+    enum {                                    \
+      alias = pin,                            \
+    };
 #endif
 
 /* Setup Registers for the Ports */
 #undef SET_PORT_REGISTERS
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)  \
-                                        void __attribute__((constructor)) PORT##port##_REGISTER_SETUP(void) { \
-                                          dir_registers[PORT_NAME(port)] = REG(dir); \
-                                          out_registers[PORT_NAME(port)] = REG(out); \
-                                          in_registers[PORT_NAME(port)] = REG(in); \
-                                          sel_registers[PORT_NAME(port)] = REG(sel); \
-                                          ies_registers[PORT_NAME(port)] = REG(ies); \
-                                          ie_registers[PORT_NAME(port)] = REG(ie); \
-                                          ifg_registers[PORT_NAME(port)] = REG(ifg); \
-                                        }
+  /* C File */
+  #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)           \
+    void __attribute__((constructor)) __PORT##port##_REGISTER_SETUP(void) {   \
+      dir_registers[PORT_NAME(port)] = REG(dir);                              \
+      out_registers[PORT_NAME(port)] = REG(out);                              \
+      in_registers[PORT_NAME(port)]  = REG(in);                               \
+      sel_registers[PORT_NAME(port)] = REG(sel);                              \
+      ies_registers[PORT_NAME(port)] = REG(ies);                              \
+      ie_registers[PORT_NAME(port)]  = REG(ie);                               \
+      ifg_registers[PORT_NAME(port)] = REG(ifg);                              \
+    };
+
 #else
-  #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)
+  /* Header File */
+  #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg) /* Nothing */
 #endif
 
 
@@ -98,13 +127,18 @@
 #undef REGISTER_SPI_BUSES
 #undef _REGISTER_SPI_BUS
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #define REGISTER_SPI_BUSES(n)
+  /* C File */
+  #define REGISTER_SPI_BUSES(n)  /* Nothing */
+
 #else
+  /* Header File */
+  #define REGISTER_SPI_BUSES(n)                     \
+    enum {                                          \
+      EVAL256(MAP_COUNTING(_REGISTER_SPI_BUS, n))   \
+      MC_NUMBER_OF_SPI_BUSES = n,                   \
+    };
+
   #define _REGISTER_SPI_BUS(n)    SPI_BUS_##n = n,
-  #define REGISTER_SPI_BUSES(n)   enum { \
-                                    EVAL(MAP_COUNTING(_REGISTER_SPI_BUS, n)) \
-                                    MC_NUMBER_OF_SPI_BUSES = n, \
-                                  };
 #endif
 
 
@@ -112,14 +146,22 @@
  * Interrupts
  */
 #undef REGISTER_INTERRUPTABLE_PORTS
+#undef _REGISTER_INTERRUPTABLE_PORT
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  #define REGISTER_INTERRUPTABLE_PORTS(p,v) void __attribute__((interrupt(v))) PORT_##__COUNTER__##_ISR(void) { \
-                                                    __interrupt_dispatch(p);                                      \
-                                                  }
+  /* C File */
+  #define REGISTER_INTERRUPTABLE_PORTS(...)   EVAL256(MAP_PAIR_PARAMETERS(_REGISTER_INTERRUPTABLE_PORT, __VA_ARGS__))
+
+  #define _REGISTER_INTERRUPTABLE_PORT(p,v)                           \
+    void __attribute__((interrupt(v))) __##p##_ISR(void) {            \
+      __interrupt_dispatch(p);                                        \
+    };
+
 #else
-  #define REGISTER_INTERRUPTABLE_PORTS(...)       enum {                                                          \
-                                                    MC_NUMBER_OF_INTERRUPTABLE_PORTS = NUM_ARGS(__VA_ARGS__),     \
-                                                  };
+  /* Header File */
+  #define REGISTER_INTERRUPTABLE_PORTS(...)                         \
+    enum {                                                          \
+      MC_NUMBER_OF_INTERRUPTABLE_PORTS = NUM_ARGS(__VA_ARGS__),     \
+    };
 #endif
 
 
@@ -131,15 +173,16 @@
 #ifndef __MICROCONTROLLER_FIXTURE__
 #define __MICROCONTROLLER_FIXTURE__
 
+#define REG(name)         (vuint16_t*)name
 
-
-#define REG(name) (vuint16_t*)name
-
+#define PIN(n)            PIN##n
 #define PIN_NAME(n)       PIN##n
+
+#define PB(n, b)          P##n##_##b
 #define PORTB_NAME(n, b)  P##n##_##b
+
+#define PORT(n)           PORT##n
 #define PORT_NAME(n)      PORT##n
-
-
 
 
 /**
@@ -147,52 +190,20 @@
  * Microcontroller drivers to do things easily
  */
 /* Used For Getting Pin Information/Registers */
-#define GetPinInfo(pin)   (pin_info_t){ \
-                            pin_map[pin].port, \
-                            pin_map[pin].bit, \
-                            (vuint8_t*)dir_registers[pin_map[pin].port], \
-                            (vuint8_t*)out_registers[pin_map[pin].port], \
-                            (vuint8_t*)in_registers[pin_map[pin].port], \
-                            (vuint8_t*)sel_registers[pin_map[pin].port], \
-                            (vuint8_t*)ies_registers[pin_map[pin].port], \
-                            (vuint8_t*)ie_registers[pin_map[pin].port], \
-                            (vuint8_t*)ifg_registers[pin_map[pin].port] \
-                          };
+#define GetPinInfo(pin)                                                   \
+  (pin_info_t){                                                           \
+    pin_map[pin].port,                                                    \
+    pin_map[pin].bit,                                                     \
+    (vuint8_t*)dir_registers[pin_map[pin].port],                          \
+    (vuint8_t*)out_registers[pin_map[pin].port],                          \
+    (vuint8_t*)in_registers[pin_map[pin].port],                           \
+    (vuint8_t*)sel_registers[pin_map[pin].port],                          \
+    (vuint8_t*)ies_registers[pin_map[pin].port],                          \
+    (vuint8_t*)ie_registers[pin_map[pin].port],                           \
+    (vuint8_t*)ifg_registers[pin_map[pin].port]                           \
+  };
 
-#define IsValidPinInfo(pi) (pi.port != NO_PORT && pi.bit != NO_BIT)
-
-
-
-/**
- * You might not want to look below this line :)
- */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#define IsValidPinInfo(pi)    (pi.port != NO_PORT && pi.bit != NO_BIT)
 
 
 
@@ -205,28 +216,28 @@
  * If something is broken--I'm sorry.
  * If you're curious--I'm still sorry.
  */
-#define BTP(n,b,p)                                  PORTB_NAME(n,b) = PIN_NAME(p),
-#define _PORT_BITS_1(n, p1)                         BTP(n,0,p1)
-#define _PORT_BITS_2(n, p1, p2)                     _PORT_BITS_1(n, p1) BTP(n,1,p2)
-#define _PORT_BITS_3(n, p1, p2, p3)                 _PORT_BITS_2(n, p1, p2) BTP(n,2,p3)
-#define _PORT_BITS_4(n, p1, p2, p3, p4)             _PORT_BITS_3(n,p1,p2,p3) BTP(n,3,p4)
-#define _PORT_BITS_5(n,p1,p2,p3,p4,p5)              _PORT_BITS_4(n,p1,p2,p3,p4) BTP(n,4,p5)
-#define _PORT_BITS_6(n,p1,p2,p3,p4,p5,p6)           _PORT_BITS_5(n,p1,p2,p3,p4,p5) BTP(n,5,p6)
-#define _PORT_BITS_7(n,p1,p2,p3,p4,p5,p6,p7)        _PORT_BITS_6(n,p1,p2,p3,p4,p5,p6) BTP(n,6,p7)
-#define _PORT_BITS_8(n,p1,p2,p3,p4,p5,p6,p7,p8)     _PORT_BITS_7(n,p1,p2,p3,p4,p5,p6,p7) BTP(n,7,p8)
-#define _PORT_BITS_9(n,p1,p2,p3,p4,p5,p6,p7,p8,p9)  _PORT_BITS_8(n,p1,p2,p3,p4,p5,p6,p7,p8) BTP(n,8,p9)
+#define BTP(n,b,p)                                        PORTB_NAME(n,b) = p,
+#define _PORT_BITS_1(n, p1)                               BTP(n,0,p1)
+#define _PORT_BITS_2(n, p1, p2)                           _PORT_BITS_1(n, p1) BTP(n,1,p2)
+#define _PORT_BITS_3(n, p1, p2, p3)                       _PORT_BITS_2(n, p1, p2) BTP(n,2,p3)
+#define _PORT_BITS_4(n, p1, p2, p3, p4)                   _PORT_BITS_3(n,p1,p2,p3) BTP(n,3,p4)
+#define _PORT_BITS_5(n,p1,p2,p3,p4,p5)                    _PORT_BITS_4(n,p1,p2,p3,p4) BTP(n,4,p5)
+#define _PORT_BITS_6(n,p1,p2,p3,p4,p5,p6)                 _PORT_BITS_5(n,p1,p2,p3,p4,p5) BTP(n,5,p6)
+#define _PORT_BITS_7(n,p1,p2,p3,p4,p5,p6,p7)              _PORT_BITS_6(n,p1,p2,p3,p4,p5,p6) BTP(n,6,p7)
+#define _PORT_BITS_8(n,p1,p2,p3,p4,p5,p6,p7,p8)           _PORT_BITS_7(n,p1,p2,p3,p4,p5,p6,p7) BTP(n,7,p8)
+#define _PORT_BITS_9(n,p1,p2,p3,p4,p5,p6,p7,p8,p9)        _PORT_BITS_8(n,p1,p2,p3,p4,p5,p6,p7,p8) BTP(n,8,p9)
 
 
-#define _SETUP_PIN_MAP(n,b,p)                           pin_map[p].port = PORT_NAME(n); pin_map[p].bit = BIT##b;
-#define _SETUP_PIN_MAP_1(n,p1)                          _SETUP_PIN_MAP(n,0,p1)
-#define _SETUP_PIN_MAP_2(n,p1,p2)                       _SETUP_PIN_MAP_1(n,p1) _SETUP_PIN_MAP(n,1,p2)
-#define _SETUP_PIN_MAP_3(n,p1,p2,p3)                    _SETUP_PIN_MAP_2(n,p1,p2) _SETUP_PIN_MAP(n,2,p3)
-#define _SETUP_PIN_MAP_4(n,p1,p2,p3,p4)                 _SETUP_PIN_MAP_3(n,p1,p2,p3) _SETUP_PIN_MAP(n,3,p4)
-#define _SETUP_PIN_MAP_5(n,p1,p2,p3,p4,p5)              _SETUP_PIN_MAP_4(n,p1,p2,p3,p4) _SETUP_PIN_MAP(n,4,p5)
-#define _SETUP_PIN_MAP_6(n,p1,p2,p3,p4,p5,p6)           _SETUP_PIN_MAP_5(n,p1,p2,p3,p4,p5) _SETUP_PIN_MAP(n,5,p6)
-#define _SETUP_PIN_MAP_7(n,p1,p2,p3,p4,p5,p6,p7)        _SETUP_PIN_MAP_6(n,p1,p2,p3,p4,p5,p6) _SETUP_PIN_MAP(n,6,p7)
-#define _SETUP_PIN_MAP_8(n,p1,p2,p3,p4,p5,p6,p7,p8)     _SETUP_PIN_MAP_7(n,p1,p2,p3,p4,p5,p6,p7) _SETUP_PIN_MAP(n,7,p8)
-#define _SETUP_PIN_MAP_9(n,p1,p2,p3,p4,p5,p6,p7,p8,p9)  _SETUP_PIN_MAP_8(n,p1,p2,p3,p4,p5,p6,p7,p8) _SETUP_PIN_MAP(n,8,p9)
+#define _SETUP_PIN_MAP(n,b,p)                             pin_map[p].port = PORT_NAME(n); pin_map[p].bit = BIT##b;
+#define _SETUP_PIN_MAP_1(n,p1)                            _SETUP_PIN_MAP(n,0,p1)
+#define _SETUP_PIN_MAP_2(n,p1,p2)                         _SETUP_PIN_MAP_1(n,p1) _SETUP_PIN_MAP(n,1,p2)
+#define _SETUP_PIN_MAP_3(n,p1,p2,p3)                      _SETUP_PIN_MAP_2(n,p1,p2) _SETUP_PIN_MAP(n,2,p3)
+#define _SETUP_PIN_MAP_4(n,p1,p2,p3,p4)                   _SETUP_PIN_MAP_3(n,p1,p2,p3) _SETUP_PIN_MAP(n,3,p4)
+#define _SETUP_PIN_MAP_5(n,p1,p2,p3,p4,p5)                _SETUP_PIN_MAP_4(n,p1,p2,p3,p4) _SETUP_PIN_MAP(n,4,p5)
+#define _SETUP_PIN_MAP_6(n,p1,p2,p3,p4,p5,p6)             _SETUP_PIN_MAP_5(n,p1,p2,p3,p4,p5) _SETUP_PIN_MAP(n,5,p6)
+#define _SETUP_PIN_MAP_7(n,p1,p2,p3,p4,p5,p6,p7)          _SETUP_PIN_MAP_6(n,p1,p2,p3,p4,p5,p6) _SETUP_PIN_MAP(n,6,p7)
+#define _SETUP_PIN_MAP_8(n,p1,p2,p3,p4,p5,p6,p7,p8)       _SETUP_PIN_MAP_7(n,p1,p2,p3,p4,p5,p6,p7) _SETUP_PIN_MAP(n,7,p8)
+#define _SETUP_PIN_MAP_9(n,p1,p2,p3,p4,p5,p6,p7,p8,p9)    _SETUP_PIN_MAP_8(n,p1,p2,p3,p4,p5,p6,p7,p8) _SETUP_PIN_MAP(n,8,p9)
 
 
 
@@ -243,34 +254,41 @@
 /* These definitions are for doing complex things with the preprocessor
  * They come from: http://jhnet.co.uk/articles/cpp_magic
  */
-#define IF_ELSE(condition) _IF_ELSE(BOOL(condition))
+#define IF_ELSE(condition)  _IF_ELSE(BOOL(condition))
 #define _IF_ELSE(condition) CAT(_IF_, condition)
 #define _IF_1(...) __VA_ARGS__ _IF_1_ELSE
 #define _IF_0(...)             _IF_0_ELSE
 #define _IF_1_ELSE(...)
 #define _IF_0_ELSE(...) __VA_ARGS__
-#define NOT(x) IS_PROBE(CAT(_NOT_, x))
-#define _NOT_0 PROBE()
+
+#define BOOL(x)       NOT(NOT(x))
+#define NOT(x)        IS_PROBE(CAT(_NOT_, x))
+#define _NOT_0        PROBE()
 #define IS_PROBE(...) SECOND(__VA_ARGS__, 0)
-#define PROBE() ~, 1
-#define CAT(a,b) a ## b
-#define BOOL(x) NOT(NOT(x))
-#define FIRST(a, ...) a
+#define PROBE()       ~, 1
+
+#define CAT(a,b)    _CAT(a,b)
+#define _CAT(a, b)  a ## b
+
+
+#define FIRST(a, ...)     a
 #define SECOND(a, b, ...) b
-#define EVAL(...) EVAL1024(__VA_ARGS__)
+
+#define EVAL(...)     EVAL1024(__VA_ARGS__)
 #define EVAL1024(...) EVAL512(EVAL512(__VA_ARGS__))
-#define EVAL512(...) EVAL256(EVAL256(__VA_ARGS__))
-#define EVAL256(...) EVAL128(EVAL128(__VA_ARGS__))
-#define EVAL128(...) EVAL64(EVAL64(__VA_ARGS__))
-#define EVAL64(...) EVAL32(EVAL32(__VA_ARGS__))
-#define EVAL32(...) EVAL16(EVAL16(__VA_ARGS__))
-#define EVAL16(...) EVAL8(EVAL8(__VA_ARGS__))
-#define EVAL8(...) EVAL4(EVAL4(__VA_ARGS__))
-#define EVAL4(...) EVAL2(EVAL2(__VA_ARGS__))
-#define EVAL2(...) EVAL1(EVAL1(__VA_ARGS__))
-#define EVAL1(...) __VA_ARGS__
+#define EVAL512(...)  EVAL256(EVAL256(__VA_ARGS__))
+#define EVAL256(...)  EVAL128(EVAL128(__VA_ARGS__))
+#define EVAL128(...)  EVAL64(EVAL64(__VA_ARGS__))
+#define EVAL64(...)   EVAL32(EVAL32(__VA_ARGS__))
+#define EVAL32(...)   EVAL16(EVAL16(__VA_ARGS__))
+#define EVAL16(...)   EVAL8(EVAL8(__VA_ARGS__))
+#define EVAL8(...)    EVAL4(EVAL4(__VA_ARGS__))
+#define EVAL4(...)    EVAL2(EVAL2(__VA_ARGS__))
+#define EVAL2(...)    EVAL1(EVAL1(__VA_ARGS__))
+#define EVAL1(...)    __VA_ARGS__
 
 #define EMPTY()
+#define DEFER(m) DEFER1(m)
 #define DEFER1(m) m EMPTY()
 #define DEFER2(m) m EMPTY EMPTY()()
 #define DEFER3(m) m EMPTY EMPTY EMPTY()()()
@@ -278,11 +296,12 @@
 
 
 /* Paired Map */
-#define MAP_PAIR_PARAMETERS(f, p1, ...)            \
+#define MAP_PAIR_PARAMETERS(f, p1, ...)             \
   DEFER2(f)p1                                       \
   IF_ELSE(NUM_ARGS(__VA_ARGS__))(                   \
     DEFER2(_MAP_PAIR_PARAMETERS)()(f, __VA_ARGS__)  \
   )()
+
 #define _MAP_PAIR_PARAMETERS()  MAP_PAIR_PARAMETERS
 
 /* Counting Map */
@@ -291,17 +310,18 @@
     DEFER2(_MAP_COUNTING)()(f, DEC(i))            \
     f(i)                                          \
   )()
-#define _MAP_COUNTING() MAP_COUNTING
 
+#define _MAP_COUNTING()   MAP_COUNTING
 
 
 /* Standard Map */
-#define MAP(m, first, ...)           \
-  m(first)                 \
-  IF_ELSE(NUM_ARGS(__VA_ARGS__))(    \
-    DEFER2(_MAP)()(m, __VA_ARGS__)   \
+#define MAP(m, first, ...)            \
+  m(first)                            \
+  IF_ELSE(NUM_ARGS(__VA_ARGS__))(     \
+    DEFER2(_MAP)()(m, __VA_ARGS__)    \
   )()
-#define _MAP() MAP
+
+#define _MAP()  MAP
 
 
 
