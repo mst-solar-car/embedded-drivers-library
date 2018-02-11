@@ -5,46 +5,87 @@
  */
 #ifdef UNIT_TEST
 #include "interface.h"
+#include "../library.h"
 #include "../testing/framework.h"
 
 CREATE_GROUP(PinControl);
 
 
-/* MOCK Functions */
-void MOCK_FUNC(set_pin_mode, (io_pin pin, pin_mode mode));
-void MOCK_FUNC(set_pin_level, (io_pin pin, pin_level level));
-pin_level MOCK_FUNC(read_pin, (io_pin pin), {
-  return Low;
-});
+
+/* MOCK */
+extern vuint8_t* dir_registers[];
+extern vuint8_t* out_registers[];
+extern vuint8_t* in_registers[];
 
 
 /* Test Setting Pin Mode */
 TEST(PinControl, SetPinMode)
 {
-  pin_set_mode(43, Input);
+  TEST_ASSERT_EQUAL(Output, *(dir_registers[PORT2]));
 
-  TEST_ASSERT_MOCK_CALLED(set_pin_mode);
+  // Set as Input
+  pin_set_mode(P2_3, Input);
+  TEST_ASSERT_BITS_HIGH(BIT3, *(dir_registers[PORT2]));
+
+  // Set as Output
+  pin_set_mode(P2_3, Output);
+  TEST_ASSERT_BITS_LOW(BIT3, *(dir_registers[PORT2]));
 }
 
 
 /* Test Setting Pin Level */
 TEST(PinControl, SetPinLevel)
 {
-  pin_set_level(43, Low);
+  TEST_ASSERT_EQUAL(0x00, *(out_registers[PORT2]));
 
-  TEST_ASSERT_MOCK_CALLED(set_pin_level);
+  // Set As High
+  pin_set_level(P2_3, High);
+  TEST_ASSERT_BITS_HIGH(BIT3, *(out_registers[PORT2]));
+
+  // Set another one High
+  pin_set_level(P2_2, High);
+  TEST_ASSERT_BITS_HIGH(BIT2 + BIT3, *(out_registers[PORT2]));
+
+  // Set low
+  pin_set_level(P2_3, Low);
+  TEST_ASSERT_BITS_HIGH(BIT2, *(out_registers[PORT2]));
+  TEST_ASSERT_BITS_LOW(BIT3, *(out_registers[PORT2]));
 }
 
 
 /* Test Reading the Pin */
 TEST(PinControl, ReadPin)
 {
-  pin_level level = pin_read(43);
+  TEST_ASSERT_EQUAL(0x00, *(in_registers[PORT2]));
 
-  TEST_ASSERT_MOCK_CALLED(read_pin);
-  TEST_ASSERT_EQUAL(Low, level);
+  // Set a pin high and test read level
+  *(in_registers[PORT2]) |= BIT3;
+  TEST_ASSERT_EQUAL(High, pin_read(P2_3));
+
+  // Set another high
+  *(in_registers[PORT2]) |= BIT6;
+  TEST_ASSERT_EQUAL(High, pin_read(P2_6));
+
+  // Set low
+  *(in_registers[PORT2]) &= ~BIT3;
+  TEST_ASSERT_EQUAL(Low, pin_read(P2_3));
+
+  // Make sure the other is still High
+  TEST_ASSERT_EQUAL(High, pin_read(P2_6));
 }
 
+
+/* Test Toggling Pins */
+TEST(PinControl, TogglePin)
+{
+  TEST_ASSERT_EQUAL(0x00, *(out_registers[PORT2]));
+
+  pin_toggle(P2_3);
+  TEST_ASSERT_BITS_HIGH(BIT3, *(out_registers[PORT2]));
+
+  pin_toggle(P2_3);
+  TEST_ASSERT_BITS_LOW(BIT3, *(out_registers[PORT2]));
+}
 
 
 
@@ -54,6 +95,7 @@ GROUP_RUNNER(PinControl)
   PERFORM_TEST(PinControl, SetPinMode);
   PERFORM_TEST(PinControl, SetPinLevel);
   PERFORM_TEST(PinControl, ReadPin);
+  PERFORM_TEST(PinControl, TogglePin);
 }
 
 
@@ -61,13 +103,10 @@ GROUP_RUNNER(PinControl)
 /* Runs before every test in the PinControl Group */
 GROUP_TEST_SETUP(PinControl)
 {
-  RESET_MOCK(set_pin_mode);
-  RESET_MOCK(set_pin_level);
-  RESET_MOCK(read_pin);
-
-  /* Initialize the PinControl Drivers */
-  pin_control_initialization(MOCK(set_pin_mode), MOCK(set_pin_level), MOCK(read_pin));
-
+  /* Reset Registers */
+  *(dir_registers[PORT2]) = Output;
+  *(out_registers[PORT2]) = 0x00;
+  *(in_registers[PORT2]) = 0x00;
 }
 
 /* Runs after every test */

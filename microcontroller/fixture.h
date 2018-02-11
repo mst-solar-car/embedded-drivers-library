@@ -109,7 +109,11 @@
     void __attribute__((constructor(300))) __PORT##port##_REGISTER_SETUP(void) {   \
       dir_registers[PORT_NAME(port)] = (dir != NO_REGISTER) ? REG(dir) : REG(NULL);                              \
       out_registers[PORT_NAME(port)] = (out != NO_REGISTER) ? REG(out) : REG(NULL);                              \
-      in_registers[PORT_NAME(port)]  = (in != NO_REGISTER) ? REG(in)  : REG(NULL);                              \
+       in_registers[PORT_NAME(port)] = (in != NO_REGISTER)  ? REG(in)  : REG(NULL);                              \
+      sel_registers[PORT_NAME(port)] = (sel != NO_REGISTER) ? REG(sel) : REG(NULL);                             \
+      ies_registers[PORT_NAME(port)] = (ies != NO_REGISTER) ? REG(ies) : REG(NULL);                             \
+       ie_registers[PORT_NAME(port)] = (ie != NO_REGISTER)  ? REG(ie)  : REG(NULL);                             \
+      ifg_registers[PORT_NAME(port)] = (ifg != NO_REGISTER) ? REG(ifg) : REG(NULL);                             \
     };
 
 #else

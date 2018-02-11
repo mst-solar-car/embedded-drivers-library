@@ -5,6 +5,7 @@
  */
 #ifdef UNIT_TEST
 #include "../library.h"
+#include "../datatypes.h"
 #include "interface.h"
 #include "../testing/framework.h"
 
@@ -12,20 +13,20 @@
 CREATE_GROUP(Interrupts);
 
 
-extern vuint16_t* ifg_registers[]; // Spy on the IFG register of the Interrupt Drivers
-
 /* Mock Functions Needed */
 void MOCK_FUNC(sample_isr, (void));
 void MOCK_FUNC(sample_isr2, (void));
 
+
+extern vuint8_t* ifg_registers[];
 
 
 /* Test Attaching and Dispatching an Interrupt */
 TEST(Interrupts, AttachAndDispatchInterrupt)
 {
   // Arrange
+  printf("hey\n");
   interrupt_attach(P2_4, MOCK(sample_isr));
-
   /* These ISRs should not get called */
   interrupt_attach(P2_0, MOCK(sample_isr2));
   interrupt_attach(P2_1, MOCK(sample_isr2));

@@ -113,7 +113,7 @@ uint8_t __microcontroller_spi_transmit(spi_bus bus, void* data, uint8_t size)
 /* Microcontroller Initialization */
 void microcontroller_initialization(void)
 {
-    WDTCTL = WDTPW + WDTHOLD;
+   // WDTCTL = WDTPW + WDTHOLD;
   /* Set all GPIO ports to Output and Low */
   *(dir_registers[PORT1]) = Output; *(out_registers[PORT1]) = Low;
   *(dir_registers[PORT2]) = Output; *(out_registers[PORT2]) = Low;

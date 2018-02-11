@@ -5,18 +5,10 @@
  */
 #include "../datatypes.h"
 #include "interface.h"
-#include <msp430f5529.h>
 
 
 /* Allows for access to registers defined in the microcontrollers driver */
-extern pin_map_t pin_map[];
-extern vuint8_t* out_registers[];
-extern vuint8_t* in_registers[];
-extern vuint8_t* dir_registers[];
-extern vuint8_t* sel_registers[];
-extern vuint8_t* ies_registers[];
-extern vuint8_t* ie_registers[];
-extern vuint8_t* ifg_registers[];
+
 
 
 /**
@@ -37,6 +29,7 @@ void pin_set_mode(io_pin pin, pin_mode mode)
 }
 
 
+
 /* Sets a pin to a level (e.g., High or Low) */
 void pin_set_level(io_pin pin, pin_level level)
 {
@@ -49,7 +42,6 @@ void pin_set_level(io_pin pin, pin_level level)
   else
     *(_pin.out_reg) &= ~(_pin.bit);
 }
-
 
 /* Toggles a pin, sets it High if it is Low, and Low if it is High */
 void pin_toggle(io_pin pin)

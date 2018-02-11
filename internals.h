@@ -151,4 +151,17 @@ typedef struct _port_info_t {
   )
 
 
+
+
+
+/* Allow access to these */
+extern pin_map_t pin_map[];
+extern vuint8_t* out_registers[];
+extern vuint8_t* in_registers[];
+extern vuint8_t* dir_registers[];
+extern vuint8_t* sel_registers[];
+extern vuint8_t* ies_registers[];
+extern vuint8_t* ie_registers[];
+extern vuint8_t* ifg_registers[];
+
 #endif
