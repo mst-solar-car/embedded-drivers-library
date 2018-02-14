@@ -3,10 +3,6 @@
  *
  * Authors: Michael Rouse
  */
-#ifndef UNIT_TEST
-#include <msp430f5529.h>
-#endif
-
 
 // Registers for PORT1
 MAKE_REGISTERS(
@@ -92,3 +88,12 @@ MAKE_REGISTERS(
 
 
 
+/* Create Registers when unit testing */
+#ifdef UNIT_TEST
+#include "../../testing/mock.h"
+
+MOCK_REGISTER(WDTCTL);
+MOCK_CONSTANT(WDTHOLD,  0x0080);
+MOCK_CONSTANT(WDTPW,    0x5A00);
+
+#endif

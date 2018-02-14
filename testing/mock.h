@@ -39,7 +39,9 @@
                                               }
 
 
-/* Directives for Mocking Registers */
+/* Mocking Registers */
+#define MOCK_REGISTER(r)        EVAL256(MAKE_REGISTERS((r, 0x00)))
+#define MOCK_CONSTANT(c, v)     enum { c = v, }
 
 
 /* Used to check if a mock function was called */

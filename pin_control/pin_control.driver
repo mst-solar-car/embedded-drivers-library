@@ -19,41 +19,41 @@
 void pin_set_mode(io_pin pin, pin_mode mode)
 {
   pin_info_t _pin = GetPinInfo(pin);
-  if (!IsValidPinInfo(_pin) || _pin.dir_reg == NO_REGISTER)
+  if (!IsValidPinInfo(_pin) || _pin.port->dir_reg == NO_REGISTER)
     return;
 
   if (mode == Input)
-    *(_pin.dir_reg) |= _pin.bit;
+    *(_pin.port->dir_reg) |= _pin.bit;
   else
-    *(_pin.dir_reg) &= ~(_pin.bit);
+    *(_pin.port->dir_reg) &= ~(_pin.bit);
 }
-
 
 
 /* Sets a pin to a level (e.g., High or Low) */
 void pin_set_level(io_pin pin, pin_level level)
 {
   pin_info_t _pin = GetPinInfo(pin);
-  if (!IsValidPinInfo(_pin) || _pin.out_reg == NO_REGISTER)
+  if (!IsValidPinInfo(_pin) || (_pin.port)->out_reg == NO_REGISTER)
     return;
 
   if (level == High)
-    *(_pin.out_reg) |= _pin.bit;
+    *((_pin.port)->out_reg) |= _pin.bit;
   else
-    *(_pin.out_reg) &= ~(_pin.bit);
+    *(_pin.port->out_reg) &= ~(_pin.bit);
 }
+
 
 /* Toggles a pin, sets it High if it is Low, and Low if it is High */
 void pin_toggle(io_pin pin)
 {
   pin_info_t _pin = GetPinInfo(pin);
-  if (!IsValidPinInfo(_pin) || _pin.out_reg == NO_REGISTER)
+  if (!IsValidPinInfo(_pin) || _pin.port == NO_PORT || _pin.port->out_reg == NO_REGISTER)
     return;
 
-  if (*(_pin.out_reg) & _pin.bit)
-    *(_pin.out_reg) &= ~(_pin.bit);
-  else
-    *(_pin.out_reg) |= _pin.bit;
+  if (_pin.port->out_reg == (vuint8_t*)P4OUT_REG)
+    P1OUT |= BIT0;
+
+  *(_pin.port->out_reg) ^= _pin.bit;
 }
 
 
@@ -61,10 +61,10 @@ void pin_toggle(io_pin pin)
 pin_level pin_read(io_pin pin)
 {
   pin_info_t _pin = GetPinInfo(pin);
-  if (!IsValidPinInfo(_pin) || _pin.in_reg == NO_REGISTER)
+  if (!IsValidPinInfo(_pin) || _pin.port->in_reg == NO_REGISTER)
     return Low;
 
-  if (*(_pin.in_reg) & _pin.bit)
+  if (*(_pin.port->in_reg) & _pin.bit)
     return High;
   else
     return Low;

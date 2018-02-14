@@ -3,9 +3,7 @@
  *
  * Authors: Michael Rouse
  */
-#ifndef UNIT_TEST
-#include <msp430f5529.h>
-#endif
+
 #include "../fixture.h"
 #include "../interface.h"
 #include "../../datatypes.h"
@@ -113,8 +111,20 @@ uint8_t __microcontroller_spi_transmit(spi_bus bus, void* data, uint8_t size)
 /* Microcontroller Initialization */
 void microcontroller_initialization(void)
 {
-   // WDTCTL = WDTPW + WDTHOLD;
-  /* Set all GPIO ports to Output and Low */
+  REGISTER(WDTCTL) = (0x5A00) + (0x0080);
+
+  /* Set all GPIO Ports to Output and Low */
+  *(port_map[PORT1].dir_reg) = Output;   *(port_map[PORT1].out_reg) = Low;
+  *(port_map[PORT2].dir_reg) = Output;   *(port_map[PORT2].out_reg) = Low;
+  *(port_map[PORT3].dir_reg) = Output;   *(port_map[PORT3].out_reg) = Low;
+  *(port_map[PORT4].dir_reg) = Output;   *(port_map[PORT4].out_reg) = Low;
+  *(port_map[PORT5].dir_reg) = Output;   *(port_map[PORT5].out_reg) = Low;
+  *(port_map[PORT6].dir_reg) = Output;   *(port_map[PORT6].out_reg) = Low;
+  *(port_map[PORT7].dir_reg) = Output;   *(port_map[PORT7].out_reg) = Low;
+  *(port_map[PORT8].dir_reg) = Output;   *(port_map[PORT8].out_reg) = Low;
+
+
+  /* Set all GPIO ports to Output and Low *
   *(dir_registers[PORT1]) = Output; *(out_registers[PORT1]) = Low;
   *(dir_registers[PORT2]) = Output; *(out_registers[PORT2]) = Low;
   *(dir_registers[PORT3]) = Output; *(out_registers[PORT3]) = Low;
@@ -122,5 +132,5 @@ void microcontroller_initialization(void)
   *(dir_registers[PORT5]) = Output; *(out_registers[PORT5]) = Low;
   *(dir_registers[PORT6]) = Output; *(out_registers[PORT6]) = Low;
   *(dir_registers[PORT7]) = Output; *(out_registers[PORT7]) = Low;
-  *(dir_registers[PORT8]) = Output; *(out_registers[PORT8]) = Low;
+  *(dir_registers[PORT8]) = Output; *(out_registers[PORT8]) = Low;*/
 }

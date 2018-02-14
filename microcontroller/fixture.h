@@ -47,13 +47,7 @@
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   /* C File */
   #define REGISTER_PORTS(...)                             \
-    vuint8_t* dir_registers[NUM_ARGS(1, __VA_ARGS__)];   \
-    vuint8_t* out_registers[NUM_ARGS(1, __VA_ARGS__)];   \
-    vuint8_t*  in_registers[NUM_ARGS(1, __VA_ARGS__)];   \
-    vuint8_t* sel_registers[NUM_ARGS(1, __VA_ARGS__)];   \
-    vuint8_t* ies_registers[NUM_ARGS(1, __VA_ARGS__)];   \
-    vuint8_t*  ie_registers[NUM_ARGS(1, __VA_ARGS__)];   \
-    vuint8_t* ifg_registers[NUM_ARGS(1, __VA_ARGS__)];
+    port_info_t port_map[NUM_ARGS(1, __VA_ARGS__)];
 
 #else
   /* Header File */
@@ -107,13 +101,13 @@
   /* C File */
   #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)           \
     void __attribute__((constructor(300))) __PORT##port##_REGISTER_SETUP(void) {   \
-      dir_registers[PORT_NAME(port)] = (dir != NO_REGISTER) ? REG(dir) : REG(NULL);                              \
-      out_registers[PORT_NAME(port)] = (out != NO_REGISTER) ? REG(out) : REG(NULL);                              \
-       in_registers[PORT_NAME(port)] = (in != NO_REGISTER)  ? REG(in)  : REG(NULL);                              \
-      sel_registers[PORT_NAME(port)] = (sel != NO_REGISTER) ? REG(sel) : REG(NULL);                             \
-      ies_registers[PORT_NAME(port)] = (ies != NO_REGISTER) ? REG(ies) : REG(NULL);                             \
-       ie_registers[PORT_NAME(port)] = (ie != NO_REGISTER)  ? REG(ie)  : REG(NULL);                             \
-      ifg_registers[PORT_NAME(port)] = (ifg != NO_REGISTER) ? REG(ifg) : REG(NULL);                             \
+      port_map[PORT_NAME(port)].dir_reg = REG(dir);                                \
+      port_map[PORT_NAME(port)].out_reg = REG(out);                                 \
+      port_map[PORT_NAME(port)].in_reg = REG(in);  \
+      port_map[PORT_NAME(port)].sel_reg = REG(sel); \
+      port_map[PORT_NAME(port)].ies_reg = REG(ies); \
+      port_map[PORT_NAME(port)].ie_reg = REG(ie); \
+      port_map[PORT_NAME(port)].ifg_reg = REG(ifg); \
     };
 
 #else
@@ -205,9 +199,9 @@
 
   #else
     /* Unit Testing in Header File */
-    #define MAKE_REGISTERS(...)         EVAL256(MAP_PAIR_PARAMETERS(_MAKE_REGISTER, __VA_ARGS__))
+    #define MAKE_REGISTERS(...)           EVAL256(MAP_PAIR_PARAMETERS(_MAKE_REGISTER, __VA_ARGS__))
 
-    #define _MAKE_REGISTER(name, addr)   extern vuint8_t* name;
+    #define _MAKE_REGISTER(name, addr)    extern vuint8_t* name;
   #endif
 #endif
 
