@@ -50,9 +50,6 @@ void pin_toggle(io_pin pin)
   if (!IsValidPinInfo(_pin) || _pin.port == NO_PORT || _pin.port->out_reg == NO_REGISTER)
     return;
 
-  if (_pin.port->out_reg == (vuint8_t*)P4OUT_REG)
-    P1OUT |= BIT0;
-
   *(_pin.port->out_reg) ^= _pin.bit;
 }
 

@@ -93,7 +93,5 @@ MAKE_REGISTERS(
 #include "../../testing/mock.h"
 
 MOCK_REGISTER(WDTCTL);
-MOCK_CONSTANT(WDTHOLD,  0x0080);
-MOCK_CONSTANT(WDTPW,    0x5A00);
 
 #endif

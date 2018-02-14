@@ -101,6 +101,7 @@
   /* C File */
   #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)           \
     void __attribute__((constructor(300))) __PORT##port##_REGISTER_SETUP(void) {   \
+      port_map[PORT_NAME(port)].number = PORT_NAME(port);                         \
       port_map[PORT_NAME(port)].dir_reg = REG(dir);                                \
       port_map[PORT_NAME(port)].out_reg = REG(out);                                 \
       port_map[PORT_NAME(port)].in_reg = REG(in);  \

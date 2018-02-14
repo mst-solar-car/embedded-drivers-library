@@ -22,11 +22,12 @@ void interrupt_attach(io_pin pin, void(*func)(void))
   pin_info_t _pin = GetPinInfo(pin);
   if (!IsValidPinInfo(_pin) || _pin.port->ifg_reg == NO_REGISTER || _pin.port->ie_reg == NO_REGISTER)
     return;
+
   uint8_t bit = GetBitIndex(_pin.bit);
   if (bit == NO_BIT)
     return;
 
-  _pinInterrupts[_pin.port->number][bit] = func;
+  _pinInterrupts[(_pin.port)->number][bit] = func;
 }
 
 

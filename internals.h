@@ -135,8 +135,11 @@ typedef struct _pin_map_t {
 
 
 /* Used for accessing registers */
-#define REGISTER(name)    IF_ELSE(defined(name))((name))((*(name)))
-
+#ifndef UNIT_TEST
+#define REGISTER(name)     (name)
+#else
+#define REGISTER(name)      (*(name))
+#endif
 
 /* Allow access to these */
 extern pin_map_t pin_map[];
