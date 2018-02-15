@@ -6,6 +6,7 @@
     "interface.h": "c",
     "mock.h": "c",
     "stdlib.h": "c",
-    "*.spec": "c"
+    "*.spec": "c",
+    "*.mock": "c"
   }
 }

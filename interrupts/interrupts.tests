@@ -18,7 +18,6 @@ void MOCK_FUNC(sample_isr, (void));
 void MOCK_FUNC(sample_isr2, (void));
 
 
-extern port_info_t port_map[];
 
 /* Test Attaching and Dispatching an Interrupt */
 TEST(Interrupts, AttachAndDispatchInterrupt)
@@ -36,12 +35,12 @@ TEST(Interrupts, AttachAndDispatchInterrupt)
   interrupt_attach(P2_7, MOCK(sample_isr2));
 
   // Act
-  *(port_map[PORT2].ifg_reg) |= BIT4;
+  P2IFG |= BIT4;
   __interrupt_dispatch(PORT2);
 
   // Assert
   TEST_ASSERT_MOCK_CALLED(sample_isr);
-  TEST_ASSERT_EQUAL(0x00, *(port_map[PORT2].ifg_reg));
+  TEST_ASSERT_EQUAL(0x00, P2IFG);
 
   TEST_ASSERT_MOCK_NOT_CALLED(sample_isr2);
 }
@@ -63,7 +62,7 @@ GROUP_TEST_SETUP(Interrupts)
   RESET_MOCK(sample_isr);
   RESET_MOCK(sample_isr2);
 
-  *(port_map[PORT2].ifg_reg) = 0x00;
+  P2IFG = 0x00;
 }
 
 /* Runs after every test */

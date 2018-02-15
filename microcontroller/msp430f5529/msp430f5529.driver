@@ -13,7 +13,6 @@
 /* Configures a SPI Bus */
 void __microcontroller_spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck)
 {
-#ifndef UNIT_TEST
   switch (bus) {
       case SPI_BUS_1:
         // UCA0
@@ -59,7 +58,6 @@ void __microcontroller_spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin s
         UCB1CTL1 &= ~UCSWRST;   //Release the bus from reset state
         break;
   }
-#endif
 }
 
 
@@ -67,7 +65,6 @@ void __microcontroller_spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin s
 uint8_t __microcontroller_spi_transmit(spi_bus bus, void* data, uint8_t size)
 {
   uint8_t* d = (uint8_t*)data;
-#ifndef UNIT_TEST
   switch (bus) {
     case SPI_BUS_1:
       // UCA0
@@ -97,11 +94,9 @@ uint8_t __microcontroller_spi_transmit(spi_bus bus, void* data, uint8_t size)
       while ((UCB1STAT & UCBUSY) != 0);
       return UCB1RXBUF;
   }
-#endif
+
   return 0;
 }
-
-
 
 
 
@@ -111,7 +106,7 @@ uint8_t __microcontroller_spi_transmit(spi_bus bus, void* data, uint8_t size)
 /* Microcontroller Initialization */
 void microcontroller_initialization(void)
 {
-  REGISTER(WDTCTL) = (0x5A00) + (0x0080);
+  WDTCTL = WDTPW + WDTHOLD;
 
   /* Set all GPIO Ports to Output and Low */
   *(port_map[PORT1].dir_reg) = Output;   *(port_map[PORT1].out_reg) = Low;
@@ -122,15 +117,4 @@ void microcontroller_initialization(void)
   *(port_map[PORT6].dir_reg) = Output;   *(port_map[PORT6].out_reg) = Low;
   *(port_map[PORT7].dir_reg) = Output;   *(port_map[PORT7].out_reg) = Low;
   *(port_map[PORT8].dir_reg) = Output;   *(port_map[PORT8].out_reg) = Low;
-
-
-  /* Set all GPIO ports to Output and Low *
-  *(dir_registers[PORT1]) = Output; *(out_registers[PORT1]) = Low;
-  *(dir_registers[PORT2]) = Output; *(out_registers[PORT2]) = Low;
-  *(dir_registers[PORT3]) = Output; *(out_registers[PORT3]) = Low;
-  *(dir_registers[PORT4]) = Output; *(out_registers[PORT4]) = Low;
-  *(dir_registers[PORT5]) = Output; *(out_registers[PORT5]) = Low;
-  *(dir_registers[PORT6]) = Output; *(out_registers[PORT6]) = Low;
-  *(dir_registers[PORT7]) = Output; *(out_registers[PORT7]) = Low;
-  *(dir_registers[PORT8]) = Output; *(out_registers[PORT8]) = Low;*/
 }

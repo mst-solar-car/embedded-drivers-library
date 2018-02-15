@@ -23,9 +23,9 @@ void pin_set_mode(io_pin pin, pin_mode mode)
     return;
 
   if (mode == Input)
-    *(_pin.port->dir_reg) |= _pin.bit;
+    SET_REGISTER_PTR_BIT_HIGH(_pin.port->dir_reg, _pin.bit);
   else
-    *(_pin.port->dir_reg) &= ~(_pin.bit);
+    SET_REGISTER_PTR_BIT_LOW(_pin.port->dir_reg, _pin.bit);
 }
 
 
@@ -37,9 +37,9 @@ void pin_set_level(io_pin pin, pin_level level)
     return;
 
   if (level == High)
-    *((_pin.port)->out_reg) |= _pin.bit;
+    SET_REGISTER_PTR_BIT_HIGH(_pin.port->out_reg, _pin.bit);
   else
-    *(_pin.port->out_reg) &= ~(_pin.bit);
+    SET_REGISTER_PTR_BIT_LOW(_pin.port->out_reg, _pin.bit);
 }
 
 
@@ -50,7 +50,7 @@ void pin_toggle(io_pin pin)
   if (!IsValidPinInfo(_pin) || _pin.port == NO_PORT || _pin.port->out_reg == NO_REGISTER)
     return;
 
-  *(_pin.port->out_reg) ^= _pin.bit;
+  TOGGLE_REGISTER_PTR_BIT(_pin.port->out_reg, _pin.bit);
 }
 
 

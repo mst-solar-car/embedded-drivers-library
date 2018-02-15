@@ -11,60 +11,56 @@
 CREATE_GROUP(PinControl);
 
 
-
-/* MOCK */
-extern port_info_t port_map[];
-
 /* Test Setting Pin Mode */
 TEST(PinControl, SetPinMode)
 {
-  TEST_ASSERT_EQUAL(Output, *(port_map[PORT2].dir_reg));
+  TEST_ASSERT_EQUAL(Output, P2DIR);
 
   // Set as Input
   pin_set_mode(P2_3, Input);
-  TEST_ASSERT_BITS_HIGH(BIT3, *(port_map[PORT2].dir_reg));
+  TEST_ASSERT_BITS_HIGH(BIT3, P2DIR);
 
   // Set as Output
   pin_set_mode(P2_3, Output);
-  TEST_ASSERT_BITS_LOW(BIT3, *(port_map[PORT2].dir_reg));
+  TEST_ASSERT_BITS_LOW(BIT3, P2DIR);
 }
 
 
 /* Test Setting Pin Level */
 TEST(PinControl, SetPinLevel)
 {
-  TEST_ASSERT_EQUAL(0x00, *(port_map[PORT2].out_reg));
+  TEST_ASSERT_EQUAL(0x00, P2OUT);
 
   // Set As High
   pin_set_level(P2_3, High);
-  TEST_ASSERT_BITS_HIGH(BIT3, *(port_map[PORT2].out_reg));
+  TEST_ASSERT_BITS_HIGH(BIT3, P2OUT);
 
   // Set another one High
   pin_set_level(P2_2, High);
-  TEST_ASSERT_BITS_HIGH(BIT2 + BIT3, *(port_map[PORT2].out_reg));
+  TEST_ASSERT_BITS_HIGH(BIT2 + BIT3, P2OUT);
 
   // Set low
   pin_set_level(P2_3, Low);
-  TEST_ASSERT_BITS_HIGH(BIT2, *(port_map[PORT2].out_reg));
-  TEST_ASSERT_BITS_LOW(BIT3, *(port_map[PORT2].out_reg));
+  TEST_ASSERT_BITS_HIGH(BIT2, P2OUT);
+  TEST_ASSERT_BITS_LOW(BIT3,  P2OUT);
 }
 
 
 /* Test Reading the Pin */
 TEST(PinControl, ReadPin)
 {
-  TEST_ASSERT_EQUAL(0x00, *(port_map[PORT2].in_reg));
+  TEST_ASSERT_EQUAL(0x00, P2IN);
 
   // Set a pin high and test read level
-  *(port_map[PORT2].in_reg) |= BIT3;
+  P2IN |= BIT3;
   TEST_ASSERT_EQUAL(High, pin_read(P2_3));
 
   // Set another high
-  *(port_map[PORT2].in_reg) |= BIT6;
+  P2IN |= BIT6;
   TEST_ASSERT_EQUAL(High, pin_read(P2_6));
 
   // Set low
-  *(port_map[PORT2].in_reg) &= ~BIT3;
+  P2IN &= ~BIT3;
   TEST_ASSERT_EQUAL(Low, pin_read(P2_3));
 
   // Make sure the other is still High
@@ -75,13 +71,13 @@ TEST(PinControl, ReadPin)
 /* Test Toggling Pins */
 TEST(PinControl, TogglePin)
 {
-  TEST_ASSERT_EQUAL(0x00, *(port_map[PORT2].out_reg));
+  TEST_ASSERT_EQUAL(0x00, P2OUT);
 
   pin_toggle(P2_3);
-  TEST_ASSERT_BITS_HIGH(BIT3, *(port_map[PORT2].out_reg));
+  TEST_ASSERT_BITS_HIGH(BIT3, P2OUT);
 
   pin_toggle(P2_3);
-  TEST_ASSERT_BITS_LOW(BIT3, *(port_map[PORT2].out_reg));
+  TEST_ASSERT_BITS_LOW(BIT3, P2OUT);
 }
 
 
@@ -101,9 +97,9 @@ GROUP_RUNNER(PinControl)
 GROUP_TEST_SETUP(PinControl)
 {
   /* Reset Registers */
-  *(port_map[PORT2].dir_reg) = Output;
-  *(port_map[PORT2].out_reg) = 0x00;
-  *(port_map[PORT2].in_reg) = 0x00;
+  P2DIR = Output;
+  P2OUT = 0x00;
+  P2IN = 0x00;
 }
 
 /* Runs after every test */
