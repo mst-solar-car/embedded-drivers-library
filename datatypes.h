@@ -92,12 +92,14 @@ typedef enum bool_t {
   Failure = __FALSE__,
   Busy    = __FALSE__,
   No      = __FALSE__,
+  Disable = __FALSE__,
 
   TRUE    = __TRUE__,
   True    = __TRUE__,
   true    = __TRUE__,
   Success = __TRUE__,
   Yes     = __TRUE__,
+  Enable  = __TRUE__,
 } bool;
 
 /* Enum for pin direction */

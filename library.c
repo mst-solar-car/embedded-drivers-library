@@ -26,9 +26,9 @@
 
 /* Custom Driver implementation of the CAN Controller */
 #include "can_controller/loader.h"
+#include "can/can.driver"
 
 #include "spi/spi.driver"
-#include "can/can.driver"
 #include "pin_control/pin_control.driver"
 #include "interrupts/interrupts.driver"
 #include "utils/utils.driver"
@@ -58,6 +58,8 @@ void __attribute__((constructor(999))) library_initialization(void)
 {
   /* Setup each driver */
   microcontroller_initialization();
+
+  interrupt_initialization(__microcontroller_interrupts_configure);
 
   can_initialization(can_controller_setup, can_controller_poll, can_controller_transmit);
 

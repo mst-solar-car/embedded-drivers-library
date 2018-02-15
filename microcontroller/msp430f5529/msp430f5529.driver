@@ -98,6 +98,15 @@ uint8_t __microcontroller_spi_transmit(spi_bus bus, void* data, uint8_t size)
 }
 
 
+/* Enables or disables interrupts */
+void __microcontroller_interrupts_configure(bool enable)
+{
+  if (enable == Enable)
+    __bis_SR_register(GIE);   // _enable_interrupts()
+  else
+    __bic_SR_register(GIE);   // _disable_interrupts()
+}
+
 
 
 /* Microcontroller Initialization */
@@ -115,6 +124,7 @@ void microcontroller_initialization(void)
   P7DIR = Output;   P7OUT = Low;
   P8DIR = Output;   P8OUT = Low;
 
+  __microcontroller_interrupts_configure(Enable); // Enable interrupts
 
   // Initialize the clock (by Jesse Cureton)
   UCSCTL3 &= ~(0x0070);   // Select XT1CLK (our 32.768 kHz crystal) as FLL reference

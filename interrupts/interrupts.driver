@@ -9,8 +9,15 @@
 /* Array to hold all registered interrupts */
 static voidFuncPtr _pinInterrupts[MC_NUMBER_OF_PORTS+1][17];
 
+/* Function Pointers */
+static void(*_mc_interrupt_configure)(bool);
 
 
+/* Set the state of interrupts */
+void interrupts_set_state(bool enable)
+{
+  _mc_interrupt_configure(enable);
+}
 
 
 /* Registers an event with on a pin */
@@ -70,3 +77,9 @@ void __interrupt_dispatch(uint8_t port)
 }
 
 
+
+/* Initialization, not ran by the user */
+void interrupt_initialization(void(*mc_interrupt_configure)(bool))
+{
+  _mc_interrupt_configure = mc_interrupt_configure;
+}
