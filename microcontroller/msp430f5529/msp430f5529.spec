@@ -5,6 +5,9 @@
  */
 #include "../fixture.h"
 
+/* System */
+CLOCK_SPEED_HZ(20000000);
+
 /* Register Pins and Ports */
 REGISTER_PINS(80);
 REGISTER_PORTS(1, 2, 3, 4, 5, 6, 7, 8, J);
@@ -37,8 +40,8 @@ REGISTER_PINS_FOR_PORT(J, 72, 73, 75, 75);
 REGISTER_SPI_BUSES(4);
 
 
-/* Interrupts *
+/* Interrupts */
 REGISTER_INTERRUPTABLE_PORTS(
   (PORT1, PORT1_VECTOR),
   (PORT2, PORT2_VECTOR)
-);*/
+);

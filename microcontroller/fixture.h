@@ -161,6 +161,22 @@
 #endif
 
 
+/**
+ * System
+ */
+#undef CLOCK_SPEED_HZ
+#ifdef RUN_SPEC_FILE_LIKE_C_FILE
+  /* C File */
+  #define CLOCK_SPEED_HZ(...)    /* Nothing */
+
+#else
+  /* Header File */
+  #define CLOCK_SPEED_HZ(speed)                             \
+    enum {                                                  \
+      MC_CLOCK_SPEED_HZ = speed,                            \
+    };
+#endif
+
 
 
 /**

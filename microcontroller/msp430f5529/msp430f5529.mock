@@ -24,11 +24,12 @@ MOCK_REGISTERS(
   UCB0CTL0, UCB0CTL1, UCB0BR0, UCB0BR1, UCB0STAT, UCB0TXBUF, UCB0RXBUF,
   UCB1CTL0, UCB1CTL1, UCB1BR0, UCB1BR1, UCB1STAT, UCB1TXBUF, UCB1RXBUF,
 
+  /* Clock */
+  UCSCTL0, UCSCTL1, UCSCTL2, UCSCTL3, UCSCTL4,
+
   /* Watchdog */
   WDTCTL,
 )
-
-
 
 
 
@@ -38,11 +39,25 @@ MOCK_CONSTANTS(
   UCSWRST = 0x01,   UCBUSY  = 0x01,   UCIDLE  = 0x02,   UCSSEL_0 = 0x00,
   UCSSEL_1 = 0x40,  UCSSEL_2 = 0x80,  UCSSEL_3 = 0xC0,
 
+  /* Clock */
+  FLLD0 = 0x1000,     FLLD1 = 0x2000,     FLLD2 = 0x400,
+  FLLD__0 = 0x000,    FLLD__1 = 0x1000,   FLLD__2 = 0x200,
+  DCORSEL_0 = 0x0000, DCORSEL_1 = 0x0010, DCORSEL_2 = 0x0020, DCORSEL_3 = 0x0030,
+  DCORSEL_4 = 0x0040, DCORSEL_5 = 0x0050, DCORSEL_6 = 0x0060, DCORSEL_7 = 0x0070,
+
+  /* Status */
+  SCG0, SCG1,
+  GIE,
+
   /* Watchdog */
   WDTPW = 0x5A00,     WDTHOLD = 0x0080,   WDTCNTCL = 0x0008,
   WDTSSEL0 = 0x0020,  WDTSSEL1 = 0x0040,  WDTIS2 = 0x0004,
-  WDT_ARST_1000 = (WDTPW+WDTCNTCL+WDTSSEL0+WDTIS2),
-
+  WDT_ARST_1000 = (WDTPW+WDTCNTCL+WDTSSEL0+WDTIS2)
 )
 
 
+
+/* Force code to work without stuff specific to MSP430GCC */
+#define __bis_SR_register(...)    /* Nothing */
+#define __bic_SR_register(...)    /* Nothing */
+#define __delay_cycles(...)       /* Nothing */
