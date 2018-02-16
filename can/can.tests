@@ -17,7 +17,6 @@ void MOCK_FUNC(can_controller_poll, (void));
 
 
 extern uint16_t filters[7];
-
 extern uint16_t masks[3];
 
 /* Test setting CAN filters and masks */

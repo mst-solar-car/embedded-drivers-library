@@ -9,9 +9,12 @@
  */
 #ifndef __LIBRARY__
 #define __LIBRARY__
+
 #ifndef __GNUC__
-#error "You need to be using GCC as your compiler!"
+/* Force the user to compile using GCC */
+#error (╯°□°)╯ ┻━┻ You need to be using GCC as your compiler!
 #endif
+
 
 #ifdef UNIT_TEST
 #include <stdlib.h>
@@ -37,5 +40,9 @@
 #include "interrupts/interface.h"
 
 
+
+/* Library Information */
+#define LIBRARY_NAME      Embedded Drivers Library
+#define LIBRARY_VERSION   v1.0
 
 #endif

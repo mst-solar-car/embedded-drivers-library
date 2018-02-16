@@ -11,8 +11,10 @@
 
 
 #ifndef MICROCONTROLLER
-  #error "Unkown Microcontroller! Please specify definition for 'MICROCONTROLLER' in microcontroller/registration.h"
+  #error Unkown Microcontroller! Please specify definition for 'MICROCONTROLLER' in microcontroller/registration.h
 #else
+
+
 
 #define LOAD_MICROCONTROLLER_PRODUCTION_HEADER(name)  <name.h>
 #define LOAD_MICROCONTROLLER_DRIVER_INTERFACE(name)   __STR(name/interface.h)
