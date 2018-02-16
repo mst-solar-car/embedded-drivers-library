@@ -27,7 +27,7 @@
 #undef _REGISTER_PIN
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   /* C File */
-  #define REGISTER_PINS(numberOfPins)   pin_map_t pin_map[numberOfPins+1];
+  #define REGISTER_PINS(numberOfPins)   pin_map_t pin_map[INC_##numberOfPins()]; /* Adds 1 to the number of pins */
 
 #else
   /* Header File */
@@ -46,74 +46,75 @@
 #undef _REGISTER_PORT
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   /* C File */
-  #define REGISTER_PORTS(...)                             \
-    port_info_t port_map[NUM_ARGS(1, __VA_ARGS__)];
+  #define REGISTER_PORTS(...)                                   \
+    port_info_t port_map[NUM_ARGS(1, __VA_ARGS__)] = {          \
+      EVAL256(MAP_PAIR_PARAMETERS(_REGISTER_PORT, __VA_ARGS__)) \
+    };
+
+  #define _REGISTER_PORT(port, ...)                             \
+    CAT(_SETUP_PORT, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__)
 
 #else
   /* Header File */
-  #define REGISTER_PORTS(...)                             \
-    enum {                                                \
-      __IGNORE_THIS_##__LINE__ = 0,                       \
-      EVAL256(MAP(_REGISTER_PORT, __VA_ARGS__))           \
-      MC_NUMBER_OF_PORTS = NUM_ARGS(__VA_ARGS__),         \
+  #define REGISTER_PORTS(...)                                             \
+    enum {                                                                \
+      __IGNORE_THIS_##__LINE__ = 0,                                       \
+      EVAL256(MAP_PAIR_PARAMETERS(_REGISTER_PORT, __VA_ARGS__))           \
+      MC_NUMBER_OF_PORTS = NUM_ARGS(__VA_ARGS__),                         \
     };
 
-  #define _REGISTER_PORT(p)    PORT_NAME(p),
+  #define _REGISTER_PORT(port, ...)    PORT_NAME(port),
 #endif
 
 
 /* Set port bits to pins in bulk */
 #undef REGISTER_PINS_FOR_PORT
+#undef _REGISTER_PINS_FOR_PORT
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   /* C File */
-  #define REGISTER_PINS_FOR_PORT(port, ...)                             \
-    void __attribute__((constructor(800))) __PORT##port##_SETUP(void) {      \
-      CAT(_SETUP_PIN_MAP_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__)    \
+  #define REGISTER_PINS_FOR_PORT(...)                                         \
+    void __attribute__((constructor(800))) __PORT_PIN_SETUP(void) {           \
+      EVAL256(MAP_PAIR_PARAMETERS(_REGISTER_PINS_FOR_PORT, __VA_ARGS__))      \
     };
+
+  #define _REGISTER_PINS_FOR_PORT(port, ...)                                  \
+    CAT(_SETUP_PIN_MAP_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__)
 
 #else
   /* Header File */
-  #define REGISTER_PINS_FOR_PORT(port, ...)                                   \
+  #define REGISTER_PINS_FOR_PORT(...)                                         \
     enum {                                                                    \
-      EVAL256(CAT(_PORT_BITS_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__))     \
-      MC_NUMBER_OF_BITS_ON_PORT##port = NUM_ARGS(__VA_ARGS__),               \
+      EVAL256(MAP_PAIR_PARAMETERS(_REGISTER_PINS_FOR_PORT, __VA_ARGS__))      \
     };
+
+  #define _REGISTER_PINS_FOR_PORT(port, ...)                                  \
+    CAT(_PORT_BITS_, NUM_ARGS(__VA_ARGS__))(port, __VA_ARGS__)                \
+    MC_NUMBER_OF_BITS_ON_PORT##port = NUM_ARGS(__VA_ARGS__),
 #endif
 
 
-/* Register Pin Aliases (other functions, etc..) */
-#undef REGISTER_PIN_ALIAS
+/* Register Aliases For Something (other functions, etc..) */
+#undef REGISTER_ALIAS
+#undef REGISTER_ALIASES
+#undef _MAKE_ALIAS
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   /* C File */
-  #define REGISTER_PIN_ALIAS(pin, alias)  /* Nothing */
+  #define REGISTER_ALIASES(...)       /* Nothing */
+  #define REGISTER_ALIAS(alias)  /* Nothing */
 
 #else
   /* Header File */
-  #define REGISTER_PIN_ALIAS(pin, alias)      \
-    enum {                                    \
-      alias = pin,                            \
-    };
-#endif
-
-/* Setup Registers for the Ports */
-#undef SET_PORT_REGISTERS
-#ifdef RUN_SPEC_FILE_LIKE_C_FILE
-  /* C File */
-  #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg)           \
-    void __attribute__((constructor(300))) __PORT##port##_REGISTER_SETUP(void) {   \
-      port_map[PORT_NAME(port)].number = PORT_NAME(port);                         \
-      port_map[PORT_NAME(port)].dir_reg = REG(dir);                                \
-      port_map[PORT_NAME(port)].out_reg = REG(out);                                 \
-      port_map[PORT_NAME(port)].in_reg = REG(in);  \
-      port_map[PORT_NAME(port)].sel_reg = REG(sel); \
-      port_map[PORT_NAME(port)].ies_reg = REG(ies); \
-      port_map[PORT_NAME(port)].ie_reg = REG(ie); \
-      port_map[PORT_NAME(port)].ifg_reg = REG(ifg); \
+  #define REGISTER_ALIASES(...)                                               \
+    enum {                                                                    \
+      EVAL256(MAP(_MAKE_ALIAS, __VA_ARGS__))                                  \
     };
 
-#else
-  /* Header File */
-  #define SET_PORT_REGISTERS(port, dir, out, in, sel, ies, ie, ifg) /* Nothing */
+  #define REGISTER_ALIAS(alias)                                               \
+    enum {                                                                    \
+      _MAKE_ALIAS(alias)                                                      \
+    };
+
+  #define _MAKE_ALIAS(assignment)   assignment,
 #endif
 
 
@@ -145,7 +146,8 @@
 #undef _REGISTER_INTERRUPTABLE_PORT
 #ifdef RUN_SPEC_FILE_LIKE_C_FILE
   /* C File */
-  #define REGISTER_INTERRUPTABLE_PORTS(...)   EVAL256(MAP_PAIR_PARAMETERS(_REGISTER_INTERRUPTABLE_PORT, __VA_ARGS__))
+  #define REGISTER_INTERRUPTABLE_PORTS(...)   \
+    EVAL256(MAP_PAIR_PARAMETERS(_REGISTER_INTERRUPTABLE_PORT, __VA_ARGS__))
 
   #define _REGISTER_INTERRUPTABLE_PORT(p,v)                           \
     void __attribute__((interrupt(v))) __##p##_ISR(void) {            \
@@ -235,6 +237,15 @@
 #define _SETUP_PIN_MAP_9(n,p1,p2,p3,p4,p5,p6,p7,p8,p9)    _SETUP_PIN_MAP_8(n,p1,p2,p3,p4,p5,p6,p7,p8) _SETUP_PIN_MAP(n,8,p9)
 
 
+#define _SETUP_PORT(p, dir, out, in, sel, ies, ie, ifg)  (port_info_t){ PORT_NAME(p), REG(dir), REG(out), REG(in), REG(sel), REG(ies), REG(ie), REG(ifg) },
+#define _SETUP_PORT0(p)                                  _SETUP_PORT(p, NO_REGISTER, NO_REGISTER, NO_REGISTER, NO_REGISTER, NO_REGISTER, NO_REGISTER, NO_REGISTER)
+#define _SETUP_PORT1(p, dir)                             _SETUP_PORT(p, dir, NO_REGISTER, NO_REGISTER, NO_REGISTER, NO_REGISTER, NO_REGISTER, NO_REGISTER)
+#define _SETUP_PORT2(p, dir, out)                        _SETUP_PORT(p, dir, out, NO_REGISTER, NO_REGISTER, NO_REGISTER, NO_REGISTER, NO_REGISTER)
+#define _SETUP_PORT3(p, dir, out, in)                    _SETUP_PORT(p, dir, out, in, NO_REGISTER, NO_REGISTER, NO_REGISTER, NO_REGISTER)
+#define _SETUP_PORT4(p, dir, out, in, sel)               _SETUP_PORT(p, dir, out, in, sel, NO_REGISTER, NO_REGISTER, NO_REGISTER)
+#define _SETUP_PORT5(p, dir, out, in, sel, ies)          _SETUP_PORT(p, dir, out, in, sel, ies, NO_REGISTER, NO_REGISTER)
+#define _SETUP_PORT6(p, dir, out, in, sel, ies, ie)      _SETUP_PORT(P, dir, out, in, sel, ies, ie, NO_REGISTER)
+#define _SETUP_PORT7(p, dir, out, in, sel, ies, ie, ifg) _SETUP_PORT(p, dir, out, in, sel, ies, ie, ifg)
 
 
 
