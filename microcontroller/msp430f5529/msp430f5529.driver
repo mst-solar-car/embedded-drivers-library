@@ -1,4 +1,4 @@
-  /**
+/**
  * MSP430F5529
  *
  * Authors: Michael Rouse
@@ -6,8 +6,20 @@
 #include "../fixture.h"
 #include "../interface.h"
 #include "../../datatypes.h"
+#include "msp430f5529.h"
 
 
+/**
+ * Functions for the user
+ */
+
+
+
+
+
+/**
+ * Functions not for the user
+ */
 
 /* Configures a SPI Bus */
 void __microcontroller_spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck)
@@ -112,7 +124,7 @@ void __microcontroller_interrupts_configure(bool enable)
 /* Microcontroller Initialization */
 void microcontroller_initialization(void)
 {
-  WDTCTL = WDTPW + WDTHOLD; // Disable watchdog
+  watchdog_disable();
 
   /* Set all GPIO Ports to Output and Low */
   P1DIR = Output;   P1OUT = Low;

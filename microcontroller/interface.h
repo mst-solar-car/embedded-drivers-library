@@ -11,6 +11,7 @@
 #include "../datatypes.h"
 
 
+
 /* Configures a SPI Bus */
 void __microcontroller_spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck);
 

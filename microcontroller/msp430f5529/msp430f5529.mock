@@ -61,3 +61,4 @@ MOCK_CONSTANTS(
 #define __bis_SR_register(...)    /* Nothing */
 #define __bic_SR_register(...)    /* Nothing */
 #define __delay_cycles(...)       /* Nothing */
+#define _no_operation(...)        /* Nothing */
