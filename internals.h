@@ -26,7 +26,7 @@ typedef struct _port_info_t {
 
 /* Information about a Pin */
 typedef struct _pin_info_t {
-  port_info_t* const port;
+  port_info_t* port;
   uint8_t bit;
 } pin_info_t;
 
@@ -37,13 +37,19 @@ typedef struct _pin_map_t {
 } pin_map_t;
 
 /* Returns information about a pin */
-#define GetPinInfo(pin) ((pin > MC_NUMBER_OF_PINS || pin < 1) ? __NO_PIN_INFO :  \
-  ((pin_info_t){                                                          \
-    &(port_map[pin_map[pin].port]),                                          \
-    pin_map[pin].bit                                                     \
-  }))
+#define GetPinInfo(pin)                                                       \
+  (                                                                           \
+    (                                                                         \
+      (uint8_t)(pin) > (uint8_t)(MC_NUMBER_OF_PINS) ||                        \
+      (uint8_t)(pin) < 1                                                      \
+    )                                                                         \
+    ? __NO_PIN_INFO :                                                         \
+    ((pin_info_t){                                                            \
+      &(port_map[pin_map[pin].port]),                                         \
+      pin_map[pin].bit                                                        \
+    }))
 
-#define IsValidPinInfo(pi)    (pi.port != (port_info_t*)NO_PORT && pi.bit != NO_BIT)
+#define IsValidPinInfo(pi) (pi.port != (port_info_t*)NO_PORT && pi.bit != NO_BIT)
 
 /* Pin Info for No Pin (an invalid pin) */
 #define __NO_PIN_INFO               \
@@ -54,17 +60,23 @@ typedef struct _pin_map_t {
 
 
 /* Retrieve Port Information */
-#define GetPortInfo(port) ((port > MC_NUMBER_OF_PORTS || port < 1) ? __NO_PORT_INFO :  \
-  ((port_info_t){                                                               \
-    port,                                                                       \
-    (port_map[port].dir_reg),                                             \
-    (port_map[port].out_reg),                                             \
-    (port_map[port].in_reg ),                                            \
-    (port_map[port].sel_reg),                                             \
-    (port_map[port].ies_reg),                                            \
-    (port_map[port].ie_reg ),                                            \
-    (port_map[port].ifg_reg )                                            \
-  }))
+#define GetPortInfo(port)                                                     \
+  (                                                                           \
+    (                                                                         \
+      (uint8_t)(port) > (uint8_t)(MC_NUMBER_OF_PORTS) ||                      \
+      (uint8_t)(port) < 1                                                     \
+    )                                                                         \
+    ? __NO_PORT_INFO :                                                        \
+    ((port_info_t){                                                           \
+      port,                                                                   \
+      (port_map[port].dir_reg),                                               \
+      (port_map[port].out_reg),                                               \
+      (port_map[port].in_reg ),                                               \
+      (port_map[port].sel_reg),                                               \
+      (port_map[port].ies_reg),                                               \
+      (port_map[port].ie_reg ),                                               \
+      (port_map[port].ifg_reg )                                               \
+    }))
 
 #define IsValidPortInfo(pi)   (pi.number != (uint8_t)NO_PORT)
 

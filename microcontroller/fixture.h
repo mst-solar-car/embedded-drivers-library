@@ -32,6 +32,7 @@
 #else
   /* Header File */
   #define REGISTER_PINS(numberOfPins)                       \
+    pin_map_t pin_map[INC_##numberOfPins()];                \
     enum {                                                  \
       EVAL256(MAP_COUNTING(_REGISTER_PIN, numberOfPins))    \
       MC_NUMBER_OF_PINS = numberOfPins,                     \
@@ -48,6 +49,7 @@
   /* C File */
   #define REGISTER_PORTS(...)                                   \
     port_info_t port_map[NUM_ARGS(1, __VA_ARGS__)] = {          \
+      (port_info_t){NO_PORT, REG(NO_REGISTER), REG(NO_REGISTER), REG(NO_REGISTER), REG(NO_REGISTER), REG(NO_REGISTER), REG(NO_REGISTER), REG(NO_REGISTER)},   \
       EVAL256(MAP_PAIR_PARAMETERS(_REGISTER_PORT, __VA_ARGS__)) \
     };
 
@@ -57,6 +59,7 @@
 #else
   /* Header File */
   #define REGISTER_PORTS(...)                                             \
+    port_info_t port_map[NUM_ARGS(1, __VA_ARGS__)];                       \
     enum {                                                                \
       __IGNORE_THIS_##__LINE__ = 0,                                       \
       EVAL256(MAP_PAIR_PARAMETERS(_REGISTER_PORT, __VA_ARGS__))           \

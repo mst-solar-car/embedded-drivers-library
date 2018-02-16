@@ -18,11 +18,11 @@ TEST(PinControl, SetPinMode)
 
   // Set as Input
   pin_set_mode(P2_3, Input);
-  TEST_ASSERT_BITS_HIGH(BIT3, P2DIR);
+  TEST_ASSERT_BITS_LOW(BIT3, P2DIR);
 
   // Set as Output
   pin_set_mode(P2_3, Output);
-  TEST_ASSERT_BITS_LOW(BIT3, P2DIR);
+  TEST_ASSERT_BITS_HIGH(BIT3, P2DIR);
 }
 
 
