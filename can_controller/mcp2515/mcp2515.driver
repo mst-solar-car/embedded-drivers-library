@@ -48,7 +48,7 @@ static void _mcp2515_transmit_buffer(void);
  */
 
 /* Initializes the CAN Controller */
-void can_controller_setup(io_pin cs_pin, io_pin int_pin)
+void can_controller_setup(io_pin cs_pin, io_pin int_pin, uint16_t filters[], uint16_t masks[])
 {
   _cs_pin = cs_pin;
   _int_pin = int_pin;
@@ -58,8 +58,8 @@ void can_controller_setup(io_pin cs_pin, io_pin int_pin)
   _mcp2515_reset();
 
   /* Delay for reset */
-  uint16_t i;
-  for(i = 0; i < 1000; i++);
+  uint16_t c;
+  for(c = 0; c < 1000; c++);
 
   /* Configuration Mode */
   _mcp2515_modify(MCP2515_CONTROL_REGISTER, 0x03, 0x00);
@@ -76,10 +76,56 @@ void can_controller_setup(io_pin cs_pin, io_pin int_pin)
 #endif
 
   /* Set Filters */
+  // First set of filters
+  _buffer[0] = (filters[0] >= 1) ? rightShift(filters[1], 3) : __NULL__;
+  _buffer[1] = (filters[0] >= 1) ? leftShift(filters[1], 5)  : __NULL__;
+  _buffer[2] = __NULL__;
+  _buffer[3] = __NULL__;
+
+  _buffer[4] = (filters[0] >= 2) ? rightShift(filters[2], 3) : __NULL__;
+  _buffer[5] = (filters[0] >= 2) ? leftShift(filters[2], 5)  : __NULL__;
+  _buffer[6] = __NULL__;
+  _buffer[7] = __NULL__;
+
+  _buffer[8] = (filters[0] >= 3) ? rightShift(filters[3], 3) : __NULL__;
+  _buffer[9] = (filters[0] >= 3) ?  leftShift(filters[3], 5) : __NULL__;
+  _buffer[10] = __NULL__;
+  _buffer[11] = __NULL__;
+  _mcp2515_write(MCP2515_FILTER1_REGISTER, &_buffer[0], 12);
+
+  // Second set of filters
+  _buffer[0] = (filters[0] >= 4) ? rightShift(filters[4], 3) : __NULL__;
+  _buffer[1] = (filters[0] >= 4) ?  leftShift(filters[4], 5) : __NULL__;
+  _buffer[2] = __NULL__;
+  _buffer[3] = __NULL__;
+
+  _buffer[4] = (filters[0] >= 5) ? rightShift(filters[5], 3) : __NULL__;
+  _buffer[5] = (filters[0] >= 5) ?  leftShift(filters[5], 5) : __NULL__;
+  _buffer[6] = __NULL__;
+  _buffer[7] = __NULL__;
+
+  _buffer[8] = (filters[0] >= 6) ? rightShift(filters[6], 3) : __NULL__;
+  _buffer[9] = (filters[0] >= 6) ?  leftShift(filters[6], 5) : __NULL__;
+  _buffer[10] = __NULL__;
+  _buffer[11] = __NULL__;
+  _mcp2515_write(MCP2515_FILTER2_REGISTER, &_buffer[0], 12);
+
 
   /* Set Masks */
+  _buffer[0] = (masks[0] >= 1) ? rightShift(masks[1], 3) : __NULL__;
+  _buffer[1] = (masks[0] >= 1) ?  leftShift(masks[1], 5) : __NULL__;
+  _buffer[2] = __NULL__;
+  _buffer[3] = __NULL__;
 
-  _mcp2515_modify(MCP2515_CONTROL_REGISTER, 0xE0, 0x00); /* Leave Configuration Mode */
+  _buffer[0] = (masks[0] >= 2) ? rightShift(masks[2], 3) : __NULL__;
+  _buffer[1] = (masks[0] >= 2) ?  leftShift(masks[2], 5) : __NULL__;
+  _buffer[2] = __NULL__;
+  _buffer[3] = __NULL__;
+  _mcp2515_write(MCP2515_MASK_REGISTER, &_buffer[0], 12);
+
+
+  /* Leave configuration mode */
+  _mcp2515_modify(MCP2515_CONTROL_REGISTER, 0xE0, 0x00);
 }
 
 

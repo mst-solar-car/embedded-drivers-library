@@ -10,6 +10,8 @@
 
 #include "datatypes.h"
 
+#define leftShift(bits, n)  ((uint8_t)(bits << n))
+#define rightShift(bits, n) ((uint8_t)(bits >> n))
 
 
 /* Information about a Port */
