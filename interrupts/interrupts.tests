@@ -18,6 +18,13 @@ void MOCK_FUNC(sample_isr, (void));
 void MOCK_FUNC(sample_isr2, (void));
 
 
+/* Shortcut for an ISR */
+bool interrupt_isr_called = False;
+interrupt_pin_ISR(P2_1)
+{
+  interrupt_isr_called = True;
+}
+
 
 /* Test Attaching and Dispatching an Interrupt */
 TEST(Interrupts, AttachAndDispatchInterrupt)
@@ -27,7 +34,6 @@ TEST(Interrupts, AttachAndDispatchInterrupt)
 
   /* These ISRs should not get called */
   interrupt_attach(P2_0, MOCK(sample_isr2));
-  interrupt_attach(P2_1, MOCK(sample_isr2));
   interrupt_attach(P2_2, MOCK(sample_isr2));
   interrupt_attach(P2_3, MOCK(sample_isr2));
   interrupt_attach(P2_5, MOCK(sample_isr2));
@@ -38,7 +44,11 @@ TEST(Interrupts, AttachAndDispatchInterrupt)
   P2IFG |= BIT4;
   __interrupt_dispatch(PORT2);
 
+  P2IFG |= BIT1;
+  __interrupt_dispatch(PORT2);
+
   // Assert
+  TEST_ASSERT_TRUE(interrupt_isr_called);
   TEST_ASSERT_MOCK_CALLED(sample_isr);
   TEST_ASSERT_EQUAL(0x00, P2IFG);
 
@@ -63,6 +73,7 @@ GROUP_TEST_SETUP(Interrupts)
   RESET_MOCK(sample_isr2);
 
   P2IFG = 0x00;
+  interrupt_isr_called = False;
 }
 
 /* Runs after every test */

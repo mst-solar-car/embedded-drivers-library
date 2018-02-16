@@ -50,7 +50,7 @@ extern void __can_add_to_receive_queue(can_message* msg);
 /* This function is for initializing the CAN drivers, and should not be called */
 /* by the user unless in a unit test */
 void can_initialization(
-  void(*can_setup_func)(io_pin, io_pin, uint16_t[], uint16_t[]),
+  void(*can_setup_func)(spi_bus, io_pin, io_pin, uint16_t[], uint16_t[]),
   void(*can_poll_func)(void),
   void(*can_transmit_func)(can_message*)
 );
