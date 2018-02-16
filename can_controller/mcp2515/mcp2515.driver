@@ -182,7 +182,7 @@ void can_controller_poll(void)
 
 
 /* CAN Controller Initialization (should not be called by user unless unit testing) */
-void can_controller_initialization(
+void __can_controller_initialization(
   uint8_t(*spi_transmit_func)(spi_bus, uint8_t),
   void(*pin_set_mode_func)(io_pin, pin_mode),
   void(*pin_set_level_func)(io_pin, pin_level),

@@ -22,7 +22,7 @@ uint8_t spi_transmit(spi_bus bus, uint8_t data);
 
 /* This function is for initializing the SPI drivers, and should not be called */
 /* by the user unless in a unit test */
-void spi_initialization(
+void __spi_initialization(
   void(*spiSetup)(spi_bus, io_pin, io_pin, io_pin),
   uint8_t(*spiTransmit)(spi_bus, void*, uint8_t)
 );

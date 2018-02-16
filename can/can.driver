@@ -103,7 +103,7 @@ void can_transmit(void)
 
 
 /* CAN Driver Initialization (called automagically or for unit testing) */
-void can_initialization(
+void __can_initialization(
   void(*can_setup_func)(spi_bus, io_pin, io_pin, uint16_t[], uint16_t[]),
   void(*can_poll_func)(void),
   void(*can_transmit_func)(can_message*)

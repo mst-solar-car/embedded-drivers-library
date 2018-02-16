@@ -158,7 +158,7 @@ GROUP_TEST_SETUP(CAN)
   RESET_MOCK(can_controller_transmit);
 
   /* Initialize the CAN Drivers */
-  can_initialization(MOCK(can_controller_setup), MOCK(can_controller_poll), MOCK(can_controller_transmit));
+  __can_initialization(MOCK(can_controller_setup), MOCK(can_controller_poll), MOCK(can_controller_transmit));
 }
 
 /* Runs after every test */

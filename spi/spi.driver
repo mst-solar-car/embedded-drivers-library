@@ -35,7 +35,7 @@ uint8_t spi_transmit(spi_bus bus, uint8_t data)
 
 
 /* SPI Driver initialization (Should not be called by user unless unit testing) */
-void spi_initialization(
+void __spi_initialization(
   void(*spiSetup)(spi_bus, io_pin, io_pin, io_pin),
   uint8_t(*spiTransmit)(spi_bus, void*, uint8_t)
 )

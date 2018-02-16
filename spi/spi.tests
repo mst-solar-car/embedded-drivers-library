@@ -59,7 +59,7 @@ GROUP_RUNNER(SPI)
 GROUP_TEST_SETUP(SPI)
 {
   /* Initialize the SPI Drivers */
-  spi_initialization(MOCK(spi_setup), MOCK(spi_transmit));
+  __spi_initialization(MOCK(spi_setup), MOCK(spi_transmit));
 }
 
 GROUP_TEST_TEARDOWN(SPI)

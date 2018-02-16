@@ -79,7 +79,7 @@ void __interrupt_dispatch(uint8_t port)
 
 
 /* Initialization, not ran by the user */
-void interrupt_initialization(void(*mc_interrupt_configure)(bool))
+void __interrupt_initialization(void(*mc_interrupt_configure)(bool))
 {
   _mc_interrupt_configure = mc_interrupt_configure;
 }

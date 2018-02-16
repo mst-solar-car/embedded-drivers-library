@@ -122,7 +122,7 @@ void __microcontroller_interrupts_configure(bool enable)
 
 
 /* Microcontroller Initialization */
-void microcontroller_initialization(void)
+void __microcontroller_initialization(void)
 {
   watchdog_disable();
 

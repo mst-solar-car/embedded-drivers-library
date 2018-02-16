@@ -26,7 +26,7 @@ void __microcontroller_interrupts_configure(bool enable);
 /* implemented with every driver for each microcontroller. It should do basic generic */
 /* initialization such as pins and clocks. */
 /* It should NOT be called by the user. */
-void microcontroller_initialization(void);
+void __microcontroller_initialization(void);
 
 
 
