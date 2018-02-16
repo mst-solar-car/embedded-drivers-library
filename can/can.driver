@@ -19,9 +19,11 @@ static void(*_can_controller_transmit_func)(can_message*) = NULL;
 static Queue* _queue;
 
 /* Filters and Masks */
-static uint16_t filters[7];
-static uint16_t masks[3];
+uint16_t filters[7];
+uint16_t* filters_ptr;
 
+uint16_t masks[3] = { 2, 0x7FF, 0x7FF};
+uint16_t* masks_ptr;
 
 /* Variable used for creating messages before calling can_transmit() */
 can_message* can_new_msg;
@@ -41,20 +43,22 @@ void can_setup(io_pin cs_pin, io_pin int_pin)
 /* Set which filters and masks to use */
 void __can_accept(
   uint16_t filter1, uint16_t filter2, uint16_t filter3,
-  uint16_t filter4, uint16_t filter5, uint16_t filter6,
-  uint16_t mask1,   uint16_t mask2
+  uint16_t mask
 )
 {
-  /* Use the first index in the array to specify how many actual elements are in the array */
-  filters[0] = 6;
-  masks[0] = 2;
-
   /* Save filters and masks into an array for sending to can controller setup */
-  filters[1] = filter1;     filters[2] = filter2;
-  filters[3] = filter3;     filters[4] = filter4;
-  filters[5] = filter5;     filters[6] = filter6;
+  *filters_ptr++ = filter1;
+  *filters_ptr++ = filter2;
+  *filters_ptr++ = filter3;
 
-  masks[1] = mask1;         masks[2] = mask2;
+  if (filters_ptr > &(filters[6]))
+    filters_ptr = &(filters[1]);
+
+  /* Save the mask */
+  *masks_ptr++ = mask;
+
+  if (masks_ptr > &(masks[2]))
+    masks_ptr = &(masks[1]);
 }
 
 
@@ -113,6 +117,12 @@ void can_initialization(
   _queue = Queue_New(can_message);
 
   can_new_msg = &_can_msg_for_sending;
+
+  filters[0] = 6;
+  filters_ptr = &(filters[1]);
+
+  masks[0] = 2;
+  masks_ptr = &(masks[1]);
 }
 
 
