@@ -10,9 +10,6 @@
 
 #include "datatypes.h"
 
-#define leftShift(bits, n)  ((uint8_t)(bits << n))
-#define rightShift(bits, n) ((uint8_t)(bits >> n))
-
 
 /* Information about a Port */
 typedef struct _port_info_t {
@@ -148,19 +145,6 @@ typedef struct _pin_map_t {
     (i == 16) ? BITF :      \
     NO_BIT                  \
   )
-
-
-/**
- * Register Control (POINTERS TO REGISTERS ONLY)
- */
-#define SET_REGISTER_PTR(reg, val)            (*(reg) = (val))
-#define SET_REGISTER_PTR_BIT_LOW(reg, bit)    (*(reg) &= ~(bit))
-#define SET_REGISTER_PTR_BIT_HIGH(reg, bit)   (*(reg) |= (bit))
-#define TOGGLE_REGISTER_PTR_BIT(reg, bit)     (*(reg) ^= (bit))
-
-
-
-
 
 
 

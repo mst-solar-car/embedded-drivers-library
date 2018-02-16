@@ -1,0 +1,96 @@
+/**
+ * Bit Manipulation Tests
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+#include "interface.h"
+#include "../../testing/framework.h"
+
+
+CREATE_GROUP(BitManipulation);
+
+
+
+TEST(BitManipulation, SetHighLowAndToggle)
+{
+  // Arrange
+  uint8_t expected1 = 0b1001;
+  uint8_t expected2 = 0b0001;
+
+
+  uint8_t actual = 0b1000;
+
+  // Act
+  bits_set_high(actual, BIT0);
+  TEST_ASSERT_EQUAL(expected1, actual);
+
+  bits_set_low(actual, BIT3);
+  TEST_ASSERT_EQUAL(expected2, actual);
+
+  bits_toggle(actual, BIT3);
+  TEST_ASSERT_EQUAL(expected1, actual);
+}
+
+
+TEST(BitManipulation, GetBit)
+{
+  // Arrange
+  uint8_t bits = 0b1110;
+
+  if (bits_get(bits, BIT0) != 0x00)
+    TEST_FAIL();
+
+  if (bits_is_high(bits, BIT0))
+    TEST_FAIL();
+
+  if (bits_get(bits, BIT3) != BIT3)
+    TEST_FAIL();
+
+  if (bits_is_low(bits, BIT3))
+    TEST_FAIL();
+}
+
+
+TEST(BitManipulation, Shifting)
+{
+  // Arrange
+  uint8_t left_expected = 0b10000;
+  uint8_t left_actual = 0b0001;
+
+  uint8_t right_expected = 0b0001;
+  uint8_t right_actual = 0b1000;
+
+  // Act
+  left_actual = bits_left_shift(left_actual, 4);
+  right_actual = bits_right_shift(right_actual, 3);
+
+  // Assert
+  TEST_ASSERT_EQUAL(left_expected, left_actual);
+  TEST_ASSERT_EQUAL(right_expected, right_actual);
+
+}
+
+
+
+GROUP_RUNNER(BitManipulation)
+{
+  PERFORM_TEST(BitManipulation, SetHighLowAndToggle);
+  PERFORM_TEST(BitManipulation, GetBit);
+  PERFORM_TEST(BitManipulation, Shifting);
+}
+
+
+
+
+GROUP_TEST_SETUP(BitManipulation)
+{
+
+}
+
+GROUP_TEST_TEARDOWN(BitManipulation)
+{
+
+}
+
+#endif

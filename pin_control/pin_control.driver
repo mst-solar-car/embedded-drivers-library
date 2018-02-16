@@ -6,6 +6,7 @@
 #include "../datatypes.h"
 #include "interface.h"
 
+#include "../utils/bits/interface.h"
 
 
 /**
@@ -20,9 +21,9 @@ void pin_set_mode(io_pin pin, pin_mode mode)
     return;
 
   if (mode == Input)
-    SET_REGISTER_PTR_BIT_LOW(_pin.port->dir_reg, _pin.bit);
+    bits_set_low(*(_pin.port->dir_reg), _pin.bit);
   else
-    SET_REGISTER_PTR_BIT_HIGH(_pin.port->dir_reg, _pin.bit);
+    bits_set_high(*(_pin.port->dir_reg), _pin.bit);
 }
 
 
@@ -34,9 +35,9 @@ void pin_set_level(io_pin pin, pin_level level)
     return;
 
   if (level == High)
-    SET_REGISTER_PTR_BIT_HIGH(_pin.port->out_reg, _pin.bit);
+    bits_set_high(*_pin.port->out_reg, _pin.bit);
   else
-    SET_REGISTER_PTR_BIT_LOW(_pin.port->out_reg, _pin.bit);
+    bits_set_low(*_pin.port->out_reg, _pin.bit);
 }
 
 
@@ -47,7 +48,7 @@ void pin_toggle(io_pin pin)
   if (!IsValidPinInfo(_pin) || _pin.port == NO_PORT || _pin.port->out_reg == NO_REGISTER)
     return;
 
-  TOGGLE_REGISTER_PTR_BIT(_pin.port->out_reg, _pin.bit);
+  bits_toggle(*_pin.port->out_reg, _pin.bit);
 }
 
 
@@ -55,12 +56,10 @@ void pin_toggle(io_pin pin)
 pin_level pin_read(io_pin pin)
 {
   pin_info_t _pin = GetPinInfo(pin);
-
-
   if (!IsValidPinInfo(_pin) || _pin.port->in_reg == NO_REGISTER)
     return Low;
 
-  if ((*(_pin.port->in_reg) & _pin.bit) != __NULL__)
+  if (bits_is_high(*_pin.port->in_reg, _pin.bit))
     return High;
   else
     return Low;

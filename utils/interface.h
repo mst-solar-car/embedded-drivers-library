@@ -9,5 +9,6 @@
 #include "exception/exception.h"
 #include "memory/interface.h"
 #include "queue/interface.h"
+#include "bits/interface.h"
 
 #endif
