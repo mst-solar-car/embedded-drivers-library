@@ -52,6 +52,34 @@ void can_controller_setup(io_pin cs_pin, io_pin int_pin)
 {
   _cs_pin = cs_pin;
   _int_pin = int_pin;
+
+  _attach_interrupt_func(_int_pin, can_controller_poll);
+
+  _mcp2515_reset();
+
+  /* Delay for reset */
+  uint16_t i;
+  for(i = 0; i < 1000; i++);
+
+  /* Configuration Mode */
+  _mcp2515_modify(MCP2515_CONTROL_REGISTER, 0x03, 0x00);
+  _buffer[0] = 0x05; // (CNF3) -|
+  _buffer[1] = 0xF8; // (CNF2)  |- Configure Baudrate for 500 kbps
+  _buffer[2] = 0x00; // (CNF1) -|
+  _buffer[3] = 0x23; // (CANINTE) enable error, rx0 & rx1 interrupts on IRQ pin
+  _buffer[4] = 0x00; // (CANINTF) register: clear all IRQ flags
+  _buffer[5] = 0x00; // (EFLG) clear all user changable error flags
+  _mcp2515_write(MCP2515_CNF3_REGISTER, &_buffer[0], 6); // TODO: FIX CONSTANTS
+
+#ifndef MCP2515_NO_ROLLOVER
+  _mcp2515_modify(MCP2515_RX0_REGISTER, 0x04, 0x04); /* Enable receive buffer rollover */
+#endif
+
+  /* Set Filters */
+
+  /* Set Masks */
+
+  _mcp2515_modify(MCP2515_CONTROL_REGISTER, 0xE0, 0x00); /* Leave Configuration Mode */
 }
 
 

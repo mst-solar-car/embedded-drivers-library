@@ -9,7 +9,9 @@
  */
 #ifndef __LIBRARY__
 #define __LIBRARY__
-#ifdef __GNUC__
+#ifndef __GNUC__
+#error "You need to be using GCC as your compiler!"
+#endif
 
 #ifdef UNIT_TEST
 #include <stdlib.h>
@@ -34,11 +36,6 @@
 #include "pin_control/interface.h"
 #include "interrupts/interface.h"
 
-
-#else
-  /* Not using GCC or MSP430 GCC, which they should be */
-  #error "You should be using GCC as your compiler!"
-#endif
 
 
 #endif
