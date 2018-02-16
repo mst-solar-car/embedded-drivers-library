@@ -47,7 +47,8 @@ typedef struct _pin_map_t {
     ((pin_info_t){                                                            \
       &(port_map[pin_map[pin].port]),                                         \
       pin_map[pin].bit                                                        \
-    }))
+    })                                                                        \
+  )
 
 #define IsValidPinInfo(pi) (pi.port != (port_info_t*)NO_PORT && pi.bit != NO_BIT)
 
@@ -76,7 +77,8 @@ typedef struct _pin_map_t {
       (port_map[port].ies_reg),                                               \
       (port_map[port].ie_reg ),                                               \
       (port_map[port].ifg_reg )                                               \
-    }))
+    })                                                                        \
+  )
 
 #define IsValidPortInfo(pi)   (pi.number != (uint8_t)NO_PORT)
 
