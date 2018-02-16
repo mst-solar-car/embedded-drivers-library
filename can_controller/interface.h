@@ -9,7 +9,7 @@
 
 
 /* Initializes the CAN Controller */
-void can_controller_setup(io_pin cs_pin, io_pin int_pin, uint16_t filters[], uint16_t masks[]);
+void can_controller_setup(spi_bus bus, io_pin cs_pin, io_pin int_pin, uint16_t filters[], uint16_t masks[]);
 
 /* Transmits a message over the CAN Bus */
 void can_controller_transmit(can_message* msg);

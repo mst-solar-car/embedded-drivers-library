@@ -9,16 +9,6 @@
 
 
 
-/* can_setup should be called by the user to setup the library and CAN Controller */
-void can_setup(io_pin cs_pin, io_pin int_pin);
-
-/* can_receive should be called when retrieving the most recent messages */
-/* NO_MESSAGE is returned if no messages are available */
-can_message* can_receive(void);
-
-/* can_transmit should be called after populating a message and it's ready to send */
-void can_transmit(void);
-
 /* Used to configure CAN filters and Masks */
 #define can_accept(...)   CAT(__can_accept_, NUM_ARGS(__VA_ARGS__))(__VA_ARGS__)
 
@@ -27,6 +17,19 @@ void __can_accept(
   uint16_t filter1, uint16_t filter2, uint16_t filter3,
   uint16_t mask
 );
+
+
+/* can_setup should be called by the user to setup the library and CAN Controller */
+void can_setup(spi_bus bus, io_pin cs_pin, io_pin int_pin);
+
+/* can_receive should be called when retrieving the most recent messages */
+/* NO_MESSAGE is returned if no messages are available */
+can_message* can_receive(void);
+
+/* can_transmit should be called after populating a message and it's ready to send */
+void can_transmit(void);
+
+
 
 
 /* This variable should be used in the user's program to populate a message before */

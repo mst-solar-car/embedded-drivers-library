@@ -33,10 +33,10 @@ can_message _can_msg_for_sending;
 /**
  * Setups the CAN Drivers
  */
-void can_setup(io_pin cs_pin, io_pin int_pin)
+void can_setup(spi_bus bus, io_pin cs_pin, io_pin int_pin)
 {
   /* Perform CAN Controller Setup */
-  _can_controller_setup_func(cs_pin, int_pin, filters, masks);
+  _can_controller_setup_func(bus, cs_pin, int_pin, filters, masks);
 }
 
 
