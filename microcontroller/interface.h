@@ -16,7 +16,7 @@
 void __microcontroller_spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck);
 
 /* Transmits data over a SPI bus */
-uint8_t __microcontroller_spi_transmit(spi_bus bus, void* data, uint8_t size);
+uint8_t __microcontroller_spi_transmit(spi_bus bus, uint8_t data);
 
 /* Enables or disables interrupts */
 void __microcontroller_interrupts_configure(bool enable);

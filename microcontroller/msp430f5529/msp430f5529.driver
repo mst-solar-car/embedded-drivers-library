@@ -73,35 +73,34 @@ void __microcontroller_spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin s
 
 
 /* Transmits data over a SPI bus */
-uint8_t __microcontroller_spi_transmit(spi_bus bus, void* data, uint8_t size)
+uint8_t __microcontroller_spi_transmit(spi_bus bus, uint8_t data)
 {
-  uint8_t* d = (uint8_t*)data;
   switch (bus) {
     case SPI_BUS_1:
       // UCA0
       while ((UCA0STAT & UCIDLE) != 0);
-      UCA0TXBUF = *d;
+      UCA0TXBUF = data;
       while ((UCA0STAT & UCBUSY) != 0);
       return UCA0RXBUF;
 
     case SPI_BUS_2:
       // UCA1
       while ((UCA1STAT & UCIDLE) != 0);
-      UCA1TXBUF = *d;
+      UCA1TXBUF = data;
       while ((UCA1STAT & UCBUSY) != 0);
       return UCA1RXBUF;
 
     case SPI_BUS_3:
       // UCB0
       while ((UCB0STAT & UCIDLE) != 0);
-      UCB0TXBUF = *d;
+      UCB0TXBUF = data;
       while ((UCB0STAT & UCBUSY) != 0);
       return UCB0RXBUF;
 
     case SPI_BUS_4:
       // UCB1
       while ((UCB1STAT & UCIDLE) != 0);
-      UCB1TXBUF = *d;
+      UCB1TXBUF = data;
       while ((UCB1STAT & UCBUSY) != 0);
       return UCB1RXBUF;
   }

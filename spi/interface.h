@@ -24,7 +24,7 @@ uint8_t spi_transmit(spi_bus bus, uint8_t data);
 /* by the user unless in a unit test */
 void __spi_initialization(
   void(*spiSetup)(spi_bus, io_pin, io_pin, io_pin),
-  uint8_t(*spiTransmit)(spi_bus, void*, uint8_t)
+  uint8_t(*spiTransmit)(spi_bus, uint8_t)
 );
 
 

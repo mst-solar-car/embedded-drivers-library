@@ -13,7 +13,7 @@
  * when unit testing they will be pointed to mock functions to verify driver functionality
  */
 static void(*_mc_spi_setup_func)(spi_bus, io_pin, io_pin, io_pin) = NULL;
-static uint8_t(*_mc_spi_transmit_func)(spi_bus, void*, uint8_t) = NULL;
+static uint8_t(*_mc_spi_transmit_func)(spi_bus, uint8_t) = NULL;
 
 
 
@@ -21,6 +21,14 @@ static uint8_t(*_mc_spi_transmit_func)(spi_bus, void*, uint8_t) = NULL;
 /* Setups a specific SPI bus */
 void spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck)
 {
+  pin_info_t pin = GetPinInfo(mosi);
+  *(pin.port->sel_reg) |= pin.bit;
+  pin = GetPinInfo(miso);
+  *(pin.port->sel_reg) |= pin.bit;
+  pin = GetPinInfo(sck);
+  *(pin.port->sel_reg) |= pin.bit;
+
+
   _mc_spi_setup_func(bus, mosi, miso, sck);
 }
 
@@ -28,7 +36,7 @@ void spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck)
 /* Sends data over a SPI bus, returns received data */
 uint8_t spi_transmit(spi_bus bus, uint8_t data)
 {
-  return _mc_spi_transmit_func(bus, (void*)&data, sizeof(data));
+  return _mc_spi_transmit_func(bus, data);
 }
 
 
@@ -37,7 +45,7 @@ uint8_t spi_transmit(spi_bus bus, uint8_t data)
 /* SPI Driver initialization (Should not be called by user unless unit testing) */
 void __spi_initialization(
   void(*spiSetup)(spi_bus, io_pin, io_pin, io_pin),
-  uint8_t(*spiTransmit)(spi_bus, void*, uint8_t)
+  uint8_t(*spiTransmit)(spi_bus, uint8_t)
 )
 {
   _mc_spi_setup_func = spiSetup;
