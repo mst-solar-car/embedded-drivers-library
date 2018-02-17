@@ -26,8 +26,7 @@ uint16_t masks[3] = { 2, 0x7FF, 0x7FF};
 uint16_t* masks_ptr;
 
 /* Variable used for creating messages before calling can_transmit() */
-can_message* can_new_msg;
-can_message _can_msg_for_sending;
+can_message can_new_msg;
 
 
 /**
@@ -86,15 +85,15 @@ can_message* can_receive(void)
  */
 void can_transmit(void)
 {
-  _can_controller_transmit_func(&_can_msg_for_sending);
+  _can_controller_transmit_func(&can_new_msg);
 
   /* Clear the message so the user can create a new one */
   uint8_t i;
-  _can_msg_for_sending.address = 0x00;
-  _can_msg_for_sending.status = 0x00;
+  can_new_msg.address = 0x00;
+  can_new_msg.status = 0x00;
 
   for (i = 0; i < CAN_DATA_LENGTH; i++)
-    _can_msg_for_sending.data.data_u8[i] = 0x00;
+    can_new_msg.data.data_u8[i] = 0x00;
 
   /* Check for missed messages */
   _can_controller_poll_func();
@@ -115,8 +114,6 @@ void __can_initialization(
 
   /* Iniitalize Receive Queue */
   _queue = Queue_New(can_message);
-
-  can_new_msg = &_can_msg_for_sending;
 
   filters[0] = 6;
   filters_ptr = &(filters[1]);

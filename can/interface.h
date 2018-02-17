@@ -35,7 +35,7 @@ void can_transmit(void);
 /* This variable should be used in the user's program to populate a message before */
 /* calling can_transmit(). MUST call can_transmit() in-order for this variable */
 /* to point to a brand new and empty CAN message */
-extern can_message* can_new_msg;
+extern can_message can_new_msg;
 
 
 

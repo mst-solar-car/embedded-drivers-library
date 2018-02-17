@@ -169,13 +169,13 @@ int main(void)
   while (True)
   {
     /* Construct the message */
-    can_new_msg->address = MY_CAN_ID;
-    can_new_msg->data.data_u8[0] = 5;
-    can_new_msg->data.data_u8[1] = 4;
-    can_new_msg->data.data_u8[2] = 3;
-    can_new_msg->data.data_u8[3] = 2;
-    can_new_msg->data.data_u8[4] = 1;
-    can_new_msg->data.data_u8[5] = 0;
+    can_new_msg.address = MY_CAN_ID;
+    can_new_msg.data.data_u8[0] = 5;
+    can_new_msg.data.data_u8[1] = 4;
+    can_new_msg.data.data_u8[2] = 3;
+    can_new_msg.data.data_u8[3] = 2;
+    can_new_msg.data.data_u8[4] = 1;
+    can_new_msg.data.data_u8[5] = 0;
 
     can_transmit();
 

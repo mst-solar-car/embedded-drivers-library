@@ -12,7 +12,9 @@ CREATE_GROUP(CAN);
 
 /* MOCK Can Controller */
 void MOCK_FUNC(can_controller_setup, (spi_bus bus, io_pin cs_pin, io_pin int_pin, uint16_t filters[], uint16_t masks[]));
-void MOCK_FUNC(can_controller_transmit, (can_message* msg));
+void MOCK_FUNC(can_controller_transmit, (can_message* msg), {
+  TEST_ASSERT_EQUAL(0x500, msg->address);
+});
 void MOCK_FUNC(can_controller_poll, (void));
 
 
@@ -125,7 +127,7 @@ TEST(CAN, transmit)
 
   // Act
   can_setup(0, cs_pin, int_pin);
-
+  can_new_msg.address = 0x500;
   can_transmit();
 
   // Assert
