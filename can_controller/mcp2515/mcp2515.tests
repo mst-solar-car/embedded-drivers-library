@@ -118,7 +118,7 @@ uint8_t MOCK_FUNC(mcp2515_spi_transmit, (spi_bus bus, uint8_t data), {
 });
 
 /* Fake CAN drivers */
-void MOCK_FUNC(mc2515_can_receive_msg, (can_message* msg), {
+void MOCK_FUNC(mcp2515_can_receive_msg, (can_message* msg), {
   Queue_Push(_can_receive_queue, msg);
 });
 
@@ -265,12 +265,15 @@ TEST(mcp2515, receive)
   __interrupt_dispatch(PORT2);
   TEST_ASSERT_QUEUE_EMPTY(_can_receive_queue);
   TEST_ASSERT_QUEUE_EMPTY(_spi_transmit_queue);
+  TEST_ASSERT_MOCK_NOT_CALLED(mcp2515_can_receive_msg);
 
 
   // Now we should actually receive a message
   P2IFG |= BIT6;
   P2IN &= ~BIT6;
   __interrupt_dispatch(PORT2);
+
+  TEST_ASSERT_MOCK_CALLED(mcp2515_can_receive_msg); // Make sure a message weas received
 
   TEST_CAN_READ(MCP2515_CANINTF_REGISTER, 1);
 
@@ -306,6 +309,9 @@ GROUP_RUNNER(mcp2515)
   PERFORM_TEST(mcp2515, setup);
   PERFORM_TEST(mcp2515, transmit);
   PERFORM_TEST(mcp2515, receive);
+
+  Queue_Delete(_spi_transmit_queue);  _spi_transmit_queue = NULL;
+  Queue_Delete(_can_receive_queue);   _can_receive_queue = NULL;
 }
 
 
@@ -317,7 +323,7 @@ GROUP_TEST_SETUP(mcp2515)
 
   RESET_MOCK(mcp2515_set_pin_level);
   RESET_MOCK(mcp2515_spi_transmit);
-  RESET_MOCK(mc2515_can_receive_msg);
+  RESET_MOCK(mcp2515_can_receive_msg);
 
   _messageToReceiveIndex = 0;
 
@@ -328,7 +334,7 @@ GROUP_TEST_SETUP(mcp2515)
 
   __can_controller_initialization(
     MOCK(mcp2515_spi_transmit), pin_set_mode,
-    MOCK(mcp2515_set_pin_level), pin_read, interrupt_attach, MOCK(mc2515_can_receive_msg)
+    MOCK(mcp2515_set_pin_level), pin_read, interrupt_attach, MOCK(mcp2515_can_receive_msg)
   );
 }
 
