@@ -20,7 +20,7 @@
 
 /* Watchdog */
 #define watchdog_disable()      WDTCTL = WDTPW + WDTHOLD
-#define watchdog_enable()       WDTCTL = WDT_ARST_1000
+#define watchdog_enable()       WDTCTL = (WDTPW+WDTCNTCL+WDTSSEL0+0x03) // Resets about every 1 minute
 #define watchdog_pet()          WDTCTL = WDTPW + WDTCNTCL
 
 
