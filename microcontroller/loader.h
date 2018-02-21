@@ -5,10 +5,6 @@
  */
 #include "registration.h"
 
-#ifndef __STR
-#define __STR(x) #x
-#endif
-
 
 #ifndef MICROCONTROLLER
   #error Unkown Microcontroller! Please specify definition for 'MICROCONTROLLER' in microcontroller/registration.h
@@ -17,9 +13,9 @@
 
 
 #define LOAD_MICROCONTROLLER_PRODUCTION_HEADER(name)  <name.h>
-#define LOAD_MICROCONTROLLER_DRIVER_INTERFACE(name)   __STR(name/interface.h)
-#define LOAD_MICROCONTROLLER_MOCK(name)               __STR(name/name.mock)
-#define LOAD_MICROCONTROLLER_DRIVERS(name, ext)       __STR(name/name.ext)
+#define LOAD_MICROCONTROLLER_DRIVER_INTERFACE(name)   STR(name/interface.h)
+#define LOAD_MICROCONTROLLER_MOCK(name)               STR(name/name.mock)
+#define LOAD_MICROCONTROLLER_DRIVERS(name, ext)       STR(name/name.ext)
 
 
 /* Load the spec and driver file here */
