@@ -40,6 +40,7 @@
 #define WAS_MOCK_CALLED(name)                       (_MOCK_COUNTER_NAME(name) > 0)
 #define WAS_MOCK_CALLED_COUNT(name, n)              (_MOCK_COUNTER_NAME(name) == n)
 
+#define MOCK_CALLED_COUNT(name)                     (_MOCK_COUNTER_NAME(name))
 
 #endif
 

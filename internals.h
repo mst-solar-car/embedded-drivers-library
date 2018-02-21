@@ -174,6 +174,9 @@ typedef struct _pin_map_t {
 #define IS_PROBE(...) SECOND(__VA_ARGS__, 0)
 #define PROBE()       ~, 1
 
+#define STR(x)      __STR(x)
+#define __STR(x)    #x
+
 #define CAT(a,b)    _CAT(a,b)
 #define _CAT(a, b)  a ## b
 

@@ -70,6 +70,33 @@
 #define CUSTOM_TESTS()    void UserCustomTests(void)
 
 
+
+
+/**
+ * Custom Asserts
+ */
+
+/* Test the value of a pointer */
+#define TEST_ASSERT_PTR_EQUALS(expected, ptr)                                   \
+          TEST_ASSERT_EQUAL(expected, *((typeof(expected)*)ptr));
+
+#define TEST_ASSERT_PTR_EQUALS_MESSAGE(expected, ptr, msg)                      \
+          TEST_ASSERT_EQUAL_MESSAGE(expected, *((typeof(expected)*)ptr), msg);
+
+/**
+ * Queue Asserts
+ */
+#define TEST_ASSERT_QUEUE_NEXT(expected, queue)                                 \
+          TEST_ASSERT_PTR_EQUALS(expected, Queue_Pop(queue));
+
+#define TEST_ASSERT_QUEUE_NEXT_MESSAGE(expected, queue, msg)                    \
+          TEST_ASSERT_PTR_EQUALS_MESSAGE(expected, Queue_Pop(queue), msg);
+
+#define TEST_ASSERT_QUEUE_EMPTY(queue)                                          \
+          TEST_ASSERT_EQUAL_MESSAGE((void*)0x00, Queue_Pop(queue), "Queue is not empty");
+
+
 #endif
 #endif
+
 #include "mock.h"
