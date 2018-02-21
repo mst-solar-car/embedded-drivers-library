@@ -87,7 +87,7 @@ TEST(CAN, ReceiveQueue)
   uint16_t i;
   uint8_t j;
 
-  uint16_t limit = 10;
+  uint16_t limit = 128;
 
   // Act
   for (i = 0; i < limit; i++)
@@ -106,7 +106,7 @@ TEST(CAN, ReceiveQueue)
   }
 
   // Assert
-  for (i = 0; i < limit; i++)
+  for (i = 100; i < limit; i++)
   {
     can_message* actual = can_receive();
     TEST_ASSERT_EQUAL(0x500 + i, actual->address);

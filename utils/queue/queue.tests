@@ -195,6 +195,7 @@ TEST(Queue, ComplexLoopAround)
 /* Run all of the Queue Tests */
 GROUP_RUNNER(Queue)
 {
+  printf("Queue Size: %i\n", QUEUE_SIZE);
   PERFORM_TEST(Queue, NewQueue);
   PERFORM_TEST(Queue, PopBeforePush);
   PERFORM_TEST(Queue, SingleItemPushAndPop);

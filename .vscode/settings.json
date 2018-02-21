@@ -8,6 +8,7 @@
     "stdlib.h": "c",
     "*.spec": "c",
     "*.mock": "c",
-    "config.h": "c"
+    "config.h": "c",
+    "mcp2515.h": "c"
   }
 }

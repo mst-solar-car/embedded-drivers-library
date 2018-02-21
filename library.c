@@ -59,7 +59,7 @@ void __attribute__((constructor(999))) library_initialization(void)
   /* Setup each driver */
   __microcontroller_initialization();
 
-  __interrupt_initialization(__microcontroller_interrupts_configure);
+  __interrupt_initialization(__microcontroller_interrupts_configure, pin_set_mode);
 
   __can_initialization(can_controller_setup, can_controller_poll, can_controller_transmit);
 

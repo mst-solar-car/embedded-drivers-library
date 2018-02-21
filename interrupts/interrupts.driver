@@ -11,6 +11,7 @@ static voidFuncPtr _pinInterrupts[MC_NUMBER_OF_PORTS+1][17];
 
 /* Function Pointers */
 static void(*_mc_interrupt_configure)(bool);
+static void(*_pin_set_mode)(io_pin, pin_mode);
 
 
 /* Set the state of interrupts */
@@ -26,6 +27,8 @@ void interrupt_attach(io_pin pin, void(*func)(void))
   if (func == NULL)
     return;
 
+  _pin_set_mode(pin, Input);
+
   pin_info_t _pin = GetPinInfo(pin);
   if (!IsValidPinInfo(_pin) || _pin.port->ifg_reg == NO_REGISTER || _pin.port->ie_reg == NO_REGISTER)
     return;
@@ -33,6 +36,10 @@ void interrupt_attach(io_pin pin, void(*func)(void))
   uint8_t bit = GetBitIndex(_pin.bit);
   if (bit == NO_BIT)
     return;
+
+  *(_pin.port->ies_reg) |= _pin.bit;
+  *(_pin.port->ifg_reg) &= ~(_pin.bit);
+  *(_pin.port->ie_reg) |= _pin.bit;
 
   _pinInterrupts[(_pin.port)->number][bit] = func;
 }
@@ -79,7 +86,8 @@ void __interrupt_dispatch(uint8_t port)
 
 
 /* Initialization, not ran by the user */
-void __interrupt_initialization(void(*mc_interrupt_configure)(bool))
+void __interrupt_initialization(void(*mc_interrupt_configure)(bool), void(*pin_set_mode)(io_pin, pin_mode))
 {
   _mc_interrupt_configure = mc_interrupt_configure;
+  _pin_set_mode = pin_set_mode;
 }

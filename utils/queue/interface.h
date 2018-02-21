@@ -13,6 +13,11 @@
 #define QUEUE_SIZE 32
 #endif
 
+#ifdef UNIT_TEST
+#undef QUEUE_SIZE
+#define QUEUE_SIZE  100
+#endif
+
 /* This struct will hold data for each item--most important thing is the read flag */
 typedef struct data_wrapper_t {
   bool read;

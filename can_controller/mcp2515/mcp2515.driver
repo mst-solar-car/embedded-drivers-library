@@ -32,16 +32,16 @@ static io_pin _int_pin;
 /**
  * "Private" functions for helping with MCP2515 related stuff
  */
-static void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t length);
-static void _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data);
-static void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes);
-static void _mcp2515_reset(void);
-static void _mcp2515_request_send(void);
-static bool _mcp2515_is_busy(void);
-static uint8_t _mcp2515_read_status(void);
-static void _mcp2515_get_message_from_buffer(uint8_t rxbuf);
-static void _mcp2515_legacy_receive_message(void);
-static void _mcp2515_transmit_buffer(void);
+static void     _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t length);
+static void     _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data);
+static void     _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes);
+static void     _mcp2515_reset(void);
+static void     _mcp2515_request_send(void);
+static bool     _mcp2515_is_busy(void);
+static uint8_t  _mcp2515_read_status(void);
+static void     _mcp2515_get_message_from_buffer(uint8_t rxbuf);
+static void     _mcp2515_legacy_receive_message(void);
+static void     _mcp2515_transmit_buffer(void);
 
 
 /**
@@ -55,6 +55,9 @@ void can_controller_setup(spi_bus bus, io_pin cs_pin, io_pin int_pin, uint16_t f
   _cs_pin = cs_pin;
   _int_pin = int_pin;
 
+  _pin_set_mode_func(_cs_pin, Output);
+  _pin_set_level_func(_cs_pin, High);
+
   _attach_interrupt_func(_int_pin, can_controller_poll);
 
   _mcp2515_reset();
@@ -65,10 +68,13 @@ void can_controller_setup(spi_bus bus, io_pin cs_pin, io_pin int_pin, uint16_t f
 
   /* Configuration Mode */
   _mcp2515_modify(MCP2515_CONTROL_REGISTER, 0x03, 0x00);
+
   _buffer[0] = 0x05; // (CNF3) -|
   _buffer[1] = 0xF8; // (CNF2)  |- Configure Baudrate for 500 kbps
   _buffer[2] = 0x00; // (CNF1) -|
+
   _buffer[3] = 0x23; // (CANINTE) enable error, rx0 & rx1 interrupts on IRQ pin
+
   _buffer[4] = 0x00; // (CANINTF) register: clear all IRQ flags
   _buffer[5] = 0x00; // (EFLG) clear all user changable error flags
   _mcp2515_write(MCP2515_CNF3_REGISTER, &_buffer[0], 6); // TODO: FIX CONSTANTS
@@ -78,52 +84,51 @@ void can_controller_setup(spi_bus bus, io_pin cs_pin, io_pin int_pin, uint16_t f
 #endif
 
   /* Set Filters */
-  // First set of filters
-  _buffer[0] = (filters[0] >= 1) ? bits_right_shift(filters[1], 3) : __NULL__;
-  _buffer[1] = (filters[0] >= 1) ? bits_left_shift(filters[1], 5)  : __NULL__;
+  _buffer[0] = (filters[0] >= 1) ? (uint8_t)bits_right_shift(filters[1], 3) : __NULL__;
+  _buffer[1] = (filters[0] >= 1) ? (uint8_t)bits_left_shift(filters[1], 5)  : __NULL__;
   _buffer[2] = __NULL__;
   _buffer[3] = __NULL__;
 
-  _buffer[4] = (filters[0] >= 2) ? bits_right_shift(filters[2], 3) : __NULL__;
-  _buffer[5] = (filters[0] >= 2) ? bits_left_shift(filters[2], 5)  : __NULL__;
+  _buffer[4] = (filters[0] >= 2) ? (uint8_t)bits_right_shift(filters[2], 3) : __NULL__;
+  _buffer[5] = (filters[0] >= 2) ? (uint8_t)bits_left_shift(filters[2], 5)  : __NULL__;
   _buffer[6] = __NULL__;
   _buffer[7] = __NULL__;
 
-  _buffer[8] = (filters[0] >= 3) ? bits_right_shift(filters[3], 3) : __NULL__;
-  _buffer[9] = (filters[0] >= 3) ?  bits_left_shift(filters[3], 5) : __NULL__;
+  _buffer[8] = (filters[0] >= 3) ? (uint8_t)bits_right_shift(filters[3], 3) : __NULL__;
+  _buffer[9] = (filters[0] >= 3) ? (uint8_t) bits_left_shift(filters[3], 5) : __NULL__;
   _buffer[10] = __NULL__;
   _buffer[11] = __NULL__;
   _mcp2515_write(MCP2515_FILTER1_REGISTER, &_buffer[0], 12);
 
   // Second set of filters
-  _buffer[0] = (filters[0] >= 4) ? bits_right_shift(filters[4], 3) : __NULL__;
-  _buffer[1] = (filters[0] >= 4) ?  bits_left_shift(filters[4], 5) : __NULL__;
+  _buffer[0] = (filters[0] >= 4) ? (uint8_t)bits_right_shift(filters[4], 3) : __NULL__;
+  _buffer[1] = (filters[0] >= 4) ? (uint8_t) bits_left_shift(filters[4], 5) : __NULL__;
   _buffer[2] = __NULL__;
   _buffer[3] = __NULL__;
 
-  _buffer[4] = (filters[0] >= 5) ? bits_right_shift(filters[5], 3) : __NULL__;
-  _buffer[5] = (filters[0] >= 5) ?  bits_left_shift(filters[5], 5) : __NULL__;
+  _buffer[4] = (filters[0] >= 5) ? (uint8_t)bits_right_shift(filters[5], 3) : __NULL__;
+  _buffer[5] = (filters[0] >= 5) ? (uint8_t) bits_left_shift(filters[5], 5) : __NULL__;
   _buffer[6] = __NULL__;
   _buffer[7] = __NULL__;
 
-  _buffer[8] = (filters[0] >= 6) ? bits_right_shift(filters[6], 3) : __NULL__;
-  _buffer[9] = (filters[0] >= 6) ?  bits_left_shift(filters[6], 5) : __NULL__;
+  _buffer[8] = (filters[0] >= 6) ? (uint8_t)bits_right_shift(filters[6], 3) : __NULL__;
+  _buffer[9] = (filters[0] >= 6) ? (uint8_t) bits_left_shift(filters[6], 5) : __NULL__;
   _buffer[10] = __NULL__;
   _buffer[11] = __NULL__;
   _mcp2515_write(MCP2515_FILTER2_REGISTER, &_buffer[0], 12);
 
 
   /* Set Masks */
-  _buffer[0] = (masks[0] >= 1) ? bits_right_shift(masks[1], 3) : __NULL__;
-  _buffer[1] = (masks[0] >= 1) ?  bits_left_shift(masks[1], 5) : __NULL__;
+  _buffer[0] = (masks[0] >= 1) ? (uint8_t)bits_right_shift(masks[1], 3) : __NULL__;
+  _buffer[1] = (masks[0] >= 1) ? (uint8_t) bits_left_shift(masks[1], 5) : __NULL__;
   _buffer[2] = __NULL__;
   _buffer[3] = __NULL__;
 
-  _buffer[0] = (masks[0] >= 2) ? bits_right_shift(masks[2], 3) : __NULL__;
-  _buffer[1] = (masks[0] >= 2) ?  bits_left_shift(masks[2], 5) : __NULL__;
-  _buffer[2] = __NULL__;
-  _buffer[3] = __NULL__;
-  _mcp2515_write(MCP2515_MASK_REGISTER, &_buffer[0], 12);
+  _buffer[4] = (masks[0] >= 2) ? (uint8_t)bits_right_shift(masks[2], 3) : __NULL__;
+  _buffer[5] = (masks[0] >= 2) ? (uint8_t) bits_left_shift(masks[2], 5) : __NULL__;
+  _buffer[6] = __NULL__;
+  _buffer[7] = __NULL__;
+  _mcp2515_write(MCP2515_MASK_REGISTER, &_buffer[0], 8);
 
 
   /* Leave configuration mode */
@@ -135,13 +140,37 @@ void can_controller_setup(spi_bus bus, io_pin cs_pin, io_pin int_pin, uint16_t f
 void can_controller_transmit(can_message* msg)
 {
   uint8_t i;
+  // TODO: Check if MCP2515 is asleep
 
-  Queue_Push(_queue, &msg); /* Push to TX queue - It will eventually be sent */
-
+  //Queue_Push(_queue, &msg); /* Push to TX queue - It will eventually be sent */
   if (_mcp2515_is_busy() == True)
-    return; /* Can't send if busy */
+  {
+    return;
+  }
 
-  /* Not busy, send what is in the queue */
+  /* Put into the buffer */
+  _buffer[0] = (uint8_t)bits_right_shift(msg->address, 3);
+  _buffer[1] = (uint8_t)bits_left_shift(msg->address, 5);
+  _buffer[2] = __NULL__;
+  _buffer[3] = __NULL__;
+  _buffer[4] = 8;
+  for (i = 0; i < 8; i++)
+    _buffer[5 + i] = msg->data.data_u8[i];
+
+  _pin_set_level_func(_cs_pin, Low);
+  _spi_transmit_func(_bus, MCP2515_LOAD_TX0_CMD);
+
+  /* Send all of the data in the buffer (while clearing it out) */
+  for (i = 0; i < CAN_MESSAGE_SIZE; i++)
+  {
+    _spi_transmit_func(_bus, _buffer[i]);
+  }
+
+  _pin_set_level_func(_cs_pin, High);
+
+  _mcp2515_request_send();
+
+  /* Not busy, send what is in the queue *
   can_message* poppedMsg = NO_MESSAGE;
   uint8_t loop_limit = 200;
   do
@@ -150,17 +179,33 @@ void can_controller_transmit(can_message* msg)
     if (poppedMsg == NO_MESSAGE)
       break;
 
-    /* Put into the buffer */
+    if (poppedMsg->address != 0x500) {
+      P6OUT ^= BIT2;
+    }
+
+
     _buffer[0] = bits_right_shift(poppedMsg->address, 3);
     _buffer[1] = bits_left_shift(poppedMsg->address, 5);
     _buffer[2] = __NULL__;
     _buffer[3] = __NULL__;
     _buffer[4] = 8;
-    for (i = 0; i < _buffer[4]; i++)
+    for (i = 0; i < 8; i++)
       _buffer[5 + i] = poppedMsg->data.data_u8[i];
 
-    _mcp2515_transmit_buffer(); /* Send to the MCP2515 */
-  } while (poppedMsg != NO_MESSAGE && loop_limit-- >= 0);
+    _pin_set_level_func(_cs_pin, Low);
+    _spi_transmit_func(_bus, MCP2515_LOAD_TX0_CMD);
+
+    /* Send all of the data in the buffer (while clearing it out) *
+    for (i = 0; i < CAN_MESSAGE_SIZE; i++)
+    {
+      _spi_transmit_func(_bus, _buffer[i]);
+    }
+
+    _pin_set_level_func(_cs_pin, High);
+
+    _mcp2515_request_send();
+  } while (poppedMsg != NO_MESSAGE);
+  */
 }
 
 
@@ -168,7 +213,7 @@ void can_controller_transmit(can_message* msg)
 void can_controller_poll(void)
 {
   uint8_t loop_counter = 200;
-  while (_pin_read_func(_cs_pin) == Low && loop_counter-- >= 0)
+  while (_pin_read_func(_int_pin) == Low && loop_counter-- >= 0)
   {
     _mcp2515_legacy_receive_message();
   }
@@ -216,6 +261,7 @@ static void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t length)
 
   _spi_transmit_func(_bus, MCP2515_WRITE_CMD);
   _spi_transmit_func(_bus, addr);
+
   for (i = 0; i < (length - 1); i++)
     _spi_transmit_func(_bus, *buff++);
 
@@ -372,11 +418,13 @@ static void _mcp2515_legacy_receive_message(void)
   {
     /* Message is in RX0 */
     _mcp2515_get_message_from_buffer(MCP2515_RX0_REGISTER);
+    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX0_CHECK, __NULL__);
   }
   else if ((flags & MCP2515_RX1_CHECK) != __NULL__)
   {
     /* Message is in RX1 */
     _mcp2515_get_message_from_buffer(MCP2515_RX1_REGISTER);
+    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX1_CHECK, __NULL__);
   }
 }
 
