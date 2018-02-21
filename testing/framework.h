@@ -93,8 +93,10 @@
           TEST_ASSERT_PTR_EQUALS_MESSAGE(expected, Queue_Pop(queue), msg);
 
 #define TEST_ASSERT_QUEUE_EMPTY(queue)                                          \
-          TEST_ASSERT_EQUAL_MESSAGE((void*)0x00, Queue_Pop(queue), "Queue is not empty");
+          TEST_ASSERT_TRUE_MESSAGE( (queue->head == queue->tail) && (queue->buffer[queue->tail].read == True), "Queue " #queue " is not empty");
 
+#define TEST_ASSERT_QUEUE_NOT_EMPTY(queue)                                      \
+          TEST_ASSERT_FALSE_MESSAGE( (queue->head == queue->tail) && (queue->buffer[queue->tail].read == True), "Queue " #queue " is empty");
 
 #endif
 #endif

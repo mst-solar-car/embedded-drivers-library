@@ -8,6 +8,8 @@
 #include "../../library.h"
 #include "../../testing/framework.h"
 
+#define CAN_MESSAGE_SIZE 13
+
 CREATE_GROUP(mcp2515);
 
 #define BUS       SPI_BUS_1
@@ -18,31 +20,106 @@ static uint16_t filters[] = { 6, 0x100, 0x200, 0x300, 0x400, 0x500, 0x600 };
 static uint16_t masks[] = { 2, 0x7FF, 0x7FF };
 
 can_message _message;
+uint8_t _messageToReceive[CAN_MESSAGE_SIZE+1];
+uint8_t _messageToReceiveIndex;
 
 Queue* _spi_transmit_queue;
+Queue* _can_receive_queue;
 
 bool forceBusy;
 bool busyOnNextCall;
+bool returnMessage;
+bool returnFlagsNextCall;
+
+// States for mcp2515_spi_transmit sate machine
+enum {
+  NoState = 0,
+  Listening,
+  ReceivedReadStatusCMD,
+  ReceivedReadCMD, ReceivedReadAddr, ReturningReadData,
+  ReceivedReadFlagsCMD,
+  ReceivedModifyCMD, ReceivedModifyAddr, ReceivedModifyMask, ReceivedModifyData,
+  ReceivedWriteCMD, ReceivedWriteAddr, ReceivingWriteData,
+  ReturningRX0Data, ReturningRX1Data,
+};
+uint8_t mcp2515_state;
+
+
+
+/* Control the state of the Mock MCP2515 using the cs pin */
+void MOCK_FUNC(mcp2515_set_pin_level, (io_pin pin, pin_level level), {
+  if (pin == CS_PIN)
+  {
+    if (level == Low)
+      mcp2515_state = Listening;
+    else
+      mcp2515_state = NoState;
+  }
+
+  pin_set_level(pin, level);
+});
 
 /* Mock spi_transmit function to verify what was sent over SPI */
-uint8_t MOCK_FUNC(spi_transmit_return_nothing, (spi_bus bus, uint8_t data), {
+uint8_t MOCK_FUNC(mcp2515_spi_transmit, (spi_bus bus, uint8_t data), {
   TEST_ASSERT_EQUAL_MESSAGE(BUS, bus, "MCP2515 is not transmitting on the specified SPI Bus");
+  TEST_ASSERT_TRUE_MESSAGE(mcp2515_state != NoState, "MCP2515 spi_transmit called but CS pin not set low");
+  if (mcp2515_state == NoState) return 0;
+
   Queue_Push(_spi_transmit_queue, &data);
 
-  if (forceBusy == True)
+  switch (mcp2515_state)
   {
-    if (busyOnNextCall && data == 0x00)
-      return (0x00 | BIT2); // Simulate CAN being busy
+    case Listening:
+      if (data == MCP2515_READ_STATUS_CMD) mcp2515_state = ReceivedReadStatusCMD;
+      if (data == MCP2515_READ_CMD) mcp2515_state = ReceivedReadCMD;
+      if (data == MCP2515_MODIFY_CMD) mcp2515_state = ReceivedModifyCMD;
+      if (data == MCP2515_WRITE_CMD) mcp2515_state = ReceivedWriteCMD;
+      if (data == MCP2515_READ_RX0_CMD) mcp2515_state = ReturningRX0Data;
+      break;
 
-    else if (data == MCP2515_READ_STATUS_CMD)
-      busyOnNextCall = True;
+    case ReceivedReadStatusCMD:
+      mcp2515_state = NoState;
+      break;
+
+    case ReceivedReadCMD:
+      if (data == MCP2515_CANINTF_REGISTER) mcp2515_state = ReceivedReadFlagsCMD;
+      break;
+
+    case ReceivedReadFlagsCMD:
+      P2IN |= BIT6;
+      return (0x00 | MCP2515_RX0_CHECK);
+      break;
+
+    case ReceivedModifyCMD:
+      mcp2515_state = ReceivedModifyAddr;
+      break;
+    case ReceivedModifyAddr:
+      mcp2515_state = ReceivedModifyMask;
+      break;
+    case ReceivedModifyMask:
+      mcp2515_state = Listening;
+      break;
+
+    case ReceivedWriteCMD:
+      mcp2515_state = ReceivedWriteAddr;
+      break;
+    case ReceivedWriteAddr:
+      mcp2515_state = ReceivingWriteData;
+      break;
+
+    case ReturningRX0Data:
+      return _messageToReceive[_messageToReceiveIndex++];
+      if (_messageToReceiveIndex >= (CAN_MESSAGE_SIZE+1))
+        mcp2515_state = Listening;
+      break;
   }
+
   return 0;
 });
 
 /* Fake CAN drivers */
-void MOCK_FUNC(can_receive_msg, (can_message* msg), {
-
+void MOCK_FUNC(mc2515_can_receive_msg, (can_message* msg), {
+  Queue_Push(_can_receive_queue, msg);
 });
 
 
@@ -74,7 +151,12 @@ void MOCK_FUNC(can_receive_msg, (can_message* msg), {
           for (i = 0; i < 13; i++) TEST_ASSERT_QUEUE_NEXT_MESSAGE(expected[i], _spi_transmit_queue, "Buffer data was not in the queue"); \
           TEST_ASSERT_QUEUE_NEXT_MESSAGE(0x80 | 0x01, _spi_transmit_queue, "Missing RTS command from queue");
 
-
+#define TEST_CAN_READ(addr, bytes) __TEST_CAN_READ(addr, bytes, i_counter__##addr);
+#define __TEST_CAN_READ(addr, bytes, i)                           \
+          uint8_t i;  \
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(MCP2515_READ_CMD, _spi_transmit_queue, "Missing MCP2515_READ_CMD from queue"); \
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(addr, _spi_transmit_queue, "Missing address from queue"); \
+          for (i = 0; i < bytes; i++) TEST_ASSERT_QUEUE_NEXT_MESSAGE(0x00, _spi_transmit_queue, "Buffer data was not in queue");
 
 /* Setup */
 TEST(mcp2515, setup)
@@ -83,7 +165,12 @@ TEST(mcp2515, setup)
   can_controller_setup(BUS, CS_PIN, INT_PIN, filters, masks);
 
   // Assert
-  TEST_ASSERT_MOCK_CALLED(spi_transmit_return_nothing);
+  // Check that the INT_PIN is configured as an interrupt
+  TEST_ASSERT_BITS_HIGH(BIT6, P2IES);
+  TEST_ASSERT_BITS_LOW(BIT6, P2IFG);
+  TEST_ASSERT_BITS_HIGH(BIT6, P2IE);
+
+  TEST_ASSERT_MOCK_CALLED(mcp2515_spi_transmit);
   TEST_ASSERT_BITS_HIGH(BIT5, P2DIR);
 
   // Verify the order of SPI commands
@@ -136,7 +223,7 @@ TEST(mcp2515, transmit)
   can_controller_transmit(&_message);
 
   // Assert
-  TEST_ASSERT_MOCK_CALLED(spi_transmit_return_nothing);
+  TEST_ASSERT_MOCK_CALLED(mcp2515_spi_transmit);
   TEST_CAN_STATUS_CHECK();
 
   uint8_t expected[] = {
@@ -159,15 +246,66 @@ TEST(mcp2515, transmit)
 }
 
 
+/* Receive a CAN Message */
+TEST(mcp2515, receive)
+{
+  // Arrange
+  uint8_t i;
+
+  _messageToReceive[1] = (uint8_t)(0x500 >> 3);
+  _messageToReceive[2] = (uint8_t)(0x500 << 5);
+  _messageToReceive[3] = 0x00; _messageToReceive[4] = 0x00;
+  _messageToReceive[5] = 8;
+  for (i = 0; i < 8; i++)
+    _messageToReceive[6+i] = i+1;
+
+  // Should not trigger receiving a message
+  P2IFG |= BIT6;
+  P2IN |= BIT6;
+  __interrupt_dispatch(PORT2);
+  TEST_ASSERT_QUEUE_EMPTY(_can_receive_queue);
+  TEST_ASSERT_QUEUE_EMPTY(_spi_transmit_queue);
+
+
+  // Now we should actually receive a message
+  P2IFG |= BIT6;
+  P2IN &= ~BIT6;
+  __interrupt_dispatch(PORT2);
+
+  TEST_CAN_READ(MCP2515_CANINTF_REGISTER, 1);
+
+  // Confirm that a SPI command to receive message from buffer was sent
+  TEST_ASSERT_QUEUE_NEXT(MCP2515_READ_RX0_CMD, _spi_transmit_queue);
+  for (i = 0; i < CAN_MESSAGE_SIZE+1; i++)
+    TEST_ASSERT_QUEUE_NEXT(0x00, _spi_transmit_queue);
+
+  // Verify that the CAN receive queue is not empty
+  TEST_ASSERT_QUEUE_NOT_EMPTY(_can_receive_queue);
+
+  // Verify that the received message contains the same data we expected
+  can_message* received = (can_message*)Queue_Pop(_can_receive_queue);
+  TEST_ASSERT_EQUAL(0x500, received->address);
+  for (i = 0; i < 8; i++)
+    TEST_ASSERT_EQUAL_MESSAGE(i+1, received->data.data_u8[i], "Invalid data in received CAN Message");
+
+  TEST_CAN_MOD_CALL(MCP2515_CANINTF_REGISTER, MCP2515_RX0_CHECK, 0x00);
+
+  // Verify all queues are empty
+  TEST_ASSERT_QUEUE_EMPTY(_can_receive_queue);
+  TEST_ASSERT_QUEUE_EMPTY(_spi_transmit_queue);
+}
+
+
 
 /* Run the Tests */
 GROUP_RUNNER(mcp2515)
 {
   _spi_transmit_queue = Queue_New(uint8_t);
+  _can_receive_queue = Queue_New(can_message);
 
   PERFORM_TEST(mcp2515, setup);
   PERFORM_TEST(mcp2515, transmit);
-
+  PERFORM_TEST(mcp2515, receive);
 }
 
 
@@ -175,11 +313,13 @@ GROUP_TEST_SETUP(mcp2515)
 {
   uint8_t i;
 
-  RESET_MOCK(spi_transmit_return_nothing);
-  RESET_MOCK(can_receive_msg);
+  mcp2515_state = NoState;
 
-  forceBusy = False;
-  busyOnNextCall = False;
+  RESET_MOCK(mcp2515_set_pin_level);
+  RESET_MOCK(mcp2515_spi_transmit);
+  RESET_MOCK(mc2515_can_receive_msg);
+
+  _messageToReceiveIndex = 0;
 
   /* Clear the CAN message */
   _message.address = 0x00;
@@ -187,15 +327,15 @@ GROUP_TEST_SETUP(mcp2515)
   for (i = 0; i < 8; i++) _message.data.data_u8[i] = 0x00;
 
   __can_controller_initialization(
-    MOCK(spi_transmit_return_nothing), pin_set_mode,
-    pin_set_level, pin_read, interrupt_attach, MOCK(can_receive_msg)
+    MOCK(mcp2515_spi_transmit), pin_set_mode,
+    MOCK(mcp2515_set_pin_level), pin_read, interrupt_attach, MOCK(mc2515_can_receive_msg)
   );
 }
 
 
 GROUP_TEST_TEARDOWN(mcp2515)
 {
-  printf("\tspi_transmit was called %i times\n\n", MOCK_CALLED_COUNT(spi_transmit_return_nothing));
+  printf("\tspi_transmit was called %i times\n", MOCK_CALLED_COUNT(mcp2515_spi_transmit));
 }
 
 #endif
