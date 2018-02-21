@@ -21,7 +21,10 @@ int main(void)
   RUN_GROUP(PinControl);
   RUN_GROUP(Interrupts);
 
+  RUN_GROUP(MICROCONTROLLER);
+
   RUN_GROUP(Utilities);
+
 
   /* Run tests that are defined by the user and not for items in this library */
   UserCustomTests();

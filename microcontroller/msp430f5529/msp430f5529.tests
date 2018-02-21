@@ -1,0 +1,119 @@
+/**
+ * MSP430F5529 Unit Tests
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+
+#include "../../library.h"
+#include "../../testing/framework.h"
+
+
+CREATE_GROUP(msp430f5529);
+
+
+TEST(msp430f5529, spi_setup)
+{
+  __microcontroller_spi_setup(SPI_BUS_1, NO_PIN, NO_PIN, NO_PIN);
+  TEST_ASSERT_BITS_HIGH(0x69, UCA0CTL0);
+  TEST_ASSERT_BITS_HIGH(UCSSEL_3, UCA0CTL1);
+  TEST_ASSERT_BITS_HIGH(0x14, UCA0BR0);
+
+  __microcontroller_spi_setup(SPI_BUS_2, NO_PIN, NO_PIN, NO_PIN);
+  TEST_ASSERT_BITS_HIGH(0x69, UCA1CTL0);
+  TEST_ASSERT_BITS_HIGH(UCSSEL_3, UCA1CTL1);
+  TEST_ASSERT_BITS_HIGH(0x14, UCA1BR0);
+
+  __microcontroller_spi_setup(SPI_BUS_3, NO_PIN, NO_PIN, NO_PIN);
+  TEST_ASSERT_BITS_HIGH(0x69, UCB0CTL0);
+  TEST_ASSERT_BITS_HIGH(UCSSEL_3, UCB0CTL1);
+  TEST_ASSERT_BITS_HIGH(0x14, UCB0BR0);
+
+
+  // Confirm that SPI_BUS_4 has not been setup yet
+  TEST_ASSERT_BITS_LOW(0x69, UCB1CTL0);
+  TEST_ASSERT_BITS_LOW(UCSSEL_3, UCB1CTL1);
+  TEST_ASSERT_BITS_LOW(0x14, UCB1BR0);
+
+  // Now try setting up SPI_BUS_4
+  __microcontroller_spi_setup(SPI_BUS_4, NO_PIN, NO_PIN, NO_PIN);
+  TEST_ASSERT_BITS_HIGH(0x69, UCB1CTL0);
+  TEST_ASSERT_BITS_HIGH(UCSSEL_3, UCB1CTL1);
+  TEST_ASSERT_BITS_HIGH(0x14, UCB1BR0);
+}
+
+
+/* SPI Transmission */
+TEST(msp430f5529, spi_transmit)
+{
+  __microcontroller_spi_transmit(SPI_BUS_1, 42);
+  TEST_ASSERT_EQUAL(42, UCA0TXBUF);
+
+  __microcontroller_spi_transmit(SPI_BUS_2, 43);
+  TEST_ASSERT_EQUAL(43, UCA1TXBUF);
+
+  __microcontroller_spi_transmit(SPI_BUS_3, 44);
+  TEST_ASSERT_EQUAL(44, UCB0TXBUF);
+
+  __microcontroller_spi_transmit(SPI_BUS_4, 45);
+  TEST_ASSERT_EQUAL(45, UCB1TXBUF);
+}
+
+
+/* SPI Receive */
+TEST(msp430f5529, spi_receive)
+{
+  uint8_t received;
+
+  UCA0RXBUF = 10; UCA1RXBUF = 11;
+  UCB0RXBUF = 12; UCB1RXBUF = 13;
+
+  received = __microcontroller_spi_transmit(SPI_BUS_1, __NULL__);
+  TEST_ASSERT_EQUAL(10, received);
+
+  received = __microcontroller_spi_transmit(SPI_BUS_2, __NULL__);
+  TEST_ASSERT_EQUAL(11, received);
+
+  received = __microcontroller_spi_transmit(SPI_BUS_3, __NULL__);
+  TEST_ASSERT_EQUAL(12, received);
+
+  received = __microcontroller_spi_transmit(SPI_BUS_4, __NULL__);
+  TEST_ASSERT_EQUAL(13, received);
+
+  // Invalid SPI Bus
+  received = __microcontroller_spi_transmit(99, __NULL__);
+  TEST_ASSERT_EQUAL(0, received);
+}
+
+
+
+/* Run Unit Tests */
+GROUP_RUNNER(msp430f5529)
+{
+  PERFORM_TEST(msp430f5529, spi_setup);
+  PERFORM_TEST(msp430f5529, spi_transmit);
+  PERFORM_TEST(msp430f5529, spi_receive);
+}
+
+
+
+GROUP_TEST_SETUP(msp430f5529)
+{
+  UCA0TXBUF = 0x00; UCA1TXBUF = 0x00;
+  UCB0TXBUF = 0x00; UCB1TXBUF = 0x00;
+
+  UCA0RXBUF = 0x00; UCA1RXBUF = 0x00;
+  UCB0RXBUF = 0x00; UCB1RXBUF = 0x00;
+
+  UCA0STAT &= ~UCBUSY;
+  UCA1STAT &= ~UCBUSY;
+  UCB0STAT &= ~UCBUSY;
+  UCB1STAT &= ~UCBUSY;
+}
+
+GROUP_TEST_TEARDOWN(msp430f5529)
+{
+
+}
+
+#endif

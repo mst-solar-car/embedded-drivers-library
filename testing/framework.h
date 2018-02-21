@@ -59,7 +59,8 @@
                                     Unity.TestIgnores++;
 
 /* Used to run a group of tests */
-#define RUN_GROUP(group)  { \
+#define RUN_GROUP(group)    _RUN_GROUP(group)
+#define _RUN_GROUP(group)  { \
                             void test_##group##_group_begin__(void); \
                             test_##group##_group_begin__(); \
                           }

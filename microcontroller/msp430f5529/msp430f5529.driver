@@ -78,28 +78,28 @@ uint8_t __microcontroller_spi_transmit(spi_bus bus, uint8_t data)
   switch (bus) {
     case SPI_BUS_1:
       // UCA0
-      while ((UCA0STAT & UCIDLE) != 0);
+      while ((UCA0STAT & UCBUSY) != 0);
       UCA0TXBUF = data;
       while ((UCA0STAT & UCBUSY) != 0);
       return UCA0RXBUF;
 
     case SPI_BUS_2:
       // UCA1
-      while ((UCA1STAT & UCIDLE) != 0);
+      while ((UCA1STAT & UCBUSY) != 0);
       UCA1TXBUF = data;
       while ((UCA1STAT & UCBUSY) != 0);
       return UCA1RXBUF;
 
     case SPI_BUS_3:
       // UCB0
-      while ((UCB0STAT & UCIDLE) != 0);
+      while ((UCB0STAT & UCBUSY) != 0);
       UCB0TXBUF = data;
       while ((UCB0STAT & UCBUSY) != 0);
       return UCB0RXBUF;
 
     case SPI_BUS_4:
       // UCB1
-      while ((UCB1STAT & UCIDLE) != 0);
+      while ((UCB1STAT & UCBUSY) != 0);
       UCB1TXBUF = data;
       while ((UCB1STAT & UCBUSY) != 0);
       return UCB1RXBUF;
