@@ -53,7 +53,7 @@ void __interrupt_dispatch(uint8_t port)
     return;
 
   port_info_t _port = GetPortInfo(port);
-  if (!IsValidPortInfo(_port) || _port.ifg_reg == NO_REGISTER || _poer.ie_reg == NO_REGISTER)
+  if (!IsValidPortInfo(_port) || _port.ifg_reg == NO_REGISTER || _port.ie_reg == NO_REGISTER)
     return;
 
   /* Determine what bit the interrupt occured on */
