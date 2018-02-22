@@ -53,25 +53,23 @@ void __interrupt_dispatch(uint8_t port)
     return;
 
   port_info_t _port = GetPortInfo(port);
-  if (!IsValidPortInfo(_port) || _port.ifg_reg == NO_REGISTER)
+  if (!IsValidPortInfo(_port) || _port.ifg_reg == NO_REGISTER || _poer.ie_reg == NO_REGISTER)
     return;
 
   /* Determine what bit the interrupt occured on */
-  uint8_t bit = NO_BIT;
-  if (*_port.ifg_reg & BIT6)
-    bit = GetBitIndex(BIT6);
-  else if (*_port.ifg_reg & BIT5)
-    bit = GetBitIndex(BIT5);
-  else if (*_port.ifg_reg & BIT4)
-    bit = GetBitIndex(BIT4);
-  else if (*_port.ifg_reg & BIT3)
-    bit = GetBitIndex(BIT3);
-  else if (*_port.ifg_reg & BIT2)
-    bit = GetBitIndex(BIT2);
-  else if (*_port.ifg_reg & BIT1)
-    bit = GetBitIndex(BIT1);
-  else if (*_port.ifg_reg & BIT0)
-    bit = GetBitIndex(BIT0);
+  int8_t bit;
+  uint16_t _bit = NO_BIT;
+  for (bit = 8; bit > NO_BIT; bit--)
+  {
+    _bit = GetBitFromIndex(bit);
+    if (*(_port.ie_reg) & _bit)
+    {
+      if (*(_port.ifg_reg) & _bit)
+      {
+        break;
+      }
+    }
+  }
 
   if (bit == NO_BIT)
     return;
