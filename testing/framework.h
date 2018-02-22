@@ -78,19 +78,19 @@
 
 /* Test the value of a pointer */
 #define TEST_ASSERT_PTR_EQUALS(expected, ptr)                                   \
-          TEST_ASSERT_EQUAL(expected, *((typeof(expected)*)ptr));
+          TEST_ASSERT_EQUAL(expected, *(ptr));
 
 #define TEST_ASSERT_PTR_EQUALS_MESSAGE(expected, ptr, msg)                      \
-          TEST_ASSERT_EQUAL_MESSAGE(expected, *((typeof(expected)*)ptr), msg);
+          TEST_ASSERT_EQUAL_MESSAGE(expected, *(ptr), msg);
 
 /**
  * Queue Asserts
  */
-#define TEST_ASSERT_QUEUE_NEXT(expected, queue)                                 \
-          TEST_ASSERT_PTR_EQUALS(expected, Queue_Pop(queue));
+#define TEST_ASSERT_QUEUE_NEXT(expected, queue, t)                                 \
+          TEST_ASSERT_PTR_EQUALS(expected, (typeof(t)*)(Queue_Pop(queue)));
 
-#define TEST_ASSERT_QUEUE_NEXT_MESSAGE(expected, queue, msg)                    \
-          TEST_ASSERT_PTR_EQUALS_MESSAGE(expected, Queue_Pop(queue), msg);
+#define TEST_ASSERT_QUEUE_NEXT_MESSAGE(expected, queue, t, msg)                    \
+          TEST_ASSERT_PTR_EQUALS_MESSAGE(expected, (typeof(t)*)(Queue_Pop(queue)), msg);
 
 #define TEST_ASSERT_QUEUE_EMPTY(queue)                                          \
           TEST_ASSERT_TRUE_MESSAGE( (queue->head == queue->tail) && (queue->buffer[queue->tail].read == True), "Queue " #queue " is not empty");

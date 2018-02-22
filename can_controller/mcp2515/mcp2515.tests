@@ -129,36 +129,36 @@ void MOCK_FUNC(mcp2515_can_receive_msg, (can_message* msg), {
  * Custom Asserts for the MCP2515 Tests
  */
 #define TEST_CAN_MOD_CALL(addr, mask, data)                                                                                       \
-          TEST_ASSERT_QUEUE_NEXT_MESSAGE(MCP2515_MODIFY_CMD, _spi_transmit_queue, "Missing MCP2515_MODIFY_CMD from queue");       \
-          TEST_ASSERT_QUEUE_NEXT_MESSAGE(addr, _spi_transmit_queue, "Missing address from the queue");                            \
-          TEST_ASSERT_QUEUE_NEXT_MESSAGE(mask, _spi_transmit_queue, "Missing mask from the queue");                               \
-          TEST_ASSERT_QUEUE_NEXT_MESSAGE(data, _spi_transmit_queue, "Missing data from the queue");
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(MCP2515_MODIFY_CMD, _spi_transmit_queue, uint8_t, "Missing MCP2515_MODIFY_CMD from queue");       \
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(addr, _spi_transmit_queue, uint8_t, "Missing address from the queue");                            \
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(mask, _spi_transmit_queue, uint8_t, "Missing mask from the queue");                               \
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(data, _spi_transmit_queue, uint8_t, "Missing data from the queue");
 
 
 #define TEST_CAN_WRITE_CALL(addr, expected, bytes) __TEST_CAN_WRITE_CALL(addr, expected, bytes, i__##expected )
 #define __TEST_CAN_WRITE_CALL(addr, expected, bytes, i)                                                                             \
           uint8_t i;                                                                                                                \
-          TEST_ASSERT_QUEUE_NEXT_MESSAGE(MCP2515_WRITE_CMD, _spi_transmit_queue, "Missing MCP2515_WRITE_CMD from the queue");       \
-          TEST_ASSERT_QUEUE_NEXT_MESSAGE(addr, _spi_transmit_queue, "Missing address from the queue");                              \
-          for (i = 0; i < bytes; i++) TEST_ASSERT_QUEUE_NEXT_MESSAGE(expected[i], _spi_transmit_queue, "Buffer data was not what was in the Queue");
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(MCP2515_WRITE_CMD, _spi_transmit_queue, uint8_t, "Missing MCP2515_WRITE_CMD from the queue");       \
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(addr, _spi_transmit_queue, uint8_t, "Missing address from the queue");                              \
+          for (i = 0; i < bytes; i++) TEST_ASSERT_QUEUE_NEXT_MESSAGE(expected[i], _spi_transmit_queue, uint8_t, "Buffer data was not what was in the Queue");
 
 #define TEST_CAN_STATUS_CHECK()                                                 \
-          TEST_ASSERT_QUEUE_NEXT_MESSAGE(MCP2515_READ_STATUS_CMD, _spi_transmit_queue, "Missing MCP2515_READ_STATUS_CMD from queue"); \
-          TEST_ASSERT_QUEUE_NEXT_MESSAGE(0x00, _spi_transmit_queue, "Missing NULL transmission after Status command");
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(MCP2515_READ_STATUS_CMD, _spi_transmit_queue, uint8_t, "Missing MCP2515_READ_STATUS_CMD from queue"); \
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(0x00, _spi_transmit_queue, uint8_t, "Missing NULL transmission after Status command");
 
 #define TEST_CAN_WRITE_TX(expected)  __TEST_CAN_WRITE_TX(expected, i__##expected);
 #define __TEST_CAN_WRITE_TX(expected, i)                                         \
           uint8_t i;                                                             \
-          TEST_ASSERT_QUEUE_NEXT_MESSAGE(MCP2515_LOAD_TX0_CMD, _spi_transmit_queue, "Missing MCP2515_LOAD_TX0_CMD from queue");     \
-          for (i = 0; i < 13; i++) TEST_ASSERT_QUEUE_NEXT_MESSAGE(expected[i], _spi_transmit_queue, "Buffer data was not in the queue"); \
-          TEST_ASSERT_QUEUE_NEXT_MESSAGE(0x80 | 0x01, _spi_transmit_queue, "Missing RTS command from queue");
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(MCP2515_LOAD_TX0_CMD, _spi_transmit_queue, uint8_t, "Missing MCP2515_LOAD_TX0_CMD from queue");     \
+          for (i = 0; i < 13; i++) TEST_ASSERT_QUEUE_NEXT_MESSAGE(expected[i], _spi_transmit_queue, uint8_t, "Buffer data was not in the queue"); \
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(0x80 | 0x01, _spi_transmit_queue, uint8_t, "Missing RTS command from queue");
 
 #define TEST_CAN_READ(addr, bytes) __TEST_CAN_READ(addr, bytes, i_counter__##addr);
 #define __TEST_CAN_READ(addr, bytes, i)                           \
           uint8_t i;  \
-          TEST_ASSERT_QUEUE_NEXT_MESSAGE(MCP2515_READ_CMD, _spi_transmit_queue, "Missing MCP2515_READ_CMD from queue"); \
-          TEST_ASSERT_QUEUE_NEXT_MESSAGE(addr, _spi_transmit_queue, "Missing address from queue"); \
-          for (i = 0; i < bytes; i++) TEST_ASSERT_QUEUE_NEXT_MESSAGE(0x00, _spi_transmit_queue, "Buffer data was not in queue");
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(MCP2515_READ_CMD, _spi_transmit_queue, uint8_t, "Missing MCP2515_READ_CMD from queue"); \
+          TEST_ASSERT_QUEUE_NEXT_MESSAGE(addr, _spi_transmit_queue, uint8_t, "Missing address from queue"); \
+          for (i = 0; i < bytes; i++) TEST_ASSERT_QUEUE_NEXT_MESSAGE(0x00, _spi_transmit_queue, uint8_t, "Buffer data was not in queue");
 
 /* Setup */
 TEST(mcp2515, setup)
@@ -176,7 +176,7 @@ TEST(mcp2515, setup)
   TEST_ASSERT_BITS_HIGH(BIT5, P2DIR);
 
   // Verify the order of SPI commands
-  TEST_ASSERT_QUEUE_NEXT(MCP2515_RESET_CMD, _spi_transmit_queue);
+  TEST_ASSERT_QUEUE_NEXT(MCP2515_RESET_CMD, _spi_transmit_queue, uint8_t);
 
   TEST_CAN_MOD_CALL(MCP2515_CONTROL_REGISTER, 0x03, 0x00);
 
@@ -280,9 +280,9 @@ TEST(mcp2515, receive)
   TEST_CAN_READ(MCP2515_CANINTF_REGISTER, 1);
 
   // Confirm that a SPI command to receive message from buffer was sent
-  TEST_ASSERT_QUEUE_NEXT(MCP2515_READ_RX0_CMD, _spi_transmit_queue);
+  TEST_ASSERT_QUEUE_NEXT(MCP2515_READ_RX0_CMD, _spi_transmit_queue, uint8_t);
   for (i = 0; i < CAN_MESSAGE_SIZE+1; i++)
-    TEST_ASSERT_QUEUE_NEXT(0x00, _spi_transmit_queue);
+    TEST_ASSERT_QUEUE_NEXT(0x00, _spi_transmit_queue, uint8_t);
 
   // Verify that the CAN receive queue is not empty
   TEST_ASSERT_QUEUE_NOT_EMPTY(_can_receive_queue);
