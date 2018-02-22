@@ -112,7 +112,10 @@ uint8_t MOCK_FUNC(mcp2515_spi_transmit, (spi_bus bus, uint8_t data), {
     case ReturningRX0Data:
       return _messageToReceive[_messageToReceiveIndex++];
       if (_messageToReceiveIndex >= (CAN_MESSAGE_SIZE+1))
+      {
         mcp2515_state = Listening;
+        _messageToReceiveIndex = 0;
+      }
       break;
   }
 
