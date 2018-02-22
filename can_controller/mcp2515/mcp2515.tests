@@ -31,6 +31,8 @@ bool busyOnNextCall;
 bool returnMessage;
 bool returnFlagsNextCall;
 
+extern Queue* __mcp2515_tx_queue;
+
 // States for mcp2515_spi_transmit sate machine
 enum {
   NoState = 0,
@@ -342,6 +344,7 @@ GROUP_TEST_SETUP(mcp2515)
 GROUP_TEST_TEARDOWN(mcp2515)
 {
   printf("\tspi_transmit was called %i times\n", MOCK_CALLED_COUNT(mcp2515_spi_transmit));
+  Queue_Delete(__mcp2515_tx_queue);
 }
 
 #endif

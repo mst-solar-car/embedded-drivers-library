@@ -209,26 +209,36 @@ enum {
 #undef BITF
 #endif
   BITF = 0x8000,
+
+
   MAX_BIT = BITF,
 };
 
 
-/* Union */
+/**
+ * This is a Union, it allows you store different datatypes in the same memory
+ * location. We use this for CAN messages because we have different data (floats,
+ * unsigned 8 bit, uinsigned 16 bits, etc...) that we send over CAN messages.
+ *
+ * This works, because sizeof(union_name) will evaluate to the size of the largest member.
+ * In our case, that is the array of two int32_ts. 32x2 = 64, so this union will
+ * always take up 64 bits of memory when used.
+ */
 typedef union group_64_t {
-  float data_fp[2];           /* Holds floating point */
-  unsigned char data_u8[8];   /* Holds 8 unsigned bits */
-  char data_8[8];              /* Holds 8 signed bits */
-  unsigned int data_u16[4];   /* Holds 16 unsigned bits */
-  int data_16[4];             /* Holds 16 bits */
-  unsigned long data_u32[2];  /* Holds 32 unsigned bits */
-  long data_32[2];            /* Holds 32 bits */
+  float     data_fp[2];   /* Holds floating point */
+  uint8_t   data_u8[8];   /* Holds 8 unsigned bits */
+  int8_t    data_8[8];    /* Holds 8 signed bits */
+  uint16_t  data_u16[4];  /* Holds 16 unsigned bits */
+  int16_t   data_16[4];   /* Holds 16 bits */
+  uint32_t  data_u32[2];  /* Holds 32 unsigned bits */
+  int32_t   data_32[2];   /* Holds 32 bits */
 } group_64;
 
 
 /* Struct for a CAN Message */
 typedef struct can_message_t {
   unsigned int  address;
-  can_status  status;
+  can_status    status;
   group_64      data;
 } can_message;
 

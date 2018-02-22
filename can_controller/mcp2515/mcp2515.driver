@@ -21,7 +21,7 @@ static void(*_attach_interrupt_func)(io_pin, void(*func)(void));
 static void(*_can_receive_push_func)(can_message*);
 
 static uint8_t _buffer[CAN_MESSAGE_SIZE + 1];
-static Queue* _queue; /* Queues Messages being transmitted */
+Queue* __mcp2515_tx_queue; /* Queues Messages being transmitted */
 static can_message tmp;
 
 static spi_bus _bus;
@@ -142,7 +142,7 @@ void can_controller_transmit(can_message* msg)
   uint8_t i;
   // TODO: Check if MCP2515 is asleep
 
-  //Queue_Push(_queue, &msg); /* Push to TX queue - It will eventually be sent */
+  //Queue_Push(__mcp2515_tx_queue, &msg); /* Push to TX queue - It will eventually be sent */
   if (_mcp2515_is_busy() == True)
   {
     return;
@@ -175,7 +175,7 @@ void can_controller_transmit(can_message* msg)
   uint8_t loop_limit = 200;
   do
   {
-    poppedMsg = Queue_Pop(_queue);
+    poppedMsg = Queue_Pop(__mcp2515_tx_queue);
     if (poppedMsg == NO_MESSAGE)
       break;
 
@@ -243,7 +243,7 @@ void __can_controller_initialization(
   _attach_interrupt_func = attach_interrupt_func;
   _can_receive_push_func = can_receive_push_func;
 
-  _queue = Queue_New(can_message);
+  __mcp2515_tx_queue = Queue_New(can_message);
 }
 
 

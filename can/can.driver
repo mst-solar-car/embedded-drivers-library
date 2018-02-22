@@ -16,7 +16,7 @@ static void(*_can_controller_transmit_func)(can_message*) = NULL;
 
 
 /* Queue for holding received messages */
-static Queue* _queue;
+Queue* __can_rx_queue = NULL;
 
 /* Filters and Masks */
 uint16_t filters[7];
@@ -68,7 +68,7 @@ can_message* can_receive(void)
 {
   _can_controller_poll_func(); /* Check for missed interrupts on the CAN Controller */
 
-  can_message* msg = (can_message*)Queue_Pop(_queue);
+  can_message* msg = (can_message*)Queue_Pop(__can_rx_queue);
   if (msg == NO_MESSAGE)
     return (can_message*) NO_MESSAGE;
 
@@ -113,7 +113,7 @@ void __can_initialization(
   _can_controller_transmit_func = can_transmit_func;
 
   /* Iniitalize Receive Queue */
-  _queue = Queue_New(can_message);
+  __can_rx_queue = Queue_New(can_message);
 
   filters[0] = 6;
   filters_ptr = &(filters[1]);
@@ -132,5 +132,5 @@ void __can_add_to_receive_queue(can_message* msg)
     return;
 
   /* Push into the queue */
-  Queue_Push(_queue, msg);
+  Queue_Push(__can_rx_queue, msg);
 }

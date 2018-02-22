@@ -6,6 +6,7 @@
 #ifdef UNIT_TEST
 #include "interface.h"
 #include "../testing/framework.h"
+#include "../utils/queue/interface.h"
 
 CREATE_GROUP(CAN);
 
@@ -20,6 +21,7 @@ void MOCK_FUNC(can_controller_poll, (void));
 
 extern uint16_t filters[7];
 extern uint16_t masks[3];
+extern Queue* __can_rx_queue;
 
 /* Test setting CAN filters and masks */
 TEST(CAN, FiltersAndMasks)
@@ -166,6 +168,7 @@ GROUP_TEST_SETUP(CAN)
 /* Runs after every test */
 GROUP_TEST_TEARDOWN(CAN)
 {
+  Queue_Delete(__can_rx_queue);
 }
 
 #endif
