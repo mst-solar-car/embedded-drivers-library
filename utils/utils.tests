@@ -17,6 +17,7 @@ GROUP_RUNNER(Utilities)
   RUN_GROUP(MemoryUtilities);
   RUN_GROUP(Queue);
   RUN_GROUP(BitManipulation);
+  RUN_GROUP(Exceptions);
 }
 
 #endif
