@@ -9,6 +9,7 @@
     "*.spec": "c",
     "*.mock": "c",
     "config.h": "c",
-    "mcp2515.h": "c"
+    "mcp2515.h": "c",
+    "datatypes.h": "c"
   }
 }

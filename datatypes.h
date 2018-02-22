@@ -57,7 +57,6 @@
 #define __VUINT16_TYPE__ volatile unsigned short int
 #endif
 
-
 /* Now add type definitions that make typing code easier and prettier */
 typedef __INT8_TYPE__     int8_t;
 typedef __UINT8_TYPE__    uint8_t;
