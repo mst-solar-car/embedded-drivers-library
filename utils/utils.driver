@@ -7,4 +7,5 @@
 #include "exception/exception.driver"
 #include "memory/memory.driver"
 #include "queue/queue.driver"
+#include "pubsub/pubsub.driver"
 

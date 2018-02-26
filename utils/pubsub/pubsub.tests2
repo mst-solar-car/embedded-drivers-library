@@ -1,0 +1,73 @@
+/**
+ * PubSub Unit Tests
+ */
+#ifdef UNIT_TEST
+#include "interface.h"
+#include "../../testing/framework.h"
+
+CREATE_GROUP(PubSub);
+
+
+pubsub_event_id Event1;
+pubsub_event_id Event2;
+
+void MOCK_FUNC(subscription1, (void), {
+
+});
+void MOCK_FUNC(subscription2, (void), {
+
+});
+
+
+
+TEST(PubSub, make_events)
+{
+  Event1 = pubsub_new_event();
+  Event2 = pubsub_new_event();
+
+  TEST_ASSERT_EQUAL(0, Event1);
+  TEST_ASSERT_EQUAL(1, Event2);
+}
+
+
+TEST(PubSub, publish)
+{
+  pubsub_subscribe(Event1, MOCK(subscription1));
+  pubsub_subscribe(Event2, MOCK(subscription2));
+
+  // Publish events
+  pubsub_publish(Event1);
+  TEST_ASSERT_MOCK_CALLED(subscription1);
+  TEST_ASSERT_MOCK_NOT_CALLED(subscription2);
+
+  pubsub_publish(Event2);
+  TEST_ASSERT_MOCK_CALLED(subscription2);
+}
+
+
+
+
+/* Run all of the PubSub Tests */
+GROUP_RUNNER(PubSub)
+{
+  PERFORM_TEST(PubSub, make_events);
+  PERFORM_TEST(PubSub, publish);
+}
+
+
+
+/* Runs before every test in the PubSub Group */
+GROUP_TEST_SETUP(PubSub)
+{
+  RESET_MOCK(subscription1);
+  RESET_MOCK(subscription2);
+}
+
+/* Runs after every test */
+GROUP_TEST_TEARDOWN(PubSub)
+{
+
+}
+
+
+#endif

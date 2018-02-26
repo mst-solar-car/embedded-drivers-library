@@ -10,6 +10,9 @@
 #include "../../utils/bits/interface.h"
 
 
+// PubSub
+pubsub_event_id CAN_CONTROLLER_TRANSMITTING_EVENT;
+
 /**
  * "Private" Variables for the use of unit testing and dependency inversion
  */
@@ -150,6 +153,10 @@ void can_controller_transmit(can_message* msg)
   /* Not busy, send what is in the queue */
   can_message* poppedMsg = (can_message*)Queue_Pop(__mcp2515_tx_queue);
 
+  // Send out publication that CAN is transmitting
+  if (poppedMsg != NO_MESSAGE)
+    pubsub_publish(CAN_CONTROLLER_TRANSMITTING_EVENT);
+
   int8_t loop_limit = 200;
   while(poppedMsg != NO_MESSAGE && loop_limit-- >= 0)
   {
@@ -203,6 +210,8 @@ void __can_controller_initialization(
   _can_receive_push_func = can_receive_push_func;
 
   __mcp2515_tx_queue = Queue_New(can_message);
+
+  CAN_CONTROLLER_TRANSMITTING_EVENT = pubsub_new_event();
 }
 
 

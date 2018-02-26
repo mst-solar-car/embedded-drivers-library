@@ -6,6 +6,7 @@
 #ifndef __CAN_CONTROLLER_INTERFACE__
 #define __CAN_CONTROLLER_INTERFACE__
 #include "../datatypes.h"
+#include "../utils/pubsub/interface.h"
 
 
 /* Initializes the CAN Controller */
@@ -19,8 +20,8 @@ void can_controller_poll(void);
 
 
 
-
-
+// PubSub Event
+extern pubsub_event_id CAN_CONTROLLER_TRANSMITTING_EVENT;
 
 
 

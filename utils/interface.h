@@ -10,5 +10,6 @@
 #include "memory/interface.h"
 #include "queue/interface.h"
 #include "bits/interface.h"
+#include "pubsub/interface.h"
 
 #endif
