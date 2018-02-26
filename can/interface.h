@@ -54,10 +54,11 @@ void __can_initialization(
 
 
 /* Allows for an optional number of parameters on can_accept */
+#define DEFAULT_CAN_FILTER    0x7FF
 #define __can_accept_0()                                                                    /* Nothing */
-#define __can_accept_1(filter1)                                                             __can_accept((uint16_t)filter1, 0x000, 0x000, 0x7FF);
-#define __can_accept_2(filter1, filter2)                                                    __can_accept((uint16_t)filter1, (uint16_t)filter2, 0x000, 0x7FF)
-#define __can_accept_3(filter1, filter2, filter3)                                           __can_accept((uint16_t)filter1, (uint16_t)filter2, (uint16_t)filter3, 0x7FF)
+#define __can_accept_1(filter1)                                                             __can_accept((uint16_t)filter1, 0x000, 0x000, DEFAULT_CAN_FILTER);
+#define __can_accept_2(filter1, filter2)                                                    __can_accept((uint16_t)filter1, (uint16_t)filter2, 0x000, DEFAULT_CAN_FILTER)
+#define __can_accept_3(filter1, filter2, filter3)                                           __can_accept((uint16_t)filter1, (uint16_t)filter2, (uint16_t)filter3, DEFAULT_CAN_FILTER)
 #define __can_accept_4(filter1, filter2, filter3, mask)                                     __can_accept((uint16_t)filter1, (uint16_t)filter2, (uint16_t)filter3, (uint16_t)mask)
 
 #define __can_accept_6(filter1, filter2, filter3, filter4, filter5, filter6)                __can_accept_3(filter1, filter2, filter3); __can_accept_3(filter4, filter5, filter6)

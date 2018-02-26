@@ -9,7 +9,6 @@
 #define __STR(x) #x
 #endif
 
-
 #ifndef CAN_CONTROLLER
   #error "Unkown CAN Controller! Please specify definition for 'CAN_CONTROLLER' in can_controller/registration.h"
 #else

@@ -237,6 +237,16 @@ typedef struct _pin_map_t {
 
 
 
+
+
+
+/* Load Hardware Drivers */
+#define LOAD_HARDWARE_DRIVER(module, driver, extension)  STR(module/driver/driver.extension)
+
+
+
+
+
 /* Counting */
 #define INC(n)     INC_##n ()
 #define INC_0()    1

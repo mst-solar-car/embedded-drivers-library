@@ -77,6 +77,7 @@ uint8_t MOCK_FUNC(mcp2515_spi_transmit, (spi_bus bus, uint8_t data), {
       if (data == MCP2515_MODIFY_CMD) mcp2515_state = ReceivedModifyCMD;
       if (data == MCP2515_WRITE_CMD) mcp2515_state = ReceivedWriteCMD;
       if (data == MCP2515_READ_RX0_CMD) mcp2515_state = ReturningRX0Data;
+      if (data == MCP2515_READ_RX1_CMD) mcp2515_state = ReturningRX1Data;
       break;
 
     case ReceivedReadStatusCMD:
@@ -85,6 +86,8 @@ uint8_t MOCK_FUNC(mcp2515_spi_transmit, (spi_bus bus, uint8_t data), {
 
     case ReceivedReadCMD:
       if (data == MCP2515_CANINTF_REGISTER) mcp2515_state = ReceivedReadFlagsCMD;
+      if (data == MCP2515_RX0_REGISTER) mcp2515_state = ReturningRX0Data;
+      if (data == MCP2515_RX1_REGISTER) mcp2515_state = ReturningRX1Data;
       break;
 
     case ReceivedReadFlagsCMD:
@@ -257,6 +260,7 @@ TEST(mcp2515, receive)
   // Arrange
   uint8_t i;
 
+  _messageToReceive[0] = 0x00;
   _messageToReceive[1] = (uint8_t)(0x500 >> 3);
   _messageToReceive[2] = (uint8_t)(0x500 << 5);
   _messageToReceive[3] = 0x00; _messageToReceive[4] = 0x00;
@@ -283,7 +287,8 @@ TEST(mcp2515, receive)
   TEST_CAN_READ(MCP2515_CANINTF_REGISTER, 1);
 
   // Confirm that a SPI command to receive message from buffer was sent
-  TEST_ASSERT_QUEUE_NEXT(MCP2515_READ_RX0_CMD, _spi_transmit_queue, uint8_t);
+  TEST_ASSERT_QUEUE_NEXT(MCP2515_READ_CMD, _spi_transmit_queue, uint8_t);
+  TEST_ASSERT_QUEUE_NEXT(MCP2515_RX0_REGISTER, _spi_transmit_queue, uint8_t);
   for (i = 0; i < CAN_MESSAGE_SIZE+1; i++)
     TEST_ASSERT_QUEUE_NEXT(0x00, _spi_transmit_queue, uint8_t);
 
