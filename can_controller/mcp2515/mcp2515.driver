@@ -150,8 +150,8 @@ void can_controller_transmit(can_message* msg)
   /* Not busy, send what is in the queue */
   can_message* poppedMsg = (can_message*)Queue_Pop(__mcp2515_tx_queue);
 
-  uint8_t loop_limit = 200;
-  while(poppedMsg != NO_MESSAGE)
+  int8_t loop_limit = 200;
+  while(poppedMsg != NO_MESSAGE && loop_limit-- >= 0)
   {
     _buffer[0] = (uint8_t)bits_right_shift(poppedMsg->address, 3);
     _buffer[1] = (uint8_t)bits_left_shift(poppedMsg->address, 5);
