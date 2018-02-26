@@ -43,7 +43,7 @@ static void     _mcp2515_get_message_from_buffer(uint8_t rxbuf);
 static void     _mcp2515_legacy_receive_message(void);
 static void     _mcp2515_transmit_buffer(void);
 
-void can_controller_interrupt(void);
+
 /**
  * Interface Functions
  */
@@ -58,7 +58,7 @@ void can_controller_setup(spi_bus bus, io_pin cs_pin, io_pin int_pin, uint16_t f
   _pin_set_mode_func(_cs_pin, Output);
   _pin_set_level_func(_cs_pin, High);
 
-  _attach_interrupt_func(_int_pin, can_controller_interrupt);
+  _attach_interrupt_func(_int_pin, can_controller_poll);
 
   _mcp2515_reset();
 
@@ -176,12 +176,6 @@ void can_controller_poll(void)
   {
     _mcp2515_legacy_receive_message();
   }
-}
-
-
-void can_controller_interrupt(void)
-{
-	can_controller_poll();
 }
 
 
