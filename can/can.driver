@@ -19,11 +19,11 @@ static void(*_can_controller_transmit_func)(can_message*) = NULL;
 Queue* __can_rx_queue = NULL;
 
 /* Filters and Masks */
-uint16_t filters[7];
-uint16_t* filters_ptr;
+uint16_t __can_filters[7];
+uint16_t* __can_filters_ptr;
 
-uint16_t masks[3] = { 2, DEFAULT_CAN_FILTER, DEFAULT_CAN_FILTER};
-uint16_t* masks_ptr;
+uint16_t __can_masks[3] = { 2, DEFAULT_CAN_FILTER, DEFAULT_CAN_FILTER};
+uint16_t* __can_masks_ptr;
 
 /* Variable used for creating messages before calling can_transmit() */
 can_message can_new_msg;
@@ -35,29 +35,29 @@ can_message can_new_msg;
 void can_setup(spi_bus bus, io_pin cs_pin, io_pin int_pin)
 {
   /* Perform CAN Controller Setup */
-  _can_controller_setup_func(bus, cs_pin, int_pin, filters, masks);
+  _can_controller_setup_func(bus, cs_pin, int_pin, __can_filters, __can_masks);
 }
 
 
-/* Set which filters and masks to use */
+/* Set which __can_filters and __can_masks to use */
 void __can_accept(
   uint16_t filter1, uint16_t filter2, uint16_t filter3,
   uint16_t mask
 )
 {
-  /* Save filters and masks into an array for sending to can controller setup */
-  *filters_ptr++ = filter1;
-  *filters_ptr++ = filter2;
-  *filters_ptr++ = filter3;
+  /* Save __can_filters and __can_masks into an array for sending to can controller setup */
+  *__can_filters_ptr++ = filter1;
+  *__can_filters_ptr++ = filter2;
+  *__can_filters_ptr++ = filter3;
 
-  if (filters_ptr > &(filters[6]))
-    filters_ptr = &(filters[1]);
+  if (__can_filters_ptr > &(__can_filters[6]))
+    __can_filters_ptr = &(__can_filters[1]);
 
   /* Save the mask */
-  *masks_ptr++ = mask;
+  *__can_masks_ptr++ = mask;
 
-  if (masks_ptr > &(masks[2]))
-    masks_ptr = &(masks[1]);
+  if (__can_masks_ptr > &(__can_masks[2]))
+    __can_masks_ptr = &(__can_masks[1]);
 }
 
 
@@ -115,11 +115,11 @@ void __can_initialization(
   /* Iniitalize Receive Queue */
   __can_rx_queue = Queue_New(can_message);
 
-  filters[0] = 6;
-  filters_ptr = &(filters[1]);
+  __can_filters[0] = 6;
+  __can_filters_ptr = &(__can_filters[1]);
 
-  masks[0] = 2;
-  masks_ptr = &(masks[1]);
+  __can_masks[0] = 2;
+  __can_masks_ptr = &(__can_masks[1]);
 }
 
 

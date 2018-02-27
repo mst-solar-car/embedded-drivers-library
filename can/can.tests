@@ -19,34 +19,34 @@ void MOCK_FUNC(can_controller_transmit, (can_message* msg), {
 void MOCK_FUNC(can_controller_poll, (void));
 
 
-extern uint16_t filters[7];
-extern uint16_t masks[3];
+extern uint16_t __can_filters[7];
+extern uint16_t __can_masks[3];
 extern Queue* __can_rx_queue;
 
-/* Test setting CAN filters and masks */
+/* Test setting CAN __can_filters and __can_masks */
 TEST(CAN, FiltersAndMasks)
 {
   can_accept(0x500);
-  TEST_ASSERT_EQUAL(0x500, filters[1]);
-  TEST_ASSERT_EQUAL(0x000, filters[2]);
-  TEST_ASSERT_EQUAL(0x000, filters[3]);
-  TEST_ASSERT_EQUAL(0x7FF, masks[1]);
-  TEST_ASSERT_EQUAL(0x7FF, masks[2]);
+  TEST_ASSERT_EQUAL(0x500, __can_filters[1]);
+  TEST_ASSERT_EQUAL(0x000, __can_filters[2]);
+  TEST_ASSERT_EQUAL(0x000, __can_filters[3]);
+  TEST_ASSERT_EQUAL(0x7FF, __can_masks[1]);
+  TEST_ASSERT_EQUAL(0x7FF, __can_masks[2]);
 
   // Add more
   can_accept(0x400, 0x200, 0x300, 0x444);
-  TEST_ASSERT_EQUAL(6, filters[0]);
-  TEST_ASSERT_EQUAL(0x400, filters[4]);
-  TEST_ASSERT_EQUAL(0x200, filters[5]);
-  TEST_ASSERT_EQUAL(0x300, filters[6]);
-  TEST_ASSERT_EQUAL(0x444, masks[2]);
+  TEST_ASSERT_EQUAL(6, __can_filters[0]);
+  TEST_ASSERT_EQUAL(0x400, __can_filters[4]);
+  TEST_ASSERT_EQUAL(0x200, __can_filters[5]);
+  TEST_ASSERT_EQUAL(0x300, __can_filters[6]);
+  TEST_ASSERT_EQUAL(0x444, __can_masks[2]);
 
   // Test looping arround
   can_accept(0x099, 0x099, 0x099, 0x114);
-  TEST_ASSERT_EQUAL(0x099, filters[1]);
-  TEST_ASSERT_EQUAL(0x099, filters[2]);
-  TEST_ASSERT_EQUAL(0x099, filters[3]);
-  TEST_ASSERT_EQUAL(0x114, masks[1]);
+  TEST_ASSERT_EQUAL(0x099, __can_filters[1]);
+  TEST_ASSERT_EQUAL(0x099, __can_filters[2]);
+  TEST_ASSERT_EQUAL(0x099, __can_filters[3]);
+  TEST_ASSERT_EQUAL(0x114, __can_masks[1]);
 }
 
 
