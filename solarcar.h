@@ -34,6 +34,7 @@ void USE_NEW("pin_read(pin) == Low")      isPinLow(io_pin pin);
 // Interrupts
 void USE_NEW("interrupt_attach(pin, func)") attachInterrupt(io_pin pin, void(*func)(void));
 
+void USE_NEW("delay_millis(milliseconds)") delayMillis(uint16_t milliseconds);
 
 
 #endif
