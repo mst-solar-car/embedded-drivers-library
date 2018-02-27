@@ -22,7 +22,7 @@ Queue* __can_rx_queue = NULL;
 uint16_t __can_filters[7];
 uint16_t* __can_filters_ptr;
 
-uint16_t __can_masks[3] = { 2, DEFAULT_CAN_FILTER, DEFAULT_CAN_FILTER};
+uint16_t __can_masks[3] = { 2, DEFAULT_CAN_MASK, DEFAULT_CAN_MASK};
 uint16_t* __can_masks_ptr;
 
 /* Variable used for creating messages before calling can_transmit() */

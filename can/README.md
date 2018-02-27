@@ -10,7 +10,7 @@ The following functions are how you can interact with these CAN drivers:
 
 | Syntax | Description |
 |--------|-------------|
-|`void can_accept(filter, filter, filter, mask)`| Use this to tell the CAN drivers what messages you want to accept, this currently only supports up to 6 filters and 2 masks (so this should be called twice).<br/>Only the first `filter` is mandatory, filters will default to `0x000` and `mask` will default to `0x7FF`. |
+|`void can_accept(filter, filter, filter, mask)`| Use this to tell the CAN drivers what messages you want to accept.<br/>Only the first `filter` is mandatory, filters will default to `0x000` and `mask` will default to `0x7FF`. |
 |`void can_setup(spi_bus, cs_pin, int_pin)` | Call this after using `can_accept()`. It will initailize everything for the CAN drivers that is not already initialized. |
 |`can_message* can_receive()`| Returns a pointer to the next received CAN message. `NO_MESSAGE` if nothing to receive |
 |`void can_transmit()`|Call this after setting up `can_new_msg` to transmit the message|
