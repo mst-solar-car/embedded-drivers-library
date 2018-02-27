@@ -25,8 +25,8 @@ TEST(PubSub, make_events)
   Event1 = pubsub_new_event();
   Event2 = pubsub_new_event();
 
-  TEST_ASSERT_EQUAL(0, Event1);
-  TEST_ASSERT_EQUAL(1, Event2);
+  TEST_ASSERT_NOT_EQUAL(Event1, Event2);
+  TEST_ASSERT_EQUAL(Event1 + 1, Event2);
 }
 
 
