@@ -42,9 +42,9 @@ static void     _mcp2515_reset(void);
 static void     _mcp2515_request_send(void);
 static bool     _mcp2515_is_busy(void);
 static uint8_t  _mcp2515_read_status(void);
-static void     _mcp2515_get_message_from__mcp2515_buffer(uint8_t rxbuf);
+static void     _mcp2515_get_message_from_register(uint8_t regAddr);
 static void     _mcp2515_legacy_receive_message(void);
-static void     _mcp2515_transmit__mcp2515_buffer(void);
+static void     _mcp2515_transmit_buffer(void);
 
 
 /**
@@ -168,7 +168,7 @@ void can_controller_transmit(can_message* msg)
     for (i = 0; i < 8; i++)
       __mcp2515_buffer[5 + i] = poppedMsg->data.data_u8[i];
 
-    _mcp2515_transmit__mcp2515_buffer();
+    _mcp2515_transmit_buffer();
 
     poppedMsg = (can_message*)Queue_Pop(__mcp2515_tx_queue);
 
@@ -326,14 +326,14 @@ static uint8_t _mcp2515_read_status(void)
 
 
 /* Receives a message from a specificed receive register on the MCP2515 */
-static void _mcp2515_get_message_from__mcp2515_buffer(uint8_t rxbuf)
+static void _mcp2515_get_message_from_register(uint8_t regAddr)
 {
   uint8_t i;
 
   /* Read from the buffer and reset the interrupt pin */
   _pin_set_level_func(__cc_cs_pin, Low);
   _spi_transmit_func(__cc_spi_bus, MCP2515_READ_CMD);
-  _spi_transmit_func(__cc_spi_bus, rxbuf);
+  _spi_transmit_func(__cc_spi_bus, regAddr);
 
   for (i = 0; i <= CAN_MESSAGE_SIZE; i++)
     __mcp2515_buffer[i] = _spi_transmit_func(__cc_spi_bus, __NULL__);
@@ -387,19 +387,19 @@ static void _mcp2515_legacy_receive_message(void)
   else if ((flags & MCP2515_RX0_CHECK) != __NULL__)
   {
     /* Message is in RX0 */
-    _mcp2515_get_message_from__mcp2515_buffer(MCP2515_RX0_REGISTER);
+    _mcp2515_get_message_from_register(MCP2515_RX0_REGISTER);
     _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX0_CHECK, __NULL__);
   }
   else if ((flags & MCP2515_RX1_CHECK) != __NULL__)
   {
     /* Message is in RX1 */
-    _mcp2515_get_message_from__mcp2515_buffer(MCP2515_RX1_REGISTER);
+    _mcp2515_get_message_from_register(MCP2515_RX1_REGISTER);
     _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX1_CHECK, __NULL__);
   }
 }
 
 
-static void _mcp2515_transmit__mcp2515_buffer(void)
+static void _mcp2515_transmit_buffer(void)
 {
   uint8_t i;
 
