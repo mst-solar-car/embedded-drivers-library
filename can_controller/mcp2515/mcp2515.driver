@@ -158,7 +158,7 @@ void can_controller_transmit(can_message* msg)
     pubsub_publish(CAN_CONTROLLER_TRANSMITTING_EVENT);
 
   int8_t loop_limit = 200;
-  while(poppedMsg != NO_MESSAGE && loop_limit-- >= 0)
+  while(poppedMsg != NO_MESSAGE)
   {
     _buffer[0] = (uint8_t)bits_right_shift(poppedMsg->address, 3);
     _buffer[1] = (uint8_t)bits_left_shift(poppedMsg->address, 5);
@@ -171,6 +171,9 @@ void can_controller_transmit(can_message* msg)
     _mcp2515_transmit_buffer();
 
     poppedMsg = (can_message*)Queue_Pop(__mcp2515_tx_queue);
+
+    if (loop_limit-- <= 0)
+      break;
   }
 }
 
