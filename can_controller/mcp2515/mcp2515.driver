@@ -330,8 +330,6 @@ static void _mcp2515_get_message_from_buffer(uint8_t rxbuf)
 {
   uint8_t i;
 
-  /* Determine which SPI command to send */
-  uint8_t cmd = 0x60;
   /* Read from the buffer and reset the interrupt pin */
   _pin_set_level_func(_cs_pin, Low);
   _spi_transmit_func(_bus, MCP2515_READ_CMD);
