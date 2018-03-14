@@ -4,7 +4,7 @@
  * Authors: Michael Rouse
  */
 #ifdef UNIT_TEST
-#include "mcp2515.h"
+#include "interface.h"
 #include "../../library.h"
 #include "../../testing/framework.h"
 

@@ -3,7 +3,7 @@
  *
  * Authors: Everyone?
  */
-#include "mcp2515.h"
+#include "interface.h"
 #include "../interface.h"
 #include "../config.h"
 #include "../../library.h"

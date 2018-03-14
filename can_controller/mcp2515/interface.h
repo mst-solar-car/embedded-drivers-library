@@ -1,8 +1,12 @@
 /**
- * Header file for MCP2515 drivers
+ * Interface for the MCP2515 CAN Controller
+ *
+ * Authors: Michael Rouse
  */
-#ifndef __MCP2515_H__
-#define __MCP2515_H__
+#ifndef __MCP2515_INTERFACE__
+#define __MCP2515_INTERFACE__
+
+
 
 /**
  * Commands and Codes pulled straight from the MCP2515 datasheet
@@ -52,6 +56,4 @@
 #define EFLAG           0x2D
 #define TEC             0x1C
 #define REC             0x1D
-
-
 #endif
