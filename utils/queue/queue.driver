@@ -68,7 +68,7 @@ void* __Queue_Pop(Queue* queue)
 void __Queue_Push(Queue* queue, void* data, uint16_t size)
 {
   /* Copy into the queue */
-  utils_memcpy(getHead(queue).data, data, size);
+  memory_copy(getHead(queue).data, data, size);
   getHead(queue).read = false;
 
   /* Advance the head of the queue */

@@ -9,6 +9,6 @@
 #include "../../datatypes.h"
 
 /* Simple Memory Copy */
-void utils_memcpy(void* destination, void* source, uint16_t size);
+void memory_copy(void* destination, void* source, uint16_t size);
 
 #endif

@@ -19,7 +19,6 @@ enum {
 
 typedef int8_t pubsub_event_id;
 
-
 typedef struct pubsub_event_t {
   voidFuncPtr subscribers[PUBSUB_MAX_SUBSCRIBERS_PER_EVENT];
   uint8_t _next_subscriber_index;

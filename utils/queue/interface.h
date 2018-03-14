@@ -9,6 +9,14 @@
 #include "../../datatypes.h"
 
 
+/* Use these directives to interact with the queue */
+#define Queue_New(type)         __Queue_New(sizeof(type));
+#define Queue_Push(queue, data) __Queue_Push(queue, data, sizeof(*data))
+#define Queue_Pop(queue)        __Queue_Pop(queue) /* Just for consistency */
+#define Queue_Delete(queue)     __Queue_Delete(&queue)
+
+
+/* Constants */
 #ifndef QUEUE_SIZE
 #define QUEUE_SIZE 32
 #endif
@@ -30,19 +38,6 @@ typedef struct Queue {
   uint8_t head;
   uint8_t tail;
 } Queue;
-
-/* Use these directives to interact with the queue */
-#define Queue_New(type)         __Queue_New(sizeof(type));
-#define Queue_Push(queue, data) __Queue_Push(queue, data, sizeof(*data))
-#define Queue_Pop(queue)        __Queue_Pop(queue) /* Just for consistency */
-#define Queue_Delete(queue)     __Queue_Delete(&queue)
-
-
-
-
-
-
-
 
 
 

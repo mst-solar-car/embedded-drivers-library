@@ -25,7 +25,7 @@ TEST(MemoryUtilities, MemCpyPrimitive)
   uint8_t source = 44;
 
   // Act
-  utils_memcpy(&destination, &source, sizeof(uint8_t));
+  memory_copy(&destination, &source, sizeof(uint8_t));
 
   // Assert
   TEST_ASSERT_EQUAL(source, destination);
@@ -45,7 +45,7 @@ TEST(MemoryUtilities, MemCpyComplex)
   source.num2 = 456;
 
   // Act
-  utils_memcpy(&destination, &source, sizeof(sample_t));
+  memory_copy(&destination, &source, sizeof(sample_t));
 
   // Assert
   TEST_ASSERT_EQUAL(source.num1, destination.num1);
