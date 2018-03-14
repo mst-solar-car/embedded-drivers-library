@@ -188,7 +188,7 @@ int main(void)
 
 &nbsp;
 
-# Pin Interrupts
+# Interrupts
 ```c
 #include "../drivers/library.h"
 
