@@ -1,8 +1,13 @@
 /**
- * This file is designed to allow for backwards compatability with previous versions
- * of this driver library.
+ * DO NOT USE THIS FILE. Instead, include "library.h"
  *
- * It should only be used as a temporary means.
+ * If the user includes this file they will be greeted with errors on top of errors.
+ *
+ * This is to help ease the user into the breaking changes caused by v1.0 from
+ * previous versions. Once all errors are fixed they will only see a warning
+ * about how they should be including "library.h" and not "solarcar.h"
+ *
+ * Once boards have been transitioned to this file, it should probably be removed.
  *
  * Authors: Michael Rouse
  */
