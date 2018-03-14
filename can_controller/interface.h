@@ -18,9 +18,7 @@ void can_controller_transmit(can_message* msg);
 /* Checks for missed interrupts and will automatically put missed messages in the rx queue */
 void can_controller_poll(void);
 
-
-
-// PubSub Event
+// PubSub Event(s)
 extern pubsub_event_id CAN_CONTROLLER_TRANSMITTING_EVENT;
 
 
