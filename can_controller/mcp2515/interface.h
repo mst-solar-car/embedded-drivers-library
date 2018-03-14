@@ -12,7 +12,7 @@
  */
 
 /* Configures the MCP2515 to use pins instead of SPI commands for some things */
-//void mcp2515_configure_pins(io_pin TX0RTS_pin, io_pin TX1RTS_pin, io_pin TX2RTS_pin, io_pin RX0BF_pin, io_pin RX1BF_pin);
+//void mcp2515_setup_pins(io_pin TX0RTS_pin, io_pin TX1RTS_pin, io_pin TX2RTS_pin, io_pin RX0BF_pin, io_pin RX1BF_pin);
 
 
 
