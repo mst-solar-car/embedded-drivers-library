@@ -1,4 +1,4 @@
-# CAN Drivers
+# CAN
 The CAN drivers are really nothing more than a wrapper around the [CAN Controller drivers](../can_controller/README.md).
 
 When programming you should only interact with these drivers, not directly with the CAN Controller drivers, unless a special case is needed.
