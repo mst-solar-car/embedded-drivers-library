@@ -11,11 +11,14 @@
 /* Enable/Disable interrupts */
 #define interrupts_enable()     interrupts_set_state(Enable);
 #define interrupts_disable()    interrupts_set_state(Disable);
+
 void interrupts_set_state(bool enable);
 
 
 /* Registers an event with on a pin */
 void interrupt_attach(io_pin pin, void(*func)(void));
+
+
 
 /* Shortcuts for creating interrupts */
 #define interrupt_pin_ISR(pin)    void __##pin##_ISR(void);                                                       \
