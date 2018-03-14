@@ -18,7 +18,7 @@ The table below provides a brief description of each driver and has a link to a 
 | [Testing](testing/README.md) | Unit Testing Framework |
 | [Utils](utils/README.md) | Awesome utilities that you can use in drivers, or your code. <br/>(Exceptions, bit manipulation, memory, queues, etc...) |
 | &nbsp; | &nbsp; |
-| [Examples](EXAMPLES.md) | Crazy-good examples to show you how to do anything in this library!! |
+| [Examples](EXAMPLES.md) | Crazy-good examples to show you how to do anything in this library!! <br/>If something you want to know about is not in here, try taking a look at the `.test` file for that driver! |
 
 
 
