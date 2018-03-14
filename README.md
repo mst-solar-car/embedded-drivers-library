@@ -1,7 +1,7 @@
 # Embedded Drivers Library
 This library contains drivers most commonly used for boards on the Solar Car Team.
 
-Drivers are split up and *somewhat* independant of one-another. There are dependencies to the Utils drivers. All other dependencies are managed through the use of [function pointers](http://ernstsson.net/post/26821666317/dependency-inversion-in-c-using-function-pointers) to invert dependencies.
+Drivers are split up and *somewhat* independent of one-another. There are dependencies to the Utils drivers. All other dependencies are managed through the use of [function pointers](http://ernstsson.net/post/26821666317/dependency-inversion-in-c-using-function-pointers) to invert dependencies.
 
 **Any functions that begin with a double underscrore `__function_name` should not be called by the user in production code!**
 
