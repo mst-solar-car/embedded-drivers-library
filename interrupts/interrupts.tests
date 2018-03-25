@@ -1,0 +1,78 @@
+/**
+ * Unit Tests for the Interrupt Drivers
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+#include "../library.h"
+#include "../datatypes.h"
+#include "interface.h"
+#include "../testing/framework.h"
+
+
+CREATE_GROUP(Interrupts);
+
+
+/* Mock Functions Needed */
+void MOCK_FUNC(interrupt_configure, (bool enable));
+void MOCK_FUNC(pin_set_mode, (io_pin pin, pin_mode mode));
+
+void MOCK_FUNC(sample_isr, (void));
+void MOCK_FUNC(sample_isr2, (void));
+
+
+
+/* Test Attaching and Dispatching an Interrupt */
+TEST(Interrupts, AttachAndDispatchInterrupt)
+{
+  // Arrange
+  interrupt_attach(P2_4, MOCK(sample_isr));
+
+  /* These ISRs should not get called */
+  interrupt_attach(P2_0, MOCK(sample_isr2));
+  interrupt_attach(P2_1, MOCK(sample_isr2));
+  interrupt_attach(P2_2, MOCK(sample_isr2));
+  interrupt_attach(P2_3, MOCK(sample_isr2));
+  interrupt_attach(P2_5, MOCK(sample_isr2));
+  interrupt_attach(P2_6, MOCK(sample_isr2));
+  interrupt_attach(P2_7, MOCK(sample_isr2));
+
+  // Act
+  P2IFG |= BIT4;
+  __interrupt_dispatch(PORT2);
+
+  // Assert
+  TEST_ASSERT_MOCK_CALLED(sample_isr);
+  TEST_ASSERT_EQUAL(0x00, P2IFG);
+
+  TEST_ASSERT_MOCK_NOT_CALLED(sample_isr2);
+}
+
+
+
+
+/* Run all of the Interrupts Tests */
+GROUP_RUNNER(Interrupts)
+{
+  PERFORM_TEST(Interrupts, AttachAndDispatchInterrupt);
+}
+
+
+
+/* Runs before every test in the Interrupts Group */
+GROUP_TEST_SETUP(Interrupts)
+{
+  RESET_MOCK(sample_isr);
+  RESET_MOCK(sample_isr2);
+
+  P2IFG = 0x00;
+
+  __interrupt_initialization(MOCK(interrupt_configure), MOCK(pin_set_mode));
+}
+
+/* Runs after every test */
+GROUP_TEST_TEARDOWN(Interrupts)
+{
+}
+
+#endif

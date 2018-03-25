@@ -1,0 +1,80 @@
+/**
+ * Defines registers and stuff for mocking the MSP430F5529
+ *
+ * Authors: Michael Rouse
+ */
+#include "../../testing/mock.h"
+
+/* Mock Registers */
+MOCK_REGISTERS(
+  /* Ports */
+  P1DIR, P1OUT, P1IN, P1SEL, P1IES, P1IE, P1IFG,
+  P2DIR, P2OUT, P2IN, P2SEL, P2IES, P2IE, P2IFG,
+  P3DIR, P3OUT, P3IN, P3SEL,
+  P4DIR, P4OUT, P4IN, P4SEL,
+  P5DIR, P5OUT, P5IN, P5SEL,
+  P6DIR, P6OUT, P6IN, P6SEL,
+  P7DIR, P7OUT, P7IN, P7SEL,
+  P8DIR, P8OUT, P8IN, P8SEL,
+  PJDIR, PJOUT, PJIN,
+
+  /* SPI */
+  UCA0CTL0, UCA0CTL1, UCA0BR0, UCA0BR1, UCA0STAT, UCA0TXBUF, UCA0RXBUF,
+  UCA1CTL0, UCA1CTL1, UCA1BR0, UCA1BR1, UCA1STAT, UCA1TXBUF, UCA1RXBUF,
+  UCB0CTL0, UCB0CTL1, UCB0BR0, UCB0BR1, UCB0STAT, UCB0TXBUF, UCB0RXBUF,
+  UCB1CTL0, UCB1CTL1, UCB1BR0, UCB1BR1, UCB1STAT, UCB1TXBUF, UCB1RXBUF,
+
+  /* Clock */
+  UCSCTL0, UCSCTL1, UCSCTL2, UCSCTL3, UCSCTL4,
+
+  /* Timers */
+  TA0CTL, TA0CCTL0, TA0CCTL1, TA0CCTL2, TA0CCTL3 ,TA0CCTL4, TA0R,
+  TA0CCR0, TA0CCR1, TA0CCR2, TA0CCR3, TA0CCR4,
+  TA0IV, TA0EX0,
+
+  /* Watchdog */
+  WDTCTL,
+)
+
+
+
+/* Mock Constants */
+MOCK_CONSTANTS(
+  /* SPI */
+  UCSWRST = 0x01,   UCBUSY  = 0x01,   UCIDLE  = 0x02,   UCSSEL_0 = 0x00,
+  UCSSEL_1 = 0x40,  UCSSEL_2 = 0x80,  UCSSEL_3 = 0xC0,
+
+  /* Clock */
+  FLLD0 = 0x1000,     FLLD1 = 0x2000,     FLLD2 = 0x400,
+  FLLD__0 = 0x000,    FLLD__1 = 0x1000,   FLLD__2 = 0x200,
+  DCORSEL_0 = 0x0000, DCORSEL_1 = 0x0010, DCORSEL_2 = 0x0020, DCORSEL_3 = 0x0030,
+  DCORSEL_4 = 0x0040, DCORSEL_5 = 0x0050, DCORSEL_6 = 0x0060, DCORSEL_7 = 0x0070,
+
+  /* Status */
+  SCG0, SCG1,
+  GIE,
+
+  /* Timers */
+  TASSEL0 = 0x0100, TASSEL1 = 0x0200,
+  ID1 = 0x0080, ID0 = 0x0040, MC1 = 0x0020, MC0 = 0x0010,
+  TACLR = 0x0004, TAIE = 0x0002, TAIFG = 0x0001,
+  MC_0 = 0x0000, MC_1 = 0x0010, MC_2 = 0x0020, MC_3 = 0x0030,
+  ID_0 = 0x0000, ID_1 = 0x0040, ID_2 = 0x0080, ID_3 = 0x00C0,
+  TASSEL_0 = 0x0000, TASSEL_1 = 0x0100, TASSEL_2 = 0x0200, TASSEL_3 = 0x0300,
+  CCIE = 0x0010,
+  OUTMOD_0 = 0x0000, OUTMOD_1 = 0x0020, OUTMOD_2 = 0x0040, OUTMOD_3 = 0x0060,
+  OUTMOD_4 = 0x0080, OUTMOD_5 = 0x00A0, OUTMOD_6 = 0x00C0, OUTMOD_7 = 0x00E0,
+
+  /* Watchdog */
+  WDTPW = 0x5A00,     WDTHOLD = 0x0080,   WDTCNTCL = 0x0008,
+  WDTSSEL0 = 0x0020,  WDTSSEL1 = 0x0040,  WDTIS2 = 0x0004,
+  WDT_ARST_1000 = (WDTPW+WDTCNTCL+WDTSSEL0+WDTIS2)
+)
+
+
+
+/* Force code to work without stuff specific to MSP430GCC */
+#define __bis_SR_register(...)    /* Nothing */
+#define __bic_SR_register(...)    /* Nothing */
+#define __delay_cycles(...)       /* Nothing */
+#define _no_operation(...)        /* Nothing */

@@ -1,0 +1,174 @@
+/**
+ * Unit Tests for the CAN Driver
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+#include "interface.h"
+#include "../testing/framework.h"
+#include "../utils/queue/interface.h"
+
+CREATE_GROUP(CAN);
+
+
+/* MOCK Can Controller */
+void MOCK_FUNC(can_controller_setup, (spi_bus bus, io_pin cs_pin, io_pin int_pin, uint16_t filters[], uint16_t masks[]));
+void MOCK_FUNC(can_controller_transmit, (can_message* msg), {
+  TEST_ASSERT_EQUAL(0x500, msg->address);
+});
+void MOCK_FUNC(can_controller_poll, (void));
+
+
+extern uint16_t __can_filters[7];
+extern uint16_t __can_masks[3];
+extern Queue* __can_rx_queue;
+
+/* Test setting CAN __can_filters and __can_masks */
+TEST(CAN, FiltersAndMasks)
+{
+  can_accept(0x500);
+  TEST_ASSERT_EQUAL(0x500, __can_filters[1]);
+  TEST_ASSERT_EQUAL(0x000, __can_filters[2]);
+  TEST_ASSERT_EQUAL(0x000, __can_filters[3]);
+  TEST_ASSERT_EQUAL(0x7FF, __can_masks[1]);
+  TEST_ASSERT_EQUAL(0x7FF, __can_masks[2]);
+
+  // Add more
+  can_accept(0x400, 0x200, 0x300, 0x444);
+  TEST_ASSERT_EQUAL(6, __can_filters[0]);
+  TEST_ASSERT_EQUAL(0x400, __can_filters[4]);
+  TEST_ASSERT_EQUAL(0x200, __can_filters[5]);
+  TEST_ASSERT_EQUAL(0x300, __can_filters[6]);
+  TEST_ASSERT_EQUAL(0x444, __can_masks[2]);
+
+  // Test looping arround
+  can_accept(0x099, 0x099, 0x099, 0x114);
+  TEST_ASSERT_EQUAL(0x099, __can_filters[1]);
+  TEST_ASSERT_EQUAL(0x099, __can_filters[2]);
+  TEST_ASSERT_EQUAL(0x099, __can_filters[3]);
+  TEST_ASSERT_EQUAL(0x114, __can_masks[1]);
+}
+
+
+/* Test the CAN Setup Function */
+TEST(CAN, setup)
+{
+  // Arrange
+  io_pin cs_pin = 6;
+  io_pin int_pin = 9;
+
+  // Act
+  can_setup(0, cs_pin, int_pin);
+
+  // Assert
+  TEST_ASSERT_MOCK_CALLED(can_controller_setup);
+}
+
+
+/* Test Receiving a Message from the CAN Drivers */
+TEST(CAN, ReceiveNothing)
+{
+  // Arrange
+  io_pin cs_pin = 6;
+  io_pin int_pin = 9;
+
+  // Act
+  can_setup(0, cs_pin, int_pin);
+  can_message* msg = can_receive();
+
+  // Assert
+  TEST_ASSERT_MOCK_CALLED(can_controller_poll);
+  TEST_ASSERT_NULL(msg);
+}
+
+
+/* Test Receive Queue */
+TEST(CAN, ReceiveQueue)
+{
+  // Arrange
+  uint16_t i;
+  uint8_t j;
+
+  uint16_t limit = 128;
+
+  // Act
+  for (i = 0; i < limit; i++)
+  {
+    uint8_t buffer[8];
+    for (j = 0; j < 8; j++)
+      buffer[j] = i;
+
+    can_message msg;
+    msg.address = 0x500 + i;
+    msg.status = CAN_OK;
+    for (j = 0; j < 8; j++)
+      msg.data.data_u8[j] = buffer[j];
+
+    __can_add_to_receive_queue(&msg);
+  }
+
+  // Assert
+  for (i = 100; i < limit; i++)
+  {
+    can_message* actual = can_receive();
+    TEST_ASSERT_EQUAL(0x500 + i, actual->address);
+    TEST_ASSERT_EQUAL(CAN_OK, actual->status);
+    TEST_ASSERT_EQUAL(i, actual->data.data_u8[0]);
+  }
+}
+
+
+/**
+ * Tests sending a CAN Message
+ */
+TEST(CAN, transmit)
+{
+  // Arrange
+  io_pin cs_pin = 6;
+  io_pin int_pin = 9;
+
+  // Act
+  can_setup(0, cs_pin, int_pin);
+  can_new_msg.address = 0x500;
+  can_transmit();
+
+  // Assert
+  TEST_ASSERT_MOCK_CALLED(can_controller_transmit);
+}
+
+
+
+
+
+
+
+/* Run all of the CAN Tests */
+GROUP_RUNNER(CAN)
+{
+  PERFORM_TEST(CAN, FiltersAndMasks);
+  PERFORM_TEST(CAN, setup);
+  PERFORM_TEST(CAN, ReceiveNothing);
+  PERFORM_TEST(CAN, ReceiveQueue);
+  PERFORM_TEST(CAN, transmit);
+}
+
+
+
+/* Runs before every test in the CAN Group */
+GROUP_TEST_SETUP(CAN)
+{
+  RESET_MOCK(can_controller_setup);
+  RESET_MOCK(can_controller_poll);
+  RESET_MOCK(can_controller_transmit);
+
+  /* Initialize the CAN Drivers */
+  __can_initialization(MOCK(can_controller_setup), MOCK(can_controller_poll), MOCK(can_controller_transmit));
+}
+
+/* Runs after every test */
+GROUP_TEST_TEARDOWN(CAN)
+{
+  Queue_Delete(__can_rx_queue);
+}
+
+#endif

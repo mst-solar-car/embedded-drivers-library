@@ -1,0 +1,69 @@
+/**
+ * PubSub Utility Implementation
+ *
+ * Authors: Michael Rouse
+ */
+#ifndef PUBSUB_DISABLE
+
+#include "interface.h"
+#include "../../datatypes.h"
+
+
+/* Array of Publications and subscribers */
+static pubsub_event __pubsub_table[PUBSUB_MAX_NUMBER_OF_EVENTS];
+static uint8_t __last_event_index = 0;
+
+// Receive a new pubsub event id
+pubsub_event_id pubsub_new_event()
+{
+  if (__last_event_index >= PUBSUB_MAX_NUMBER_OF_EVENTS)
+    return PUBSUB_INVALID_ID;
+
+  pubsub_event_id id = __last_event_index++;
+
+
+  // Reset item in the table
+  uint8_t i;
+  for (i = 0; i < PUBSUB_MAX_SUBSCRIBERS_PER_EVENT; i++)
+    __pubsub_table[id].subscribers[i] = __NULL__;
+  __pubsub_table[id]._next_subscriber_index = 0;
+
+  return id;
+}
+
+// Publish an event to subscribers
+void pubsub_publish(pubsub_event_id id)
+{
+  if (id == PUBSUB_INVALID_ID)
+    return;
+
+  pubsub_event event = __pubsub_table[id];
+
+  uint8_t i;
+  for (i = 0; i < PUBSUB_MAX_SUBSCRIBERS_PER_EVENT; i++)
+  {
+    if (event.subscribers[i] != __NULL__)
+      (event.subscribers[i])(); // Call the event function
+    else
+      break; // Stop at first null pointer
+  }
+}
+
+// Subscribe to an event (similar to interrupt)
+void pubsub_subscribe(pubsub_event_id id, void(*event_fn)(void))
+{
+  if (id == PUBSUB_INVALID_ID)
+    return;
+
+  uint8_t index = __pubsub_table[id]._next_subscriber_index++;
+  if (__pubsub_table[id]._next_subscriber_index >= PUBSUB_MAX_SUBSCRIBERS_PER_EVENT)
+    __pubsub_table[id]._next_subscriber_index = 0;
+
+  __pubsub_table[id].subscribers[index] = event_fn;
+}
+
+
+
+
+
+#endif

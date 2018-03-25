@@ -1,0 +1,136 @@
+/**
+ * CAN Driver Implementation
+ *
+ * Authors: Everyone?
+ */
+#include "../datatypes.h"
+#include "interface.h"
+#include "../utils/queue/interface.h"
+#include "config.h"
+
+
+/* "Private" Variables for use only in this driver (helps for unit testing) */
+static void(*_can_controller_setup_func)(spi_bus, io_pin, io_pin, uint16_t[], uint16_t[]) = NULL;
+static void(*_can_controller_poll_func)(void) = NULL;
+static void(*_can_controller_transmit_func)(can_message*) = NULL;
+
+
+/* Queue for holding received messages */
+Queue* __can_rx_queue = NULL;
+
+/* Filters and Masks */
+uint16_t __can_filters[7];
+uint16_t* __can_filters_ptr;
+
+uint16_t __can_masks[3] = { 2, CAN_DEFAULT_MASK, CAN_DEFAULT_MASK};
+uint16_t* __can_masks_ptr;
+
+/* Variable used for creating messages before calling can_transmit() */
+can_message can_new_msg;
+
+
+/**
+ * Setups the CAN Drivers
+ */
+void can_setup(spi_bus bus, io_pin cs_pin, io_pin int_pin)
+{
+  /* Perform CAN Controller Setup */
+  _can_controller_setup_func(bus, cs_pin, int_pin, __can_filters, __can_masks);
+}
+
+
+/* Set which __can_filters and __can_masks to use */
+void __can_accept(
+  uint16_t filter1, uint16_t filter2, uint16_t filter3,
+  uint16_t mask
+)
+{
+  /* Save __can_filters and __can_masks into an array for sending to can controller setup */
+  *__can_filters_ptr++ = filter1;
+  *__can_filters_ptr++ = filter2;
+  *__can_filters_ptr++ = filter3;
+
+  if (__can_filters_ptr > &(__can_filters[6]))
+    __can_filters_ptr = &(__can_filters[1]);
+
+  /* Save the mask */
+  *__can_masks_ptr++ = mask;
+
+  if (__can_masks_ptr > &(__can_masks[2]))
+    __can_masks_ptr = &(__can_masks[1]);
+}
+
+
+/**
+ * Pulls a Message from the Receive Queue and returns it to the user
+ */
+can_message* can_receive(void)
+{
+  _can_controller_poll_func(); /* Check for missed interrupts on the CAN Controller */
+
+  can_message* msg = (can_message*)Queue_Pop(__can_rx_queue);
+  if (msg == NO_MESSAGE)
+    return (can_message*) NO_MESSAGE;
+
+  /* Avoid Stupid Messages */
+  if (msg->address == 0x00)
+    return (can_message*) NO_MESSAGE;
+
+  return msg;
+}
+
+
+/**
+ * Transmits a message over the CAN bus (or queues it on the CAN Controller)
+ */
+void can_transmit(void)
+{
+  _can_controller_transmit_func(&can_new_msg);
+
+  /* Clear the message so the user can create a new one */
+  uint8_t i;
+  can_new_msg.address = 0x00;
+  can_new_msg.status = 0x00;
+
+  for (i = 0; i < CAN_DATA_LENGTH; i++)
+    can_new_msg.data.data_u8[i] = 0x00;
+
+  /* Check for missed messages */
+  _can_controller_poll_func();
+}
+
+
+
+/* CAN Driver Initialization (called automagically or for unit testing) */
+void __can_initialization(
+  void(*can_setup_func)(spi_bus, io_pin, io_pin, uint16_t[], uint16_t[]),
+  void(*can_poll_func)(void),
+  void(*can_transmit_func)(can_message*)
+)
+{
+  _can_controller_setup_func = can_setup_func;
+  _can_controller_poll_func = can_poll_func;
+  _can_controller_transmit_func = can_transmit_func;
+
+  /* Iniitalize Receive Queue */
+  __can_rx_queue = Queue_New(can_message);
+
+  __can_filters[0] = 6;
+  __can_filters_ptr = &(__can_filters[1]);
+
+  __can_masks[0] = 2;
+  __can_masks_ptr = &(__can_masks[1]);
+}
+
+
+
+
+/* Used so the CAN Controller can place a message in the receive buffer */
+void __can_add_to_receive_queue(can_message* msg)
+{
+  if (msg->address == 0x00 || msg->status != CAN_OK)
+    return;
+
+  /* Push into the queue */
+  Queue_Push(__can_rx_queue, msg);
+}

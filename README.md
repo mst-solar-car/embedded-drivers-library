@@ -1,37 +1,27 @@
-# Solar Car Embedded Driver Library
+# Embedded Drivers Library
+This library contains drivers most commonly used for boards on the Solar Car Team.
 
-This driver library is split up into multiple drivers. The table below
-outlines the parts of this library. Each one includes a link to a more detailed
-README file that outlines how that driver works, what functionality it provides
-to the user, and so on.
+Drivers are split up and *somewhat* independent of one-another. There are dependencies to the Utils drivers. All other dependencies are managed through the use of [function pointers](http://ernstsson.net/post/26821666317/dependency-inversion-in-c-using-function-pointers) to invert dependencies.
+
+**Any functions that begin with a double underscrore `__function_name` should not be called by the user in production code!**
+
+The table below provides a brief description of each driver and has a link to a more detailed README for those drivers.
 
 | Driver | Description |
 |--------|-------------|
-|[Microcontrollers](microcontrollers/README.md)|Device-specific drivers for controlling pins and registers on a microcontroller|
-|[CAN](can/README.md)| Driver for communication over CAN. Just a wrapper around a CAN Controller driver |
-|[CAN Controllers](can_controllers/README.md)|Device-specific drivers that are used by the CAN drivers to communicate over a CAN Bus |
-|[SPI](spi/README.md)|Drivers that interface with the Microcontroller drivers for communication on a SPI Bus|
-|[Pin Control](#pin-control-api)|How to control pins using this library|
-|[Bit Manipulation](#bit-manipulation-api)|Used for generic bit manipulation anywhere in program|
-|[Examples](EXAMPLES.md)|Minimal-code examples for getting a hang of this library|
+| [CAN](can/README.md) | Generic CAN Drivers for receiving from and sending messages to a CAN Controller |
+| [CAN Controller](can_controller/README.md) | Device-specific driver implementations of a generic CAN Controller interface (used by the CAN library) |
+| [Interrupts](interrupts/README.md) | Generic driver for handling and dispatching interrupts on specific pins for any microcontroller |
+| [Microcontroller](microcontroller/README.md) | Device-specific drivers for a microcontroller |
+| [Pin Control](pin_control/README.md) | Generic driver for control pins on a microcontroller |
+| [SPI](spi/README.md) | Generic SPI sending and receiving |
+| [Testing](testing/README.md) | Unit Testing Framework |
+| [Utils](utils/README.md) | Awesome utilities that you can use in drivers, or your code. <br/>(Exceptions, bit manipulation, memory, queues, etc...) |
+| &nbsp; | &nbsp; |
+| [Examples](EXAMPLES.md) | Crazy-good examples to show you how to do anything in this library!! <br/>If something you want to know about is not in here, try taking a look at the `.test` file for that driver! |
+|&nbsp;|&nsbp;|
+|[Unit Testing](TESTING.md)| Learn about running and writing Unit Tests for this library and your code that uses this library |
 
-
-# User Configuration
-The drivers in this library should use little-to-no preprocessor (`#define`)
-configuration constants.
-
-The only exception is when it makes interfacing with drivers easier, and they are
-configuration items that should not need to be easily changed (such as CAN filters, etc...).
-
-For when directive configuration is desired, the directives should be declared inside the [`user_config.h`](user_config.h.example) file.
-
-The cooresponding README to each driver will document any and all `#define` directives that can go in the
-`user_config.h` file.
-
-**You need to make a copy of `user_config.h.example` and move it outside of the directory the library is in.
-Then rename it to `user_config.h`**
-
-&nbsp;
 
 
 # Data Types
@@ -51,13 +41,13 @@ The following table lists the data types (`typedef`s) defined by this library:
 |`vuint16_t`|`volatile unsigned short int`|
 |&nbsp;|&nbsp;|
 |`io_pin`|`uint8_t`|
-|`bool`| Enum: `False`, `Failure`, `Busy`, `True`, or `Success`|
+|`bool`| Enum: `False`, `Failure`, `Busy`, `No`, or `Disable` <br/> `True`, `Success`, `Yes`, or `Enable`|
 |`pin_mode`| Enum: `Input` or `Output`|
 |`pin_level`| Enum: `Low` or `High`|
-|`spi_bus`| Enum: `SPI_BUS_x` (this will chanage based on how many SPI buses the microcontroller supports)|
+|`spi_bus`| Microcontrollers define how many SPI buses they have, will be in the format of `SPI_BUS_x`|
 |&nbsp;|&nbsp;|
-|`group_64`| Union. (see file) |
-|`can_message`| Struct. (see file) |
+|`group_64`| Union. (see [file](datatypes.h)) |
+|`can_message`| Struct. (see [file](datatypes.h)) |
 
 These are all defined in [`datatypes.h`](datatypes.h).
 
@@ -75,52 +65,14 @@ The folling table lists the constants defined by this library:
 |`NO_REGISTER`|`NULL`|
 |`NO_PORT`|`NULL`|
 |`NO_BIT`|`NULL`|
+|`NO_MESSAGE`|`NULL`|
+|`NO_VECTOR`|`NULL`|
+|&nbsp;|&nbsp;|
+|`CAN_OK`|`0x0001`|
+|`CAN_RTR`|`0xFFFC`|
+|`CAN_WAKE`|`0xFFFD`|
+|`CAN_MERROR`|`0xFFFE`|
+|`CAN_ERROR`|`0xFFFF`|
+|`BIT0` - `BITF` | `0x0001` - `0x8000`|
 
 &nbsp;
-
-# Pin Control API
-The following table lists the functions that can be used for controlling pins/registers on a device (please note that pin naming should be detailed in specific microcontroller driver documentation):
-
-| Function Syntax | Description |
-|-------------------|-----------|
-|`setPinMode(pin, mode)`| Configures `pin` in `mode` (`Input`, or `Output`)|
-|`inputPin(pin)`| Alias for `setPinMode(pin, Input)`|
-|`outputPin(pin)`| Alias for `setPinMode(pin, Output)`|
-|&nbsp;|&nbsp;|
-|`setPinLevel(pin, level)`| Sets the `pin` to the `level` (`High`, or `Low`)|
-|`setPinHigh(pin)`| Alias for `setPinLevel(pin, High)`|
-|`setPinLow(pin)`| Alias for `setPinLevel(pin, Low)`|
-|`mimicPin(p2, p1)` | If `p1` is High, then `p2` will be set to High. If `p1` is Low, then `p2` will be set to Low. <br/>Alias for `setPinLevel(p2, readPin(p1))` |
-|&nbsp;|&nbsp;|
-|`togglePinLevel(pin)`| Sets `pin` as `High` if it's `Low`, and vice-versa|
-|`togglePin(pin)`| Alias for `togglePinLevel(pin)`|
-|&nbsp;|&nbsp;|
-|`readPin(pin)`| Reads the state of a pin, returns `High` or `Low`|
-|`isPinHigh(pin)`| Alias for `(readPin(pin) != Low)`|
-|`isPinLow(pin)`| Alias for `(readPin(pin) == Low)`|
-
-These are all defined in [`microcontroller.h`](microcontrollers/microcontroller.h).
-
-&nbsp;
-
-# Bit Manipulation API
-The following table lists directives used for easily manipulating bits:
-
-| Function Syntax | Description |
-|-----------------|-------------|
-|`setBitHigh(data, bit)` | Alias for `(data |= bit)`|
-|`setBitLow(data, bit)`| Alias for `(data &= ~bit)`|
-|`toggleBit(data, bit)`| Alias for `(data ^= bit)`|
-|`getBit(data, bit)`| Alias for `(data & bit)`|
-|&nbsp;|&nbsp;|
-|`isBitHigh(data, bit)`| Alias for `(getBit(data, bit) != 0x00)`|
-|`isBitLow(data, bit)`| Alias for `(getBit(data, bit) == 0x00)`|
-|&nbsp;|&nbsp;|
-|`leftShift(data, n)` | Alias for `((uint8_t)(data << n))`|
-|`rightShift(data, n)`| Alias for `((uint8_t)(data >> n))`|
-
-
-These are all defined in [`utils.h`](utils.h).
-
-&nbsp;
-

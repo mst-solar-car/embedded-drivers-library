@@ -1,0 +1,211 @@
+/**
+ * MSP430F5529
+ *
+ * Authors: Michael Rouse
+ */
+#include "../fixture.h"
+#include "../interface.h"
+#include "../../datatypes.h"
+#include "interface.h"
+
+
+/**
+ * Functions for the user
+ */
+
+
+
+
+
+/**
+ * Functions not for the user
+ */
+
+/* Configures a SPI Bus */
+void __microcontroller_spi_setup(spi_bus bus, io_pin mosi, io_pin miso, io_pin sck)
+{
+  switch (bus) {
+      case SPI_BUS_1:
+        // UCA0
+        UCA0CTL1  = UCSWRST;	//Hold the device in a reset state while we configure
+        UCA0CTL0  = 0x69;		//SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+        UCA0CTL1 |= UCSSEL_3;		//SPI clock (BRCLK) source = SMCLK
+        UCA0BR1	  = 0x00;		//Set the high bit of the baud rate generator
+        UCA0BR0	  = 0x14;		//Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+        //UCA0IE   |= 0x04;		//Enable interrupts
+        UCA0CTL1 &= ~UCSWRST;	//Release the bus from reset state
+        break;
+
+      case SPI_BUS_2:
+        // UCA1
+        UCA1CTL1  = UCSWRST;	//Hold the device in a reset state while we configure
+        UCA1CTL0  = 0x69;		//SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+        UCA1CTL1 |= UCSSEL_3;		//SPI clock (BRCLK) source = SMCLK
+        UCA1BR1	  = 0x00;		//Set the high bit of the baud rate generator
+        UCA1BR0	  = 0x14;		//Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+        //UCA1IE   |= 0x04;		//Enable interrupts
+        UCA1CTL1 &= ~UCSWRST;	//Release the bus from reset state
+        break;
+
+      case SPI_BUS_3:
+        // UCB0
+        UCB0CTL1  = UCSWRST;	//Hold the device in a reset state while we configure
+        UCB0CTL0  = 0x69;		//SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+        UCB0CTL1 |= UCSSEL_3;		//SPI clock (BRCLK) source = SMCLK
+        UCB0BR1	  = 0x00;		//Set the high bit of the baud rate generator
+        UCB0BR0	  = 0x14;		//Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+        //UCB0IE   |= 0x04;		//Enable interrupts
+        UCB0CTL1 &= ~UCSWRST;	//Release the bus from reset state
+        break;
+
+      case SPI_BUS_4:
+        // UCB1
+        UCB1CTL1  = UCSWRST;    //Hold the device in a reset state while we configure
+        UCB1CTL0  = 0x69;       //SPI mode 11, MSB first, 8 bit data, 3pin master synchronous mode
+        UCB1CTL1 |= UCSSEL_3;       //SPI clock (BRCLK) source = SMCLK
+        UCB1BR1   = 0x00;       //Set the high bit of the baud rate generator
+        UCB1BR0   = 0x14;       //Set the low bit of the baud rate generator (SMCLK / 20 == 1MHz SPI)
+        //UCB1IE   |= 0x04;     //Enable interrupts
+        UCB1CTL1 &= ~UCSWRST;   //Release the bus from reset state
+        break;
+  }
+}
+
+
+/* Transmits data over a SPI bus */
+uint8_t __microcontroller_spi_transmit(spi_bus bus, uint8_t data)
+{
+  switch (bus) {
+    case SPI_BUS_1:
+      // UCA0
+      while ((UCA0STAT & UCBUSY) != 0);
+      UCA0TXBUF = data;
+      while ((UCA0STAT & UCBUSY) != 0);
+      return UCA0RXBUF;
+
+    case SPI_BUS_2:
+      // UCA1
+      while ((UCA1STAT & UCBUSY) != 0);
+      UCA1TXBUF = data;
+      while ((UCA1STAT & UCBUSY) != 0);
+      return UCA1RXBUF;
+
+    case SPI_BUS_3:
+      // UCB0
+      while ((UCB0STAT & UCBUSY) != 0);
+      UCB0TXBUF = data;
+      while ((UCB0STAT & UCBUSY) != 0);
+      return UCB0RXBUF;
+
+    case SPI_BUS_4:
+      // UCB1
+      while ((UCB1STAT & UCBUSY) != 0);
+      UCB1TXBUF = data;
+      while ((UCB1STAT & UCBUSY) != 0);
+      return UCB1RXBUF;
+  }
+
+  return 0;
+}
+
+
+/* Enables or disables interrupts */
+void __microcontroller_interrupts_configure(bool enable)
+{
+  if (enable == Enable)
+    __bis_SR_register(GIE);   // _enable_interrupts()
+  else
+    __bic_SR_register(GIE);   // _disable_interrupts()
+}
+
+
+
+/* Microcontroller Initialization */
+void __microcontroller_initialization(void)
+{
+  watchdog_disable();
+
+  /* Set all GPIO Ports to Output and Low */
+  P1DIR = Output;   P1OUT = Low;
+  P2DIR = Output;   P2OUT = Low;
+  P3DIR = Output;   P3OUT = Low;
+  P4DIR = Output;   P4OUT = Low;
+  P5DIR = Output;   P5OUT = Low;
+  P6DIR = Output;   P6OUT = Low;
+  P7DIR = Output;   P7OUT = Low;
+  P8DIR = Output;   P8OUT = Low;
+
+  __microcontroller_interrupts_configure(Enable); // Enable interrupts
+
+  // Initialize the clock (by Jesse Cureton)
+  UCSCTL3 &= ~(0x0070);   // Select XT1CLK (our 32.768 kHz crystal) as FLL reference
+  UCSCTL4 &= ~(0x0070);   // Select XT1CLK as ACLK
+
+  uint16_t ratio, dco_div_bits;
+  uint8_t mode = 0;
+
+  uint16_t sysfreq = MC_CLOCK_SPEED_HZ / 1000; // Get clock in kHz
+  ratio = MC_CLOCK_SPEED_HZ / 32768; // Ratio of clock and crystal frequency
+  dco_div_bits = FLLD__2;
+
+  if (sysfreq > 1600) {
+    ratio >>= 1;
+    mode = 1;       // If sysfreq > 16 MHz then use DC0CLK not DC0CLKDIV
+  }
+  else sysfreq <<= 1;
+
+  while (ratio > 512) {
+    // Step up to a next div level
+    dco_div_bits += FLLD0;
+    ratio >>= 1;
+  }
+
+  __bis_SR_register(SCG0);  // Disable FLL while changing clocks
+
+  UCSCTL0 = 0x0000;                       //Set the DCO to the lowest tap setting
+
+  UCSCTL2 &= ~(0x3FF);                    //Clear the 8 LSBs in the register to clear the FLLN bits
+  UCSCTL2 = dco_div_bits | (ratio - 1);   //Datasheet voodoo
+
+  //sysfreq is in kHz
+  if (sysfreq <= 630)                     //Set the proper DCORSEL value
+    UCSCTL1= DCORSEL_0;
+  else if (sysfreq <  1250)
+    UCSCTL1= DCORSEL_1;
+  else if (sysfreq <  2500)
+    UCSCTL1= DCORSEL_2;
+  else if (sysfreq <  5000)
+    UCSCTL1= DCORSEL_3;
+  else if (sysfreq <  10000)
+    UCSCTL1= DCORSEL_4;
+  else if (sysfreq <  20000)
+    UCSCTL1= DCORSEL_5;
+  else if (sysfreq <  40000)
+    UCSCTL1= DCORSEL_6;
+  else
+    UCSCTL1= DCORSEL_7;
+
+  __bic_SR_register(SCG0);                //Re-enable the FLL
+
+  /* In theory this should be required, but it was hanging because these were apparently never being cleared?
+    * I dunno. It works without them. If something breaks with the clocks and hanging at init, it's probably here
+    *
+    * while(SFRIFG1 & OFIFG) {
+      UCSCTL7 &= ~(DCOFFG+XT1LFOFFG+XT2OFFG);
+      SFRIFG1 &= ~OFIFG;
+  }*/
+
+  if(mode == 1) {                         //select DCOCLK
+    UCSCTL4 &= ~(0x0077);
+    UCSCTL4 |= 0x0033;
+  } else {                                //Select DCOCLKDIV
+    UCSCTL4 &= ~(0x0077);
+    UCSCTL4 |= 0x0044;
+  }
+
+  // Worst-case settling time for the DCO when the DCO range bits have been
+  // changed is n x 32 x 32 x f_MCLK / f_FLL_reference. See UCS chapter in 5xx
+  // UG for optimization.
+  // 32 x 32 x 20 MHz / 32,768 Hz = 625000 MCLK cycles for DCO to settle
+  __delay_cycles(625000);
+}

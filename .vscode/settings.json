@@ -1,11 +1,15 @@
 {
   "files.associations": {
-    "*.test": "c",
-    "*.spec": "c",
-    "*.example": "c",
-    "solarcar.h": "c",
+    "*.driver": "c",
+    "*.tests": "c",
+    "framework.h": "c",
+    "interface.h": "c",
+    "mock.h": "c",
     "stdlib.h": "c",
+    "*.spec": "c",
     "*.mock": "c",
-    "importer.h": "c"
+    "config.h": "c",
+    "mcp2515.h": "c",
+    "datatypes.h": "c"
   }
 }

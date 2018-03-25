@@ -1,0 +1,38 @@
+/**
+ * Unit Tests for the Drivers Library
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+#include "datatypes.h"
+#include "library.h"
+#include "testing/framework.h"
+
+/* Weak CUSTOM_TESTS implementation (overrided by the user) */
+__attribute__((weak)) CUSTOM_TESTS() { }
+
+
+int main(void)
+{
+  /* Run the groups of unit tests */
+  RUN_GROUP(CAN);
+  RUN_GROUP(SPI);
+  RUN_GROUP(PinControl);
+  RUN_GROUP(Interrupts);
+
+  RUN_GROUP(MICROCONTROLLER);
+  RUN_GROUP(CAN_CONTROLLER);
+
+  printf("\n");
+
+  RUN_GROUP(Utilities);
+
+
+  /* Run tests that are defined by the user and not for items in this library */
+  printf("\n");
+  UserCustomTests();
+
+  return UnityEnd();
+}
+
+#endif

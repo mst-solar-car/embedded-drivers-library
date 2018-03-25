@@ -1,4 +1,4 @@
-# Driver Library Examples
+# Examples
 This file contains examples on how to use this library, they are not files so you will hopefully type out the code instead of just copy and paste.
 
 Each example assumes the following folder structure:
@@ -22,39 +22,44 @@ Each example is also setup around the MSP430F5529
 
 | Example |
 |:-------:|
-|[LED Control](#led-control)|
-|[Reading Pins](#reading-pins)|
-|[Sending CAN Messages](#sending-can-messages)|
+|[Basic Pin Control](#pin-control)|
+|[SPI](#spi)|
 |[Receiving CAN Messages](#receiving-can-messages)|
-|[Manual Register Access](#register-access)|
+|[Sending CAN Message](#sending-can-messages)|
 |[Interrupts](#interrupts)|
 
+
+
+
 &nbsp;
 
 
-# LED Control
+# Pin Control
 ```c
-// Project/src/main.c
-#include "../drivers/solarcar.h"
+#include "../drivers/library.h"
 
-#define LED_TO_TURN_ON  P2_7  // LED to turn on (and keep on) is on P2.7
-#define LED_TO_FLASH    P2_6  // LED to flash is on P2.6
-
+#define BUTTON      P2_7
+#define BUTTON_LED  P4_7
+#define STATUS_LED  P1_0
 
 int main(void)
 {
-  // Configure LED pins as output
-  outputPin(LED_TO_TURN_ON);
-  outputPin(LED_TO_FLASH);
+  pin_set_mode(BUTTON, Input);
+  pin_set_mode(BUTTON_LED, Output);
+  pin_set_mode(STATUS_LED, Output);
 
-  // Turn on the one LED
-  setPinHigh(LED_TO_TURN_ON);
+  while (True)
+  {
+    /* Turn on BUTTON_LED if button is pressed */
+    if (pin_read(BUTTON) == Low)
+      pin_set_level(BUTTON_LED, High);
+    else
+      pin_set_level(BUTTON_LED, Low);
 
-  // Infinite loop
-  while (True) {
-    togglePin(LED_TO_FLASH); // Blink the LED
+    /* Flash the Status LED */
+    pin_toggle(STATUS_LED);
 
-    __delay_cycles(1000000); // Delay so we can see the flash
+    delay_millis(1000); /* 1 second delay */
   }
 
   return 0;
@@ -63,79 +68,28 @@ int main(void)
 
 &nbsp;
 
-# Reading Pins
+# SPI
 ```c
-// Project/src/main.c
-#include "../drivers/solarcar.h"
+#include "../drivers/library.h"
 
-#define LED_SWITCH    P1_5  // Switch to turn on LED is on P1.5
-#define LED           P1_6  // LED for switch is on P1.6
+#define SPI_MOSI  P4_1
+#define SPI_MISO  P4_2
+#define SPI_CLK   P4_3
 
 int main(void)
 {
-  // Configure pins
-  inputPin(LED_SWITCH);
-  outputPin(LED);
-
-  setPinLow(LED); // Off by default
-
-  while (True) {
-    // An alternative to this if-statement is just using: mimicPin(LED, LED_SWITCH);
-    if (isPinHigh(LED_SWITCH)) {
-      // Switch is ON, turn on the LED
-      setPinHigh(LED);
-    }
-    else {
-      // Switch is OFF, turn off the LED
-      setPinLow(LED);
-    }
-
-    __delay_cycles(100000); // Delay
-  }
-
-  return 0;
-}
-```
-
-&nbsp;
-
-# Sending CAN Messages
-```c
-// Project/src/main.c
-#include "../drivers/solarcar.h"
-
-#define BOARD_CAN_ID    0x500   // CAN ID of this board
-
-#define CAN_CS          P2_5    // CAN Chip Select
-#define CAN_INT         P2_6    // CAN Interrupt Pin
-
-// SPI Pins
-#define SPI_MOSI        P4_1
-#define SPI_MISO        P4_2
-#define SPI_CLK         P4_3
-
-int main(void)
-{
-  // Initialize SPI
   spi_setup(SPI_BUS_4, SPI_MOSI, SPI_MISO, SPI_CLK);
 
-  // Initialize CAN
-  can_setup(CAN_CS, CAN_INT);
+  while (True)
+  {
+    uint8_t received = spi_transmit(SPI_BUS_4, 0x42);
 
-  while (True) {
-    // Create the new CAN Message
-    can_new_msg->address = BOARD_CAN_ID;
-    can_new_msg->data.data_u8[0] = 5;
-    can_new_msg->data.data_u8[1] = 4;
-    can_new_msg->data.data_u8[2] = 3;
-    can_new_msg->data.data_u8[3] = 2;
-    can_new_msg->data.data_u8[4] = 1;
-    can_new_msg->data.data_u8[5] = 0;
+    if (received != NULL)
+    {
+      /* Something was received! */
+    }
 
-    // Send messages
-    can_transmit();
-
-    __delay_cycles(10000000); // Delay
+    delay_millis(5000); /* 5 second delay */
   }
 
   return 0;
@@ -146,89 +100,89 @@ int main(void)
 
 # Receiving CAN Messages
 ```c
-// Project/src/main.c
-#include "../drivers/solarcar.h"
+#include "../drivers/library.h"
 
-#define BOARD_CAN_ID    0x500   // CAN ID of this board
+#define BMS_CAN_ID    0x100
+#define DIB_CAN_ID    0x200
 
 #define CAN_CS          P2_5    // CAN Chip Select
 #define CAN_INT         P2_6    // CAN Interrupt Pin
 
-// SPI Pins
-#define SPI_MOSI        P4_1
-#define SPI_MISO        P4_2
-#define SPI_CLK         P4_3
-
-#define LED             P1_6    // LED to toggle when message received
+#define SPI_MOSI  P4_1
+#define SPI_MISO  P4_2
+#define SPI_CLK   P4_3
 
 int main(void)
 {
-  // Initialize SPI
   spi_setup(SPI_BUS_4, SPI_MOSI, SPI_MISO, SPI_CLK);
 
-  // Initialize CAN
-  can_setup(CAN_CS, CAN_INT);
+  can_accept(BMS_CAN_ID, DIB_CAN_ID);
+  can_setup(SPI_BUS_4, CAN_CS, CAN_INT);
 
-  outputPin(LED); // Configure LED pin
-
-  while (True) {
-    // Get the next received CAN Message
-    can_message* received = can_receive();
-    if (received != NOTHING) {
-      // Message was received!!!
-      if (received->address == 0x200) {
-        togglePin(LED); // :)
+  while (True)
+  {
+    can_message* msg = can_receive();
+    if (msg != NO_MESSAGE)
+    {
+      if (msg->address == BMS_CAN_ID)
+      {
+        /* Yay! */
+      }
+      else if (msg->address == DIB_CAN_ID)
+      {
+        /* Yay! */
       }
     }
+
+    delay_millis(1000); /* 1 second delay */
   }
 
   return 0;
 }
+
 ```
-
-```c
-// Projects/drivers/user_config.h
-
-// Filters are what IDs to receive
-#define CAN_FILTER1         0x200
-#define CAN_FILTER2         0x000
-#define CAN_FILTER3         0x000
-#define CAN_FILTER4         0x000
-#define CAN_FILTER5         0x000
-#define CAN_FILTER6         0x000
-
-// Masks apply to filters (ask someone about it)
-#define CAN_MASK1           0x000
-#define CAN_MASK2           0x000
-
-#define DEFAULT_SPI_BUS     SPI_BUS_4
-```
-
 
 &nbsp;
 
-# Register Access
+# Sending CAN Messages
 ```c
-// Project/src/main.c
-#include "../drivers/solarcar.h"
+#include "../drivers/library.h"
 
-#define LED_PIN     P1_5  // LED
+#define MY_CAN_ID     0x500
+#define BMS_CAN_ID    0x100
+#define DIB_CAN_ID    0x200
 
-void main(void)
+#define CAN_CS          P2_5    // CAN Chip Select
+#define CAN_INT         P2_6    // CAN Interrupt Pin
+
+#define SPI_MOSI  P4_1
+#define SPI_MISO  P4_2
+#define SPI_CLK   P4_3
+
+int main(void)
 {
-  uint8_t port;
-  uint8_t bit;
-  vuint8_t* dirRegister;
+  spi_setup(SPI_BUS_4, SPI_MOSI, SPI_MISO, SPI_CLK);
 
-  // Get PORT and BIT
-  getPinPort(port, LED_PIN); // port = pinPort(LED_PIN); if (port == NO_PORT) return;
-  getPinBit(bit, LED_PIN); // bit = pinBit(LED_PIN); if (bit == NO_BIT) return;
+  can_accept(BMS_CAN_ID, DIB_CAN_ID);
+  can_setup(SPI_BUS_4, CAN_CS, CAN_INT);
 
-  // Get direction register
-  getDirReg(dirRegister, port); // dirRegister = dirReg(port); if (dirRegister == NO_REGISTER) return;
+  while (True)
+  {
+    /* Construct the message */
+    can_new_msg.address = MY_CAN_ID;
+    can_new_msg.data.data_u8[0] = 5;
+    can_new_msg.data.data_u8[1] = 4;
+    can_new_msg.data.data_u8[2] = 3;
+    can_new_msg.data.data_u8[3] = 2;
+    can_new_msg.data.data_u8[4] = 1;
+    can_new_msg.data.data_u8[5] = 0;
 
-  // Manually configure LED_PIN as output
-  setRegisterBitHigh(dirRegister, bit);
+    can_transmit();
+
+    delay_millis(10000); /* 10 second delay */
+  }
+
+  return 0;
 }
 ```
 
@@ -236,37 +190,41 @@ void main(void)
 
 # Interrupts
 ```c
-// Project/src/main.c
-#include "../drivers/solarcar.h"
+#include "../drivers/library.h"
 
-#define DEBUG_LED_1 P6_6
-#define DEBUG_LED_2 P6_7
+#define ISR_LED   P1_0
 
-// ISR for P2_5 interrupt
-void P2_5_ISR(void);
-
-
-void main(void)
+void pin_ISR(void)
 {
-  attachInterrupt(P2_5, P2_5_ISR);
+  pin_toggle(ISR_LED);
+}
 
-  // Imagine that this example configures a system timer here
+int main(void)
+{
+  interrupts_enable();
 
-  while (True) {
-    // Do nothing
+  pin_set_mode(ISR_LED, Output);
+
+  interrupt_attach(P2_5, pin_ISR); /* Attach interrupt ISR */
+
+  while (True)
+  {
+    /* Nothing */
   }
+
+  return 0;
 }
 
-// Toggle an LED when an interrupt on P2.5 occurs
-void P2_5_ISR(void)
+
+/* This syntax is an alternative to interrupt_attach */
+interrupt_pin_ISR(P2_1)
 {
-  togglePin(DEBUG_LED_1);
+  /* ISR for P2.1 */
 }
 
-// Interrupt for the timer
-// Toggle an LED when the timer overflows
-nonPinInterrupt(TIMER1_A0_VECTOR)
+/* Syntax for creating a non-pin interrupt */
+interrupt_ISR(TIMER_A0_VECTOR)
 {
-  togglePin(DEBUG_LED_2);
+  /* Non-Pin ISR */
 }
 ```

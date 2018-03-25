@@ -1,0 +1,24 @@
+/**
+ * Unit Test Runner For Utilities
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+#include "interface.h"
+#include "../testing/framework.h"
+
+
+
+CREATE_GROUP(Utilities)
+
+
+GROUP_RUNNER(Utilities)
+{
+  RUN_GROUP(MemoryUtilities);
+  RUN_GROUP(Queue);
+  RUN_GROUP(BitManipulation);
+  RUN_GROUP(Exceptions);
+  RUN_GROUP(PubSub);
+}
+
+#endif

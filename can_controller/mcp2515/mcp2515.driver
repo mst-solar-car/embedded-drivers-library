@@ -1,0 +1,420 @@
+/**
+ * MCP2515 CAN Controller Implementation
+ *
+ * Authors: Everyone?
+ */
+#include "interface.h"
+#include "../interface.h"
+#include "../config.h"
+#include "../../library.h"
+#include "../../utils/bits/interface.h"
+
+
+// PubSub
+pubsub_event_id CAN_CONTROLLER_TRANSMITTING_EVENT;
+
+/**
+ * "Private" Variables for the use of unit testing and dependency inversion
+ */
+static uint8_t(*_spi_transmit_func)(spi_bus, uint8_t);
+static void(*_pin_set_mode_func)(io_pin, pin_mode);
+static void(*_pin_set_level_func)(io_pin, pin_level);
+static pin_level(*_pin_read_func)(io_pin);
+static void(*_attach_interrupt_func)(io_pin, void(*func)(void));
+static void(*_can_receive_push_func)(can_message*);
+
+static uint8_t __mcp2515_buffer[CAN_MESSAGE_SIZE + 1];
+Queue* __mcp2515_tx_queue; /* Queues Messages being transmitted */
+static can_message __cc_temp_msg;
+
+static spi_bus __cc_spi_bus;
+static io_pin __cc_cs_pin;
+static io_pin __cc_int_pin;
+
+
+/**
+ * "Private" functions for helping with MCP2515 related stuff
+ */
+static void     _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t length);
+static void     _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data);
+static void     _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes);
+static void     _mcp2515_reset(void);
+static void     _mcp2515_request_send(void);
+static bool     _mcp2515_is_busy(void);
+static uint8_t  _mcp2515_read_status(void);
+static void     _mcp2515_get_message_from_register(uint8_t regAddr);
+static void     _mcp2515_legacy_receive_message(void);
+static void     _mcp2515_transmit_buffer(void);
+
+
+/**
+ * Interface Functions
+ */
+
+/* Initializes the CAN Controller */
+void can_controller_setup(spi_bus bus, io_pin cs_pin, io_pin int_pin, uint16_t filters[], uint16_t masks[])
+{
+  __cc_spi_bus = bus;
+  __cc_cs_pin = cs_pin;
+  __cc_int_pin = int_pin;
+
+  _pin_set_mode_func(__cc_cs_pin, Output);
+  _pin_set_level_func(__cc_cs_pin, High);
+
+  _attach_interrupt_func(__cc_int_pin, can_controller_poll);
+
+  _mcp2515_reset();
+
+  /* Delay for reset */
+  uint16_t c;
+  for(c = 0; c < 1000; c++);
+
+  /* Configuration Mode */
+  _mcp2515_modify(MCP2515_CONTROL_REGISTER, 0x03, 0x00);
+
+  __mcp2515_buffer[0] = 0x05; // (CNF3) -|
+  __mcp2515_buffer[1] = 0xF8; // (CNF2)  |- Configure Baudrate for 500 kbps
+  __mcp2515_buffer[2] = 0x00; // (CNF1) -|
+
+  __mcp2515_buffer[3] = 0x23; // (CANINTE) enable error, rx0 & rx1 interrupts on IRQ pin
+
+  __mcp2515_buffer[4] = 0x00; // (CANINTF) register: clear all IRQ flags
+  __mcp2515_buffer[5] = 0x00; // (EFLG) clear all user changable error flags
+  _mcp2515_write(MCP2515_CNF3_REGISTER, &__mcp2515_buffer[0], 6); // TODO: FIX CONSTANTS
+
+#ifndef MCP2515_NO_ROLLOVER
+  _mcp2515_modify(MCP2515_RX0_REGISTER, 0x04, 0x04); /* Enable receive buffer rollover */
+#endif
+
+  /* Set Filters */
+  __mcp2515_buffer[0] = (filters[0] >= 1) ? (uint8_t)bits_right_shift(filters[1], 3) : __NULL__;
+  __mcp2515_buffer[1] = (filters[0] >= 1) ? (uint8_t)bits_left_shift(filters[1], 5)  : __NULL__;
+  __mcp2515_buffer[2] = __NULL__;
+  __mcp2515_buffer[3] = __NULL__;
+
+  __mcp2515_buffer[4] = (filters[0] >= 2) ? (uint8_t)bits_right_shift(filters[2], 3) : __NULL__;
+  __mcp2515_buffer[5] = (filters[0] >= 2) ? (uint8_t)bits_left_shift(filters[2], 5)  : __NULL__;
+  __mcp2515_buffer[6] = __NULL__;
+  __mcp2515_buffer[7] = __NULL__;
+
+  __mcp2515_buffer[8] = (filters[0] >= 3) ? (uint8_t)bits_right_shift(filters[3], 3) : __NULL__;
+  __mcp2515_buffer[9] = (filters[0] >= 3) ? (uint8_t) bits_left_shift(filters[3], 5) : __NULL__;
+  __mcp2515_buffer[10] = __NULL__;
+  __mcp2515_buffer[11] = __NULL__;
+  _mcp2515_write(MCP2515_FILTER1_REGISTER, &__mcp2515_buffer[0], 12);
+
+  // Second set of filters
+  __mcp2515_buffer[0] = (filters[0] >= 4) ? (uint8_t)bits_right_shift(filters[4], 3) : __NULL__;
+  __mcp2515_buffer[1] = (filters[0] >= 4) ? (uint8_t) bits_left_shift(filters[4], 5) : __NULL__;
+  __mcp2515_buffer[2] = __NULL__;
+  __mcp2515_buffer[3] = __NULL__;
+
+  __mcp2515_buffer[4] = (filters[0] >= 5) ? (uint8_t)bits_right_shift(filters[5], 3) : __NULL__;
+  __mcp2515_buffer[5] = (filters[0] >= 5) ? (uint8_t) bits_left_shift(filters[5], 5) : __NULL__;
+  __mcp2515_buffer[6] = __NULL__;
+  __mcp2515_buffer[7] = __NULL__;
+
+  __mcp2515_buffer[8] = (filters[0] >= 6) ? (uint8_t)bits_right_shift(filters[6], 3) : __NULL__;
+  __mcp2515_buffer[9] = (filters[0] >= 6) ? (uint8_t) bits_left_shift(filters[6], 5) : __NULL__;
+  __mcp2515_buffer[10] = __NULL__;
+  __mcp2515_buffer[11] = __NULL__;
+  _mcp2515_write(MCP2515_FILTER2_REGISTER, &__mcp2515_buffer[0], 12);
+
+
+  /* Set Masks */
+  __mcp2515_buffer[0] = (masks[0] >= 1) ? (uint8_t)bits_right_shift(masks[1], 3) : __NULL__;
+  __mcp2515_buffer[1] = (masks[0] >= 1) ? (uint8_t) bits_left_shift(masks[1], 5) : __NULL__;
+  __mcp2515_buffer[2] = __NULL__;
+  __mcp2515_buffer[3] = __NULL__;
+
+  __mcp2515_buffer[4] = (masks[0] >= 2) ? (uint8_t)bits_right_shift(masks[2], 3) : __NULL__;
+  __mcp2515_buffer[5] = (masks[0] >= 2) ? (uint8_t) bits_left_shift(masks[2], 5) : __NULL__;
+  __mcp2515_buffer[6] = __NULL__;
+  __mcp2515_buffer[7] = __NULL__;
+  _mcp2515_write(MCP2515_MASK_REGISTER, &__mcp2515_buffer[0], 8);
+
+
+  /* Leave configuration mode */
+  _mcp2515_modify(MCP2515_CONTROL_REGISTER, 0xE0, 0x00);
+}
+
+
+/* Transmits a message over the CAN Bus */
+void can_controller_transmit(can_message* msg)
+{
+  uint8_t i;
+  // TODO: Check if MCP2515 is asleep
+  Queue_Push(__mcp2515_tx_queue, msg); /* Push to TX queue - It will eventually be sent */
+  if (_mcp2515_is_busy() == True)
+  {
+    return;
+  }
+
+  /* Not busy, send what is in the queue */
+  can_message* poppedMsg = (can_message*)Queue_Pop(__mcp2515_tx_queue);
+
+  // Send out publication that CAN is transmitting
+  if (poppedMsg != NO_MESSAGE)
+    pubsub_publish(CAN_CONTROLLER_TRANSMITTING_EVENT);
+
+  int8_t loop_limit = 200;
+  while(poppedMsg != NO_MESSAGE)
+  {
+    __mcp2515_buffer[0] = (uint8_t)bits_right_shift(poppedMsg->address, 3);
+    __mcp2515_buffer[1] = (uint8_t)bits_left_shift(poppedMsg->address, 5);
+    __mcp2515_buffer[2] = __NULL__;
+    __mcp2515_buffer[3] = __NULL__;
+    __mcp2515_buffer[4] = 8;
+    for (i = 0; i < 8; i++)
+      __mcp2515_buffer[5 + i] = poppedMsg->data.data_u8[i];
+
+    _mcp2515_transmit_buffer();
+
+    poppedMsg = (can_message*)Queue_Pop(__mcp2515_tx_queue);
+
+    if (loop_limit-- <= 0)
+      break;
+  }
+}
+
+
+/* Checks for missed interrupts and will automatically put missed messages in the rx queue */
+void can_controller_poll(void)
+{
+  int16_t loop_counter = 200;
+  while (_pin_read_func(__cc_int_pin) == Low && loop_counter-- >= 0)
+  {
+    _mcp2515_legacy_receive_message();
+  }
+}
+
+
+
+
+
+
+
+
+/* CAN Controller Initialization (should not be called by user unless unit testing) */
+void __can_controller_initialization(
+  uint8_t(*spi_transmit_func)(spi_bus, uint8_t),
+  void(*pin_set_mode_func)(io_pin, pin_mode),
+  void(*pin_set_level_func)(io_pin, pin_level),
+  pin_level(*pin_read_func)(io_pin),
+  void(*attach_interrupt_func)(io_pin, void(*func)(void)),
+  void(*can_receive_push_func)(can_message*)
+)
+{
+  _spi_transmit_func = spi_transmit_func;
+  _pin_set_mode_func = pin_set_mode_func;
+  _pin_set_level_func = pin_set_level_func;
+  _pin_read_func = pin_read_func;
+  _attach_interrupt_func = attach_interrupt_func;
+  _can_receive_push_func = can_receive_push_func;
+
+  __mcp2515_tx_queue = Queue_New(can_message);
+
+  CAN_CONTROLLER_TRANSMITTING_EVENT = pubsub_new_event();
+}
+
+
+
+
+
+/**
+ * "Private" Functions
+ */
+static void _mcp2515_write(uint8_t addr, uint8_t* buff, uint8_t length)
+{
+  uint8_t i;
+
+  _pin_set_level_func(__cc_cs_pin, Low);
+
+  _spi_transmit_func(__cc_spi_bus, MCP2515_WRITE_CMD);
+  _spi_transmit_func(__cc_spi_bus, addr);
+
+  for (i = 0; i < (length - 1); i++)
+    _spi_transmit_func(__cc_spi_bus, *buff++);
+
+  _spi_transmit_func(__cc_spi_bus, *buff);
+
+  _pin_set_level_func(__cc_cs_pin, High);
+}
+
+
+static void _mcp2515_modify(uint8_t addr, uint8_t mask, uint8_t data)
+{
+  _pin_set_level_func(__cc_cs_pin, Low);
+
+  _spi_transmit_func(__cc_spi_bus, MCP2515_MODIFY_CMD);
+  _spi_transmit_func(__cc_spi_bus, addr);
+  _spi_transmit_func(__cc_spi_bus, mask);
+  _spi_transmit_func(__cc_spi_bus, data);
+
+  _pin_set_level_func(__cc_cs_pin, High);
+}
+
+
+static void _mcp2515_read(uint8_t addr, uint8_t* out, uint8_t bytes)
+{
+  uint8_t i;
+
+  _pin_set_level_func(__cc_cs_pin, Low);
+
+  _spi_transmit_func(__cc_spi_bus, MCP2515_READ_CMD);
+  _spi_transmit_func(__cc_spi_bus, addr);
+
+  for (i = 0; i < bytes; i++)
+    *out++ = _spi_transmit_func(__cc_spi_bus, __NULL__);
+
+  _pin_set_level_func(__cc_cs_pin, High);
+}
+
+
+static void _mcp2515_reset(void)
+{
+  _pin_set_level_func(__cc_cs_pin, Low);
+  _spi_transmit_func(__cc_spi_bus, MCP2515_RESET_CMD);
+  _pin_set_level_func(__cc_cs_pin, High);
+}
+
+
+static void _mcp2515_request_send(void)
+{
+  uint8_t buff = 0;
+  uint8_t i;
+
+  // TODO: Use all 3 TX Queues
+  i = 0x80; // TODO: Fix constants specific to MCP2515
+  if (buff == 0)
+    i |= 0x01;  // TX0RTS
+  else if (buff == 1)
+    i |= 0x02;  // TX1RTS
+  else if (buff == 2)
+    i |= 0x04;  // TX2RTS
+
+  _pin_set_level_func(__cc_cs_pin, Low);
+  _spi_transmit_func(__cc_spi_bus, i);
+  _pin_set_level_func(__cc_cs_pin, High);
+}
+
+
+static bool _mcp2515_is_busy(void)
+{
+  uint8_t status = _mcp2515_read_status();
+
+  if ((status & 0x04) != __NULL__)
+    return True;
+
+  return False;
+}
+
+
+static uint8_t _mcp2515_read_status(void)
+{
+  uint8_t status = __NULL__;
+
+  _pin_set_level_func(__cc_cs_pin, Low);
+
+  _spi_transmit_func(__cc_spi_bus, MCP2515_READ_STATUS_CMD);
+  status = _spi_transmit_func(__cc_spi_bus, __NULL__);
+
+  _pin_set_level_func(__cc_cs_pin, High);
+
+  return status;
+}
+
+
+/* Receives a message from a specificed receive register on the MCP2515 */
+static void _mcp2515_get_message_from_register(uint8_t regAddr)
+{
+  uint8_t i;
+
+  /* Read from the buffer and reset the interrupt pin */
+  _pin_set_level_func(__cc_cs_pin, Low);
+  _spi_transmit_func(__cc_spi_bus, MCP2515_READ_CMD);
+  _spi_transmit_func(__cc_spi_bus, regAddr);
+
+  for (i = 0; i <= CAN_MESSAGE_SIZE; i++)
+    __mcp2515_buffer[i] = _spi_transmit_func(__cc_spi_bus, __NULL__);
+
+  _pin_set_level_func(__cc_cs_pin, High);
+
+  /* Check message */
+  if ((__mcp2515_buffer[0] & MCP2515_REMOTE_CHECK) == __NULL__)
+  {
+    /* Standard Data Packet */
+    __cc_temp_msg.status = CAN_OK;
+
+    /* When the data comes back from the MCP2515 it is all shifted over one byte,
+       that's why this starts at 6 and not 5 */
+    for (i = 0; i < 8; i++)
+      __cc_temp_msg.data.data_u8[i] = __mcp2515_buffer[6 + i];
+  }
+  else
+  {
+    /* Remote Frame Request -- Do not care about it */
+    __cc_temp_msg.status = CAN_RTR;
+  }
+
+  /* Again, these indexes are different than in the can_transmit function because the
+    data is shifted by one byte */
+  __cc_temp_msg.address = __mcp2515_buffer[1];
+  __cc_temp_msg.address = __cc_temp_msg.address << 3;
+  __mcp2515_buffer[2] = __mcp2515_buffer[2] >> 5;
+  __cc_temp_msg.address = __cc_temp_msg.address | __mcp2515_buffer[2];
+
+  _can_receive_push_func(&__cc_temp_msg);
+}
+
+
+/* Reads status, decides what buffer the message is in and then requests it */
+static void _mcp2515_legacy_receive_message(void)
+{
+  uint8_t flags;
+  _mcp2515_read(MCP2515_CANINTF_REGISTER, &flags, 1);
+
+  if ((flags & MCP2515_ERROR_CHECK) != __NULL__)
+  {
+    /* Errors Exist */
+    _mcp2515_read(EFLAG, &__mcp2515_buffer[0], 1);
+    _mcp2515_read(TEC, &__mcp2515_buffer[1], 2);
+
+    /* Clear flags */
+    _mcp2515_modify(EFLAG, __mcp2515_buffer[0], __NULL__);
+    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_ERROR_CHECK, __NULL__);
+  }
+  else if ((flags & MCP2515_RX0_CHECK) != __NULL__)
+  {
+    /* Message is in RX0 */
+    _mcp2515_get_message_from_register(MCP2515_RX0_REGISTER);
+    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX0_CHECK, __NULL__);
+  }
+  else if ((flags & MCP2515_RX1_CHECK) != __NULL__)
+  {
+    /* Message is in RX1 */
+    _mcp2515_get_message_from_register(MCP2515_RX1_REGISTER);
+    _mcp2515_modify(MCP2515_CANINTF_REGISTER, MCP2515_RX1_CHECK, __NULL__);
+  }
+}
+
+
+static void _mcp2515_transmit_buffer(void)
+{
+  uint8_t i;
+
+  _pin_set_level_func(__cc_cs_pin, Low);
+  _spi_transmit_func(__cc_spi_bus, MCP2515_LOAD_TX0_CMD);
+
+  /* Send all of the data in the buffer (while clearing it out) */
+  for (i = 0; i < CAN_MESSAGE_SIZE; i++)
+  {
+    _spi_transmit_func(__cc_spi_bus, __mcp2515_buffer[i]);
+     __mcp2515_buffer[i] = 0x00;
+  }
+
+  _pin_set_level_func(__cc_cs_pin, High);
+
+  _mcp2515_request_send();
+}
+

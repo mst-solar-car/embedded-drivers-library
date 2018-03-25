@@ -1,0 +1,47 @@
+/**
+ * Unit Tests for CException
+ *
+ * Authors: Michael Rouse
+ */
+#ifdef UNIT_TEST
+#include "exception.h"
+#include "../../testing/framework.h"
+
+
+CREATE_GROUP(Exceptions);
+
+
+TEST(Exceptions, Throw)
+{
+  CEXCEPTION_T e;
+
+  Try
+  {
+    Throw(5);
+
+    TEST_FAIL_MESSAGE("Code after Throw was executed");
+  }
+  Catch(e) {
+    TEST_ASSERT_EQUAL(5, e);
+  }
+
+}
+
+
+
+GROUP_RUNNER(Exceptions)
+{
+  PERFORM_TEST(Exceptions, Throw);
+}
+
+GROUP_TEST_SETUP(Exceptions)
+{
+
+}
+
+GROUP_TEST_TEARDOWN(Exceptions)
+{
+
+}
+
+#endif

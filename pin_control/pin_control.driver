@@ -1,0 +1,68 @@
+/**
+ * Pin Control Driver Implementation
+ *
+ * Author: Michael Rouse
+ */
+#include "../datatypes.h"
+#include "interface.h"
+
+#include "../utils/bits/interface.h"
+
+
+/**
+ * Interface Functions
+ */
+
+/* Sets a pin to a certain mode (e.g., Input or Output) */
+void pin_set_mode(io_pin pin, pin_mode mode)
+{
+  pin_info_t _pin = GetPinInfo(pin);
+  if (!IsValidPinInfo(_pin) || _pin.port->dir_reg == NO_REGISTER)
+    return;
+
+  if (mode == Input)
+    bits_set_low(*(_pin.port->dir_reg), _pin.bit);
+  else
+    bits_set_high(*(_pin.port->dir_reg), _pin.bit);
+}
+
+
+/* Sets a pin to a level (e.g., High or Low) */
+void pin_set_level(io_pin pin, pin_level level)
+{
+  pin_info_t _pin = GetPinInfo(pin);
+  if (!IsValidPinInfo(_pin) || (_pin.port)->out_reg == NO_REGISTER)
+    return;
+
+  if (level == High)
+    bits_set_high(*_pin.port->out_reg, _pin.bit);
+  else
+    bits_set_low(*_pin.port->out_reg, _pin.bit);
+}
+
+
+/* Toggles a pin, sets it High if it is Low, and Low if it is High */
+void pin_toggle(io_pin pin)
+{
+  pin_info_t _pin = GetPinInfo(pin);
+  if (!IsValidPinInfo(_pin) || _pin.port == NO_PORT || _pin.port->out_reg == NO_REGISTER)
+    return;
+
+  bits_toggle(*_pin.port->out_reg, _pin.bit);
+}
+
+
+/* Returns the level of a pin (e.g., High or Low) */
+pin_level pin_read(io_pin pin)
+{
+  pin_info_t _pin = GetPinInfo(pin);
+  if (!IsValidPinInfo(_pin) || _pin.port->in_reg == NO_REGISTER)
+    return Low;
+
+  if (bits_is_high(*_pin.port->in_reg, _pin.bit))
+    return High;
+  else
+    return Low;
+
+}
+

@@ -1,32 +1,31 @@
 /**
- * File for defining data types that will be used all over the place
+ * This file includes data types, aliases, and structs that are used throughout the
+ * library and in user code
  *
- * Author: Michael Rouse
+ * Authors: Everyone?
  */
-#include "microcontrollers/spec_importer.h"
+#ifndef __DATATYPES__
+#define __DATATYPES__
 
-#ifndef __DATATYPES_H__
-#define __DATATYPES_H__
-
-// Unassign the current NULL value because we will be assigning our own
+/* Unassign the current NULL value because we will be assigning our own */
 #ifdef NULL
 #undef NULL
 #endif
+
 
 #define __NULL__    0x00
 
 #define __TRUE__    1
 #define __FALSE__   0
 
-#define __HIGH__  0x01
-#define __LOW__   0x00
+#define __HIGH__    0x01
+#define __LOW__     0x00
 
 #define __OUTPUT__  0xFF
 #define __INPUT__   0x00
 
 
-
-// Assign types set by GCC if they are not defined for some reason
+/* Assign types set by GCC if they are not defined for some reason */
 #ifndef __INT8_TYPE__
 #define __INT8_TYPE__ signed char
 #endif
@@ -58,8 +57,7 @@
 #define __VUINT16_TYPE__ volatile unsigned short int
 #endif
 
-
-// Now add type definitions that make typing code easier and prettier
+/* Now add type definitions that make typing code easier and prettier */
 typedef __INT8_TYPE__     int8_t;
 typedef __UINT8_TYPE__    uint8_t;
 typedef __INT16_TYPE__    int16_t;
@@ -69,81 +67,60 @@ typedef __UINT32_TYPE__   uint32_t;
 typedef __INT64_TYPE__    int64_t;
 typedef __UINT64_TYPE__   uint64_t;
 
-// For memory stuff
+/* For memory stuff */
 typedef __VUINT8_TYPE__   vuint8_t;
 typedef __VUINT16_TYPE__  vuint16_t;
 
-// Aliases for types that are used often
-typedef uint8_t   io_pin;         // Custom type to represent a pin
-typedef uint16_t  register_addr;  // Represents a registry address
+/* Aliases for types that are used often */
+typedef uint8_t           io_pin;         /* Custom type to represent a pin */
+typedef uint16_t          register_addr;  /* Represents a registry address */
+typedef uint8_t           spi_bus;
 
 typedef void(*voidFuncPtr)(void);
-
 
 
 /**
  * Data Types
  */
-// Boolean values (plenty of names to help with readability)
+
+/* Boolean values (plenty of names to help with readability) */
 typedef enum bool_t {
   FALSE   = __FALSE__,
   False   = __FALSE__,
+  false   = __FALSE__,
   Failure = __FALSE__,
   Busy    = __FALSE__,
+  No      = __FALSE__,
+  Disable = __FALSE__,
 
   TRUE    = __TRUE__,
   True    = __TRUE__,
-  Success = __TRUE__
+  true    = __TRUE__,
+  Success = __TRUE__,
+  Yes     = __TRUE__,
+  Enable  = __TRUE__,
 } bool;
 
-// Enum for pin direction
+/* Enum for pin direction */
 typedef enum pin_mode_t {
-  INPUT = __INPUT__,
-  Input = __INPUT__,
+  INPUT   = __INPUT__,
+  Input   = __INPUT__,
 
-  OUTPUT = __OUTPUT__,
-  Output = __OUTPUT__
+  OUTPUT  = __OUTPUT__,
+  Output  = __OUTPUT__,
 } pin_mode;
 
-// Enum for pin level
+/* Enum for pin level */
 typedef enum pin_level_t {
-  LOW = __LOW__,
-  Low = __LOW__,
+  LOW   = __LOW__,
+  Low   = __LOW__,
 
-  HIGH = __HIGH__,
-  High = __HIGH__
+  HIGH  = __HIGH__,
+  High  = __HIGH__
 } pin_level;
 
 
-// Enum for SPI Bus identifiers
-typedef enum spi_bus_t {
-#ifndef MC_NO_SPI
-  SPI_BUS_1 = 1,
-#if MC_NUM_SPI_BUSES  > 1
-  SPI_BUS_2,
-#endif
-#if MC_NUM_SPI_BUSES  > 2
-  SPI_BUS_3,
-#endif
-#if MC_NUM_SPI_BUSES > 3
-  SPI_BUS_4,
-#endif
-#if MC_NUM_SPI_BUSES > 4
-  SPI_BUS_5,
-#endif
-#if MC_NUM_SPI_BUSES > 5
-  SPI_BUS_6,
-#endif
-#if MC_NUM_SPI_BUSES > 6
-  #error "PLEASE ADD MORE SPI BUSES TO datatypes.h"
-#endif
-#else
-  NO_SPI_BUS = 0,
-#endif
-} spi_bus;
-
-
-// These are used to represent null values, there are different names to help with readability
+/* These are used to represent null values, there are different names to help with readability */
 enum {
   NULL        = __NULL__,
   NOTHING     = __NULL__,
@@ -152,30 +129,122 @@ enum {
   NO_REGISTER = __NULL__,
   NO_PORT     = __NULL__,
   NO_BIT      = __NULL__,
-  NO_VECTOR   = __NULL__
+  NO_VECTOR   = __NULL__,
+  NO_MESSAGE  = __NULL__,
+};
+
+/* Status of a CAN Message */
+typedef enum can_status_t {
+  CAN_OK      = 0x0001,
+  CAN_RTR     = 0xFFFC,
+  CAN_WAKE    = 0xFFFD,
+  CAN_MERROR  = 0xFFFE,
+  CAN_ERROR   = 0xFFFF
+} can_status;
+
+
+/* Bits */
+enum {
+#ifdef BIT0
+#undef BIT0
+#endif
+  BIT0 = 0x0001,
+#ifdef BIT1
+#undef BIT1
+#endif
+  BIT1 = 0x0002,
+#ifdef BIT2
+#undef BIT2
+#endif
+  BIT2 = 0x0004,
+#ifndef BIT3
+#undef BIT3
+#endif
+  BIT3 = 0x0008,
+#ifndef BIT4
+#undef BIT4
+#endif
+  BIT4 = 0x0010,
+#ifndef BIT5
+#undef BIT5
+#endif
+  BIT5 = 0x0020,
+#ifndef BIT6
+#undef BIT6
+#endif
+  BIT6 = 0x0040,
+#ifndef BIT7
+#undef BIT7
+#endif
+  BIT7 = 0x0080,
+#ifndef BIT8
+#undef BIT8
+#endif
+  BIT8 = 0x0100,
+#ifndef BIT9
+#undef BIT9
+#endif
+  BIT9 = 0x0200,
+#ifndef BITA
+#undef BITA
+#endif
+  BITA = 0x0400,
+#ifndef BITB
+#undef BITB
+#endif
+  BITB = 0x0800,
+#ifndef BITC
+#undef BITC
+#endif
+  BITC = 0x1000,
+#ifndef BITD
+#undef BITD
+#endif
+  BITD = 0x2000,
+#ifndef BITE
+#undef BITE
+#endif
+  BITE = 0x4000,
+#ifndef BITF
+#undef BITF
+#endif
+  BITF = 0x8000,
+
+
+  MAX_BIT = BITF,
 };
 
 
-
-// Union
+/**
+ * This is a Union, it allows you store different datatypes in the same memory
+ * location. We use this for CAN messages because we have different data (floats,
+ * unsigned 8 bit, uinsigned 16 bits, etc...) that we send over CAN messages.
+ *
+ * This works, because sizeof(union_name) will evaluate to the size of the largest member.
+ * In our case, that is the array of two int32_ts. 32x2 = 64, so this union will
+ * always take up 64 bits of memory when used.
+ */
 typedef union group_64_t {
-  float data_fp[2];           // Holds floating point
-  unsigned char data_u8[8];   // Holds 8 unsigned bits
-  char data_8[8];              // Holds 8 signed bits
-  unsigned int data_u16[4];   // Holds 16 unsigned bits
-  int data_16[4];             // Holds 16 bits
-  unsigned long data_u32[2];  // Holds 32 unsigned bits
-  long data_32[2];            // Holds 32 bits
+  float     data_fp[2];   /* Holds floating point */
+  uint8_t   data_u8[8];   /* Holds 8 unsigned bits */
+  int8_t    data_8[8];    /* Holds 8 signed bits */
+  uint16_t  data_u16[4];  /* Holds 16 unsigned bits */
+  int16_t   data_16[4];   /* Holds 16 bits */
+  uint32_t  data_u32[2];  /* Holds 32 unsigned bits */
+  int32_t   data_32[2];   /* Holds 32 bits */
 } group_64;
 
 
-// Struct for a CAN Message
+/* Struct for a CAN Message */
 typedef struct can_message_t {
   unsigned int  address;
-  unsigned int  status;
+  can_status    status;
   group_64      data;
 } can_message;
 
 
 
 #endif
+
+/* Include internals */
+#include "internals.h"
