@@ -9,11 +9,7 @@ OUT=$@.test.out
 SOURCES=./library.c ./testing/unity.driver
 
 # Find all the unit tests
-UNIT_TEST_FILES=$(shell find './' -name '*.tests')
-
-# Files to compile for the target
-TARGET_SOURCES=$(shell find './microcontrollers/$@' -name '*.c.mock')
-
+UNIT_TEST_FILES=$(shell find '../' -name '*.tests')
 
 
 
