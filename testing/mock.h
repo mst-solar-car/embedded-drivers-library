@@ -26,7 +26,7 @@
 #define __MOCK_FUNC_1(name, type, args)			  __MOCK_FUNC_2(name, type, args, {})
 
 #define __MOCK_FUNC_2(name, type, args, code) int _MOCK_COUNTER_NAME(name); \
-                                              type MOCK(name)args \
+                                              static type MOCK(name)args \
                                               { \
                                                 _INC_MOCK(name); \
                                                 code \
