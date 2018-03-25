@@ -145,71 +145,38 @@ typedef enum can_status_t {
 
 /* Bits */
 enum {
-#ifdef BIT0
 #undef BIT0
-#endif
   BIT0 = 0x0001,
-#ifdef BIT1
 #undef BIT1
-#endif
   BIT1 = 0x0002,
-#ifdef BIT2
 #undef BIT2
-#endif
   BIT2 = 0x0004,
-#ifndef BIT3
 #undef BIT3
-#endif
   BIT3 = 0x0008,
-#ifndef BIT4
 #undef BIT4
-#endif
   BIT4 = 0x0010,
-#ifndef BIT5
 #undef BIT5
-#endif
   BIT5 = 0x0020,
-#ifndef BIT6
 #undef BIT6
-#endif
   BIT6 = 0x0040,
-#ifndef BIT7
 #undef BIT7
-#endif
   BIT7 = 0x0080,
-#ifndef BIT8
 #undef BIT8
-#endif
   BIT8 = 0x0100,
-#ifndef BIT9
 #undef BIT9
-#endif
   BIT9 = 0x0200,
-#ifndef BITA
 #undef BITA
-#endif
   BITA = 0x0400,
-#ifndef BITB
 #undef BITB
-#endif
   BITB = 0x0800,
-#ifndef BITC
 #undef BITC
-#endif
   BITC = 0x1000,
-#ifndef BITD
 #undef BITD
-#endif
   BITD = 0x2000,
-#ifndef BITE
 #undef BITE
-#endif
   BITE = 0x4000,
-#ifndef BITF
 #undef BITF
-#endif
   BITF = 0x8000,
-
 
   MAX_BIT = BITF,
 };
