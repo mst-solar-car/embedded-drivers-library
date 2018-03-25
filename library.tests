@@ -29,6 +29,7 @@ int main(void)
 
 
   /* Run tests that are defined by the user and not for items in this library */
+  printf("\n");
   UserCustomTests();
 
   return UnityEnd();
