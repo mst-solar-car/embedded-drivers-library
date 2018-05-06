@@ -13,7 +13,8 @@
 
 
 /* Delay for x milliseconds */
-#define delay_millis(x)   __delay_cycles(x * (MC_CLOCK_SPEED_HZ / 1000))
+#define delay_millis(x)         __delay_cycles(x * (MC_CLOCK_SPEED_HZ / 1000))
+#define delay_clock_cycles(x)   __delay_cycles(x)
 
 #define no_operation()    _no_operation()
 
