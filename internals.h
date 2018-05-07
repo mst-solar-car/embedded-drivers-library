@@ -14,13 +14,13 @@
 /* Information about a Port */
 typedef struct _port_info_t {
   uint8_t   number;
-  vuint8_t* const dir_reg;
-  vuint8_t* const out_reg;
-  vuint8_t* const in_reg;
-  vuint8_t* const sel_reg;
-  vuint8_t* const ies_reg;
-  vuint8_t* const ie_reg;
-  vuint8_t* const ifg_reg;
+  vuint8_t* dir_reg;
+  vuint8_t* out_reg;
+  vuint8_t* in_reg;
+  vuint8_t* sel_reg;
+  vuint8_t* ies_reg;
+  vuint8_t* ie_reg;
+  vuint8_t* ifg_reg;
 } port_info_t;
 
 /* Information about a Pin */
