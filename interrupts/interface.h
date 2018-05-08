@@ -21,11 +21,15 @@ void interrupt_attach(io_pin pin, void(*func)(void));
 
 
 /* Shortcuts for creating interrupts */
+#define PIN_ISR(...)              interrupt_pin_ISR(__VA_ARGS__)
+#define INTERRUPT_PIN_ISR(...)    interrupt_pin_ISR(__VA_ARGS__)
 #define interrupt_pin_ISR(pin)    void __##pin##_ISR(void);                                                       \
                                   void __attribute__((constructor(1000))) __##pin##_INTERRUPT_ISR_CONSTRUCTOR (void) {  \
                                     interrupt_attach(pin, __##pin##_ISR);                                         \
                                   };                                                                              \
                                   void __##pin##_ISR(void)
+
+#define INTERRUPT_ISR(...)       interrupt_ISR(__VA_ARGS__)
 #define interrupt_ISR(vector)    void __attribute__((interrupt(vector))) __##vector##_ISR(void)
 
 
