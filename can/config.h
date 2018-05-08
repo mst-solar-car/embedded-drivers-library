@@ -7,16 +7,6 @@
 #define __CAN_CONFIG__
 
 
-enum {
-    CAN_DATA_LENGTH     = 8,
-
-    CAN_DEFAULT_FILTER  = 0x0000,
-    CAN_DEFAULT_MASK    = 0x7FF
-};
-
-
-
-
 /**
  * Pre-defined Masks and Filters
  */
@@ -26,5 +16,11 @@ enum {
 #define CAN_MASK_SUB_IDS        0x7F0   // Accepts sub-board IDs (e.g., if one filter is 0x410--this mask will accept 0x41x but not 0x40x)
 
 
+enum {
+    CAN_DATA_LENGTH     = 8,
+
+    CAN_DEFAULT_FILTER  = 0x0000,
+    CAN_DEFAULT_MASK    = CAN_MASK_EXACT_IDS
+};
 
 #endif
