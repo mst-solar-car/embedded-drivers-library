@@ -131,6 +131,7 @@ enum {
   NO_BIT      = __NULL__,
   NO_VECTOR   = __NULL__,
   NO_MESSAGE  = __NULL__,
+  NO_LED      = __NULL__,
 };
 
 /* Status of a CAN Message */
