@@ -48,6 +48,7 @@ This library comes with predefined masks and filters to make accepting CAN messa
 
 |Constant|Value|Description|
 |--------|-----|-----------|
+|`CAN_MASK_ALL_IDS`|`0x000`|Will match any ID, filters don't matter|
 |`CAN_MASK_EXACT_IDS`|`0x7FF`| Will match exact IDs (e.g., if a filter is 0x403 then this mask will only accept 0x403)|
 |`CAN_MASK_BASE_IDS`|`0x700`|This matches the base ID (e.g., if a filter is 0x400 then this mask will accept 0x4xx, but not 0x5xx)|
 |`CAN_MASK_SUB_IDS`|`0x7F0`|Matches sub-board IDs (e.g., if a filter is 0x410 then this mask will accept 0x41x, but not 0x40x)|
