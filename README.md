@@ -31,6 +31,9 @@ This driver library is designed to be used as a [Git Submodule](https://git-scm.
 
 For a general view of submodules read the [documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules), and then talk to a team member who has experience, it's pretty easy.
 
+[This is also a good article](https://chrisjean.com/git-submodules-adding-using-removing-and-updating/) (if it
+ever goes offline there is a copy saved [here](https://gitlab.com/solar-car/electrical/detailed-documentation/new-electrical-guide/uploads/fa463c945460ffe13c91fceb2a11e013/git_submodule.pdf)).
+
 
 &nbsp;
 
