@@ -22,7 +22,17 @@ The table below provides a brief description of each driver and has a link to a 
 |&nbsp;|&nsbp;|
 |[Unit Testing](TESTING.md)| Learn about running and writing Unit Tests for this library and your code that uses this library |
 
+&nbsp;
 
+# How To Use
+If you're writing software for a board, you should definitely be using this driver library since it has Unit Tests to verify that it is fully functional.
+
+This driver library is designed to be used as a [Git Submodule](https://git-scm.com/book/en/v2/Git-Tools-Submodules) so it can be updated on all projects really easily. Before you dive into submodules, you should probably be familiar with a basic understanding of Git.
+
+For a general view of submodules read the [documentation](https://git-scm.com/book/en/v2/Git-Tools-Submodules), and then talk to a team member who has experience, it's pretty easy.
+
+
+&nbsp;
 
 # Data Types
 The following table lists the data types (`typedef`s) defined by this library:
