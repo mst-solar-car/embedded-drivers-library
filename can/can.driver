@@ -76,6 +76,10 @@ can_message* can_receive(void)
   if (msg->address == 0x00)
     return (can_message*) NO_MESSAGE;
 
+  // Same werid CAN delay as in the can_transmit function
+  uint8_t i;
+  for (i = 0; i < 255; i++);
+
   return msg;
 }
 
