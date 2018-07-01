@@ -97,6 +97,8 @@ void can_transmit(void)
 
   /* Check for missed messages */
   _can_controller_poll_func();
+
+  for (i = 0; i < 255; i++); // Stupid CAN delay that is for some reason needed otherwise stuff gets messed up
 }
 
 
