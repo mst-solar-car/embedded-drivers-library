@@ -73,12 +73,12 @@ can_message* can_receive(void)
     return (can_message*) NO_MESSAGE;
 
   /* Avoid Stupid Messages */
-  if (msg->address == 0x00)
+  if (msg->address == 0x00 || msg->status != CAN_OK)
     return (can_message*) NO_MESSAGE;
 
   // Same werid CAN delay as in the can_transmit function
-  uint8_t i;
-  for (i = 0; i < 255; i++);
+  uint16_t i;
+  for (i = 0; i < 512; i++);
 
   return msg;
 }
@@ -92,7 +92,7 @@ void can_transmit(void)
   _can_controller_transmit_func(&can_new_msg);
 
   /* Clear the message so the user can create a new one */
-  uint8_t i;
+  uint16_t i;
   can_new_msg.address = 0x00;
   can_new_msg.status = 0x00;
 
@@ -101,8 +101,8 @@ void can_transmit(void)
 
   /* Check for missed messages */
   _can_controller_poll_func();
-
-  for (i = 0; i < 255; i++); // Stupid CAN delay that is for some reason needed otherwise stuff gets messed up
+	
+  for (i = 0; i < 512; i++); // Stupid CAN delay that is for some reason needed otherwise stuff gets messed up
 }
 
 
