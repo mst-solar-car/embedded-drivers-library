@@ -78,7 +78,7 @@ can_message* can_receive(void)
 
   // Same werid CAN delay as in the can_transmit function
   uint16_t i;
-  for (i = 0; i < 500; i++);
+  for (i = 0; i < 512; i++);
 
   return msg;
 }
@@ -101,8 +101,8 @@ void can_transmit(void)
 
   /* Check for missed messages */
   _can_controller_poll_func();
-
-  for (i = 0; i < 500; i++); // Stupid CAN delay that is for some reason needed otherwise stuff gets messed up
+	
+  for (i = 0; i < 512; i++); // Stupid CAN delay that is for some reason needed otherwise stuff gets messed up
 }
 
 
