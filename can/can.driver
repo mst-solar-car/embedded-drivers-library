@@ -73,7 +73,7 @@ can_message* can_receive(void)
     return (can_message*) NO_MESSAGE;
 
   /* Avoid Stupid Messages */
-  if (msg->address == 0x00 || msc->status != CAN_OK)
+  if (msg->address == 0x00 || msg->status != CAN_OK)
     return (can_message*) NO_MESSAGE;
 
   // Same werid CAN delay as in the can_transmit function
