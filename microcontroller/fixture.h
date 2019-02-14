@@ -152,10 +152,17 @@
   #define REGISTER_INTERRUPTABLE_PORTS(...)   \
     EVAL256(MAP_PAIR_PARAMETERS(_REGISTER_INTERRUPTABLE_PORT, __VA_ARGS__))
 
+  #ifndef UNIT_TEST
   #define _REGISTER_INTERRUPTABLE_PORT(p,v)                           \
     void __attribute__((interrupt(v))) __##p##_ISR(void) {            \
-      __interrupt_dispatch(p);                           \
+      __interrupt_dispatch(p);                                        \
     };
+  #else 
+  #define _REGISTER_INTERRUPTABLE_PORT(p,v)  \
+    void __##p##_ISR(void) {                 \
+      __interrupt_dispatch(p);               \
+    };
+  #endif
 
 #else
   /* Header File */

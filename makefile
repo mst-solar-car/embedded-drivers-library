@@ -9,7 +9,7 @@ OUT=$@.test.out
 SOURCES=./library.c ./testing/unity.driver
 
 # Find all the unit tests
-UNIT_TEST_FILES=$(shell find '../' -name '*.tests')
+UNIT_TEST_FILES=$(shell find '.' -name '*.tests')
 
 
 
