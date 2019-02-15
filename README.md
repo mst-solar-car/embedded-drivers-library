@@ -38,20 +38,7 @@ ever goes offline there is a copy saved [here](https://gitlab.com/solar-car/elec
 To use this project in Code Composer Studio you need to be compiling your projects using [MSP430-GCC](http://www.ti.com/tool/MSP430-GCC-OPENSOURCE).
 
 ## Unit Tests 
-To compile this project for unit tests, you need to be using a shell interface (i.e., not gcc on Windows). If you are on Windows it is recommended that you use [SubSystem for Windows](https://docs.microsoft.com/en-us/windows/wsl/install-win10) and install Ubuntu. 
-
-You will need to have `make` and `gcc` installed. 
-
-To build, run (from this directory) this command: 
-```shell 
-make <microcontroller> 
-```
-
-Where `<microcontroller>` is the name of the microcontroller directive used in the `registration.h` file (e.g, `make msp430f5529`). 
-
-This will define the directive `__<MICROCONTROLLER>__` where `<MICROCONTROLLER>` is `<microcontroller>` converted to all capital letters.
-
-After compilation, you will see a `<microcontroller>.test.out` file that you can then run to perform the unit tests. 
+For information on the unit tests, writing them, and compiling them, read [this file](TESTING.md).
 
 &nbsp;
 
