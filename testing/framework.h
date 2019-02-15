@@ -13,7 +13,7 @@
 #include "../datatypes.h"
 #ifdef UNIT_TEST
 
-#include "unity.h"
+#include "unity/unity.h"
 #include <stdio.h>
 #include <stdlib.h>
 

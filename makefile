@@ -6,7 +6,7 @@ DIRECTIVES=-D UNIT_TEST -D __$(shell echo $@ | tr a-z A-Z)__
 OUT=$@.test.out
 
 # Files to compile (for all targets)
-SOURCES=./library.c ./testing/unity.driver
+SOURCES=./library.c ./testing/unity/unity.driver
 
 # Find all the unit tests
 UNIT_TEST_FILES=$(shell find '.' -name '*.tests')

@@ -106,4 +106,20 @@ The folling table lists the constants defined by this library:
 |`CAN_ERROR`|`0xFFFF`|
 |`BIT0` - `BITF` | `0x0001` - `0x8000`|
 
+
+&nbsp; 
+
+# File Extensions 
+Looking through this project you will see different file extensions, namely `.driver` and `.test`. 
+
+These are needed because Code Composer Studio will compile any, and all `.c` files in the project, and we don't want the unit test stuff to be included in the firmware that gets put on microcontrollers, so this is the solution. 
+
+
 &nbsp;
+
+# Shout Outs
+This project is possible by the awesome open source utilities by the team at [Throw The Switch](http://www.throwtheswitch.org/)
+
+For unit testing, [Unity](http://www.throwtheswitch.org/unity) is used, ([see the LICENSE here](testing/unity/LICENSE)). 
+
+[CException](http://www.throwtheswitch.org/cexception) is used for added exception handling ([see the LICENSE here](utils/exception/LICENSE)).
